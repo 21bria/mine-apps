@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout/head.html' %}
+</head>
+
+
+<body data-topbar="dark" data-sidebar="dark">
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!-- Herader -->
+        {% include 'layout/header.html' %}
+        <!-- ========== Left Sidebar Start ========== -->
+
+        {% include 'layout/sidebar.html' %}
+        <!-- Left Sidebar End -->
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header justify-content-between d-flex align-items-center">
+                                    <h4 class="card-title">Assay roa</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body">
+                                    <div class="col-xl-6">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-2">
+                                                        <label class="form-label" for="formrow-email-input">Satar
+                                                            Date</label>
+                                                        <input class="form-control" type="date" id='startDate'
+                                                            name='startDate'>
+                                                    </div>
+                                                </div><!-- end col -->
+                                                <div class="col-md-4">
+                                                    <div class="mb-2">
+                                                        <label class="form-label" for="formrow-password-input">End
+                                                            Date</label>
+                                                        <input class="form-control" type="date" id='endDate'
+                                                            name='endDate'>
+                                                    </div>
+                                                </div><!-- end col -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-2">
+                                                        <a class="btn btn-soft-primary btn-sm mb-4"
+                                                            href="javascript:void(0)" name="filter" id="filter">
+                                                            <i class="mdi mdi-refresh me-1"></i>Filter Data
+                                                        </a>
+                                                        <a class="btn btn-soft-warning btn-sm mb-4"
+                                                            href="javascript:void(0)" name="reload" id="reload">
+                                                            <i class="mdi mdi-refresh me-1"></i>Reload
+                                                        </a>
+                                                        <a class="btn btn-soft-success btn-sm mb-4"
+                                                            href="javascript:void(0)" id="exportButton"> <i
+                                                                class="mdi mdi-download me-1"></i>Export
+                                                            Data
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end row -->
+                                        </form><!-- end form -->
+                                    </div>
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                            <table id="data_table" class="table table-striped nowrap table-lg"
+                                                style="width: 100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="bg-soft-secondary" width="4%">No</th>
+                                                        <th class="bg-soft-secondary" width="11%">Release Date</th>
+                                                        <th class="bg-soft-secondary" width="10%">Job Number</th>
+                                                        <th class="bg-soft-secondary">Sample Id</th>
+                                                        <th class="bg-soft-secondary">Ni</th>
+                                                        <th class="bg-soft-secondary">Co</th>
+                                                        <th class="bg-soft-secondary">Al2O3</th>
+                                                        <th class="bg-soft-secondary">Fe2O3</th>
+                                                        <th class="bg-soft-secondary">Fe</th>
+                                                        <th class="bg-soft-secondary">Mgo</th>
+                                                        <th class="bg-soft-secondary">SiO2</th>
+                                                        <th class="bg-soft-secondary">MC</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end card body -->
+                            </div>
+                            <!-- end card -->
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+
+                </div> <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+            <!-- Footer -->
+            {% include 'layout/footer.html' %}
+
+        </div>
+        <!-- end main content-->
+
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Right Sidebar -->
+    {% include 'layout/right.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout/js.html" %}
+
+    <script type="text/javascript">
+        var table;
+        $(document).ready(function () {
+
+            /*---- Pass Header Token-------*/
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRFTOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            table = $('#data_table').DataTable().clear().destroy();
+
+
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+            var table = $('#data_table').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'responsive': true,
+                'autoWidth': true,
+                // 'select': true,
+                "ajax": {
+                    url: "{% url 'assay-roa-list'%}",
+                    "type": "POST",
+                    dataType: 'json',
+                    "data": function (data) {
+                        data.startDate = $('#startDate').val();
+                        data.endDate = $('#endDate').val();
+                        return data;
+                    },
+                },
+                columns: [
+                    {
+                        data: null,
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    }, // Kolom nomor otomatis
+
+                    {
+                        data: 'release_roa',
+                        name: 'release_roa'
+                    },
+
+                    {
+                        data: 'job_number',
+                        name: 'job_number'
+                    },
+                    {
+                        data: 'sample_id',
+                        name: 'sample_id'
+                    },
+                    {
+                        data: 'ni',
+                        name: 'ni',
+                        render: function (data) {
+                            return parseFloat(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'co',
+                        name: 'co',
+                        render: function (data) {
+                            return parseFloat(data).toFixed(3);
+                        }
+                    },
+                    {
+                        data: 'al2o3',
+                        name: 'al2o3',
+                        render: function (data) {
+                            return parseFloat(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'fe2o3',
+                        name: 'fe2o3',
+                        render: function (data) {
+                            return parseFloat(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'fe',
+                        name: 'fe',
+                        render: function (data) {
+                            return parseFloat(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'mgo',
+                        name: 'mgo',
+                        render: function (data) {
+                            return parseFloat(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'sio2',
+                        name: 'sio2',
+                        render: function (data) {
+                            return parseFloat(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'mc',
+                        name: 'mc',
+                        render: function (data) {
+                            return parseFloat(data).toFixed(2);
+                        }
+                    },
+                ],
+                // Mengatur default sort pada kolom dengan nama 'release_roa' secara desc
+                order: [
+                    [1, 'desc']
+                ]
+            });
+
+
+            $('#filter').click(function () {
+                table.ajax.reload();
+
+            });
+
+            $('#reload').click(function () {
+                $('#startDate').val('');
+                $('#endDate').val('');
+                table.ajax.reload(); //just reload table
+            });
+
+        });
+    </script>
+    <!-- Export Data -->
+    <script>
+        $(document).ready(function () {
+            $('#exportButton').click(function () {
+                // Dapatkan nilai dari filter tanggal
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+                // Membuat URL untuk permintaan ekspor Excel
+                if ($('#startDate').val().trim() === '') {
+                    $('#startDate').focus();
+                    return;
+                }
+                if ($('#endDate').val().trim() === '') {
+                    $('#endDate').focus();
+                    return;
+                }
+
+                var exportUrl = "{% url 'export-assay-roa' %}?startDate=" + startDate + "&endDate=" +
+                    endDate;
+                // Redirect ke URL eksport dengan filter
+                window.location.href = exportUrl;
+            });
+        });
+    </script>
+
+</body>
+
+</html>

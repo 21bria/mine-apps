@@ -1,0 +1,140 @@
+<div class="mb-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+
+
+    <div class="panel h-full p-0">
+        <div class="flex p-5">
+            <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary dark:text-white-light">
+                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5">
+                    <circle cx="12" cy="6" r="4" stroke="currentColor" stroke-width="1.5">
+                    </circle>
+                    <path opacity="0.5" d="M18 9C19.6569 9 21 7.88071 21 6.5C21 5.11929 19.6569 4 18 4"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                    <path opacity="0.5" d="M6 9C4.34315 9 3 7.88071 3 6.5C3 5.11929 4.34315 4 6 4" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round"></path>
+                    <ellipse cx="12" cy="17" rx="6" ry="4" stroke="currentColor" stroke-width="1.5">
+                    </ellipse>
+                    <path opacity="0.5" d="M20 19C21.7542 18.6153 23 17.6411 23 16.5C23 15.3589 21.7542 14.3847 20 14"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                    <path opacity="0.5" d="M4 19C2.24575 18.6153 1 17.6411 1 16.5C1 15.3589 2.24575 14.3847 4 14"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                </svg>
+            </div>
+            <div class="font-semibold ltr:ml-3 rtl:mr-3">
+                <p class="text-lg font-semibold dark:text-white-light">Sale to Dome</p>
+                <h5 class="text-xs text-[#506690]">Sale Year to date</h5>
+            </div>
+        </div>
+
+        <!-- <div id="pie-selling-ytd"></div> -->
+        <div x-ref="saleByCategory" class="rounded-lg bg-white dark:bg-black">
+            <!-- loader -->
+            <div class="grid min-h-[353px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                <span
+                    class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+            </div>
+
+        </div>
+        <div class="flex p-6">
+            <div class="grid gap-6 text-sm font-bold text-[#515365] sm:grid-cols-2">
+
+                <div>
+                    <div>
+                        <div>Total HPAL</div>
+                        <div class="text-lg text-[#f8538d]" id="sale_hpal_ytd">0.0</div>
+                    </div>
+
+                </div>
+
+                <div>
+                    <div>
+                        <div>Total RKEF</div>
+                        <div class="text-lg text-[#f8538d]" id="sale_rkef_ytd">0.0</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel h-full p-0">
+        <div class="flex p-5">
+            <div x-data="form" class="dropdown ltr:ml-3 rtl:mr-3">
+                <div class="inline-flex">
+                    <div>
+                        <select id="filter_mtd_sale" name="filter_mtd_sale" class="form-select text-white-dark">
+                            <option value="">-- Year --</option>
+                        </select>
+                    </div>
+
+                    <div class="dropdown ltr:ml-2 rtl:mr-2">
+                        <select id="filter_month_sale" name="filter_month_sale" class="form-select text-white-dark">
+                            <option value="">Month</option>
+                            <option value="1">Januari</option>
+                            <option value="2">Februari</option>
+                            <option value="3">Maret</option>
+                            <option value="4">April</option>
+                            <option value="5">Mei</option>
+                            <option value="6">Juni</option>
+                            <option value="7">Juli</option>
+                            <option value="8">Agustus</option>
+                            <option value="9">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div x-ref="saleByCategoryMtd" class="rounded-lg bg-white dark:bg-black">
+            <!-- loader -->
+            <div class="grid min-h-[353px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                <span
+                    class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+            </div>
+        </div>
+        <div class="flex p-6">
+            <div class="grid gap-6 text-sm font-bold text-[#515365] sm:grid-cols-2">
+
+                <div>
+                    <div>
+                        <div>Total HPAL</div>
+                        <div class="text-lg text-[#f8538d]" id="sale_hpal_mtd">0.0</div>
+                    </div>
+
+                </div>
+
+                <div>
+                    <div>
+                        <div>Total RKEF</div>
+                        <div class="text-lg text-[#f8538d]" id="sale_rkef_mtd">0.0</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="panel h-full xl:col-span-2">
+        <div class="mb-5 flex items-center dark:text-white-light">
+            <h5 class="text-lg font-semibold">Seling this Month</h5>
+            <div x-data="form" class="dropdown ltr:ml-auto rtl:mr-auto">
+                <input class="form-input" type="date" id="saleDate" name="saleDate"
+                    value="{{ start_of_month|date:'Y-m-d' }}">
+            </div>
+        </div>
+        <div class="relative overflow-hidden">
+            <div x-ref="sellingDaily" class="rounded-lg bg-white dark:bg-black">
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

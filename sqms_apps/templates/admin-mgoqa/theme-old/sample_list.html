@@ -1,0 +1,1327 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout/head.html' %}
+</head>
+
+
+<body data-topbar="dark" data-sidebar="dark">
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!-- Herader -->
+        {% include 'layout/header.html' %}
+        <!-- ========== Left Sidebar Start ========== -->
+
+        {% include 'layout/sidebar.html' %}
+        <!-- Left Sidebar End -->
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header justify-content-between d-flex align-items-center">
+                                    <h4 class="card-title">List Sample</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body">
+
+                                    <div class="col-md-12">
+                                        <div id="success-entry" class="alert alert-success alert-dismissible fade show"
+                                            role="alert" style="display: none;">
+                                            <i class="uil uil-exclamation-octagon me-2"></i> Data saved successfully.
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="col-xl-4">
+                                            <a class="btn btn-soft-primary btn-sm mb-4" href="javascript:void(0)"
+                                                id="openFilter"> <i class="mdi mdi-filter me-1"></i>Filter Data
+
+                                            </a>
+                                            <a class="btn btn-soft-warning btn-sm mb-4" href="javascript:void(0)"
+                                                name="reload" id="reload">
+                                                <i class="mdi mdi-refresh me-1"></i>Reload
+                                            </a>
+                                            <a class="btn btn-soft-success btn-sm mb-4" href="javascript:void(0)"
+                                                id="exportFilter">
+                                                <i class="mdi mdi-file-excel me-1"></i>Export Data
+                                            </a>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <table id="data_table" class="table table-striped nowrap" style="width: 100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="bg-soft-secondary" width="4%">No</th>
+                                                    <th class="bg-soft-secondary">Date</th>
+                                                    <th class="bg-soft-secondary">Shift</th>
+                                                    <th class="bg-soft-secondary">Type</th>
+                                                    <th class="bg-soft-secondary">Method</th>
+                                                    <th class="bg-soft-secondary">Materials</th>
+                                                    <th class="bg-soft-secondary">Sampling Area</th>
+                                                    <th class="bg-soft-secondary">Sampling Point</th>
+                                                    <th class="bg-soft-secondary">Sampling Desc.</th>
+                                                    <th class="bg-soft-secondary">Batch</th>
+                                                    <th class="bg-soft-secondary">Increment</th>
+                                                    <th class="bg-soft-secondary">Sample Id</th>
+                                                    <th class="bg-soft-secondary">Weight(Kg)</th>
+                                                    <th class="bg-soft-secondary">Primer Raw(Kg)</th>
+                                                    <th class="bg-soft-secondary">Dup Raw(Kg)</th>
+                                                    <th class="bg-soft-secondary">Remarks</th>
+                                                    <!-- <th class="bg-soft-secondary">Users</th> -->
+                                                    <th class="bg-soft-secondary" width="15%">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                                <!-- end card body -->
+                            </div>
+                            <!-- end card -->
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+                </div> <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+            <!-- Footer -->
+            {% include 'layout/footer.html' %}
+
+        </div>
+        <!-- end main content-->
+
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Right Sidebar -->
+    {% include 'layout/right.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout/js.html" %}
+
+    <script type="text/javascript">
+        var table;
+        $(document).ready(function () {
+            /*  Pass Header Token ---*/
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            /*-- Render DataTable --*/
+            table = $('#data_table').DataTable().clear().destroy();
+            let data_url = '{% url "samples-productions-list" %}';
+            var table = $('#data_table').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'responsive': true,
+                'autoWidth': true,
+                // 'select': true,
+
+                "ajax": {
+                    "url": data_url,
+                    "type": "POST",
+                    dataType: 'json',
+                    "data": function (data) {
+                        data.from_date = $('#from_date').val();
+                        data.to_date = $('#to_date').val();
+                        data.typeFilter = $('#typeFilter').val();
+                        data.materialFilter = $('#materialFilter').val();
+                        data.areaFilter = $('#areaFilter').val();
+                        data.pointFilter = $('#pointFilter').val();
+                        data.productFilter = $('#productFilter').val();
+                        data.factoriesFilter = $('#factoriesFilter').val();
+                        return data;
+                    },
+                },
+
+                columns: [
+                    {
+                        data: null,
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    }, // Kolom nomo
+                    {
+                        data: 'tgl_sample',
+                        name: 'tgl_sample',
+                        searchable: true
+                    },
+                    {
+                        data: 'shift',
+                        name: 'shift',
+                        searchable: true
+                    },
+                    {
+                        data: 'type_sample',
+                        name: 'type_sample',
+                        searchable: false
+                    },
+                    {
+                        data: 'sample_method',
+                        name: 'sample_method',
+                        searchable: false
+                    },
+                    {
+                        data: 'nama_material',
+                        name: 'nama_material',
+                        searchable: true
+                    },
+                    {
+                        data: 'sampling_area',
+                        name: 'sampling_area',
+                        searchable: true
+                    },
+                    {
+                        data: 'sampling_point',
+                        name: 'sampling_point',
+                        searchable: true
+                    },
+                    {
+                        data: 'sampling_deskripsi',
+                        name: 'sampling_deskripsi',
+                        searchable: true
+                    },
+                    {
+                        data: 'batch_code',
+                        name: 'batch_code',
+                        searchable: true
+                    },
+                    {
+                        data: 'increments',
+                        name: 'increments',
+                        searchable: false
+                    },
+                    {
+                        data: 'sample_number',
+                        name: 'sample_number',
+                        searchable: true
+                    },
+                    {
+                        data: 'sample_weight',
+                        name: 'sample_weight',
+                        searchable: false,
+                        render: function (data) {
+                            if (data === null) {
+                                return 0;
+                            } else {
+                                return parseFloat(data).toFixed(2);
+                            }
+                        }
+                    },
+
+                    {
+                        data: 'primer_raw',
+                        name: 'primer_raw',
+                        searchable: false,
+                        render: function (data) {
+                            if (data === null) {
+                                return 0;
+                            } else {
+                                return parseFloat(data).toFixed(2);
+                            }
+                        }
+                    },
+                    {
+                        data: 'duplicate_raw',
+                        name: 'duplicate_raw',
+                        searchable: false,
+                        render: function (data) {
+                            if (data === null) {
+                                return 0;
+                            } else {
+                                return parseFloat(data).toFixed(2);
+                            }
+                        }
+                    },
+
+                    {
+                        data: 'remark',
+                        name: 'remark'
+                    },
+                    // {
+                    //     data: 'name',
+                    //     name: 'users.name'
+
+                    // },
+                    {
+                        data: null,
+                        name: 'action',
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            var editBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Edit" class="edit text-success btn-sm editData"><i class="mdi mdi-pencil font-size-18"></i></a>';
+                            var deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Delete" class="text-danger btn-sm deleteData"><i class="mdi mdi-delete font-size-18"></i></a>';
+                            return editBtn + ' ' + deleteBtn;
+                        }
+                    },
+                ],
+                // Mengatur default sort pada kolom secara desc
+                order: [
+                    [1, 'desc']
+                ]
+            });
+
+            /*--Filter Modal and Apply Filter---*/
+            $('#applyFilterBtn').click(function () {
+                var from_date = $('#from_date').val();
+                var to_date = $('#to_date').val();
+                var materialFilter = $('#materialFilter').val();
+                var factoriesFilter = $('#factoriesFilter').val();
+                var areaFilter = $('#areaFilter').val();
+                var pointFilter = $('#pointFilter').val();
+                var productFilter = $('#productFilter').val();
+                // Kirim permintaan AJAX ke server dengan filter
+                $('#filterModal').modal('hide');
+                table.ajax.reload();
+            });
+
+            // Tombol Reset
+            $('#reload').on('click', function () {
+                $('#from_date').val('');
+                $('#to_date').val('');
+                $('#typeFilter').val('').trigger('change');
+                $('#materialFilter').val('').trigger('change');
+                $('#factoriesFilter').val('').trigger('change');
+                $('#areaFilter').val('').trigger('change');
+                $('#pointFilter').val('').trigger('change');
+                $('#productFilter').val('').trigger('change');
+
+                table.ajax.reload(); //just reload table;
+            });
+
+            /*--- Fungsi Delete ---*/
+            $('#data_table').on('click', '.deleteData', function () {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'btn btn-success',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Delete it!',
+                    width: 320,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "",
+                            type: "DELETE",
+                            dataType: 'json',
+                            data: {
+                                id: id,
+                            },
+                            success: function (data) {
+                                // Kirim permintaan AJAX ke server dengan filter
+                                $('#data_table').DataTable().clear().destroy();
+                                load_data();
+                            },
+                            error: function (data) {
+                                console.log('Error:', data);
+                            }
+                        });
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Your file has been deleted.',
+                            icon: 'success',
+                            width: 320,
+                        })
+                    }
+                })
+            });
+            /* UPADTE DATA*/
+            $('#updateButton').click(function () {
+                var id = $('#id').val(); // Ganti dengan ID yang sesuai
+                var tglSample = $('#tgl_sample').val().trim();
+                var shift = $('#shift').val().trim();
+                var id_type_sample = $('#id_type_sample').val();
+                var id_method = $('#id_method').val();
+                var id_material = $('#id_material').val();
+                var sampling_area = $('#sampling_area').val();
+                var sampling_point = $('#sampling_point').val();
+                // var from_rl = $('#from_rl').val().trim();
+                // var to_rl = $('#to_rl').val().trim();
+                var batch_code = $('#batch_code').val().trim();
+                var increments = $('#increments').val();
+                var sample_weight = $('#sample_weight').val();
+                var sample_number = $('#sample_number').val().trim();
+                var primer_raw = $('#primer_raw').val();
+                var duplicate_raw = $('#duplicate_raw').val();
+                var to_its = $('#to_its').val().trim();
+                var gc_expect = $('#gc_expect').val().trim();
+                var unit_truck = $('#unit_truck').val().trim();
+                var type = $('#type').val().trim();
+                var sampling_deskripsi = $('#sampling_deskripsi').val().trim();
+                var remark = $('#remark').val().trim();
+                var discharge = $('#discharge').val().trim();
+                var product_code = $('#product_code').val();
+                var discharge_area = $('#discharge_area').val();
+                var code = $('#code').val().trim();
+                var updatedData = {
+                    tgl_sample: tglSample,
+                    shift: shift,
+                    id_type_sample: id_type_sample,
+                    id_method: id_method,
+                    id_material: id_material,
+                    sampling_area: sampling_area,
+                    sampling_point: sampling_point,
+                    batch_code: batch_code,
+                    increments: increments,
+                    sample_weight: sample_weight,
+                    sample_number: sample_number,
+                    primer_raw: primer_raw,
+                    duplicate_raw: duplicate_raw,
+                    to_its: to_its,
+                    gc_expect: gc_expect,
+                    unit_truck: unit_truck,
+                    type: type,
+                    sampling_deskripsi: sampling_deskripsi,
+                    remark: remark,
+                    discharge: discharge,
+                    code: code,
+                    product_code: product_code,
+                    discharge_area: discharge_area
+                };
+
+                $.ajax({
+                    url: '/update-sample/' + id, // Ganti dengan URL endpoint update yang sesuai
+                    type: 'PUT', // Anda bisa menggunakan 'POST' atau 'PUT' sesuai preferensi
+                    data: updatedData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#ajaxModal').modal('hide'); // Menutup modal
+                            // Tampilkan notifikasi sukses
+                            $('#success-entry').show();
+                            // Sembunyikan notifikasi setelah beberapa detik
+                            setTimeout(function () {
+                                $('#success-entry').hide();
+                            }, 2500); // 2500 milidetik = 2.5 detik
+                            $('#validasiError').hide();
+
+                            // Kirim permintaan AJAX ke server dengan filter
+                            $('#data_table').DataTable().clear().draw();
+                            // load_data()
+                            $('#id_type_sample').val('').trigger('change');
+                            $('#id_method').val('').trigger('change');
+                        } else {
+                            // Penanganan kesalahan jika validasi gagal atau kesalahan lainnya
+                            alert('Terjadi kesalahan: ' + response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#validasiError').hide();
+                        // Penanganan kesalahan koneksi atau server
+                        // alert('Terjadi kesalahan saat mengirim permintaan AJAX.');
+                        // Handle validation errors
+                        // if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        //     if (xhr.responseJSON.errors.batch_code) {
+                        //         $('#validasiError').text(xhr.responseJSON.errors.batch_code[0])
+                        //             .show();
+                        //     }
+                        // }
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            $('#validasiError').text(xhr.responseJSON.message).show();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#openFilter').click(function () {
+                $('#filterModal').modal('show');
+                $('#exportButton').hide();
+                $('#applyFilterBtn').show();
+                $('#no-sample').show();
+                $('#discharge').show();
+                $('#product').show();
+                $('#area').show();
+                $('#point').show();
+                $(".select2").select2({
+                    width: '100%',
+                    dropdownParent: "#filterModal",
+                    theme: 'bootstrap-5',
+                });
+            });
+            // Ambil data material dari server dan tambahkan sebagai opsi Select2
+            $.ajax({
+                url: "{% url 'samples-material' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var options = '';
+
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_materials, function (key, value) {
+                        options += '<option value="' + value.nama_material + '">' + value
+                            .nama_material +
+                            '</option>';
+                    });
+
+                    $('#materialFilter').append(options);
+                }
+            });
+            $.ajax({
+                url: "{% url 'samples-detail-area' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_area, function (key, value) {
+                        options += '<option value="' + value.sampling_area + '">' + value
+                            .sampling_area +
+                            '</option>';
+                    });
+
+                    // Set opsi dalam elemen Select2
+                    $('#areaFilter').append(options);
+
+                }
+            });
+            $.ajax({
+                url: "{% url 'samples-detail-point' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_point, function (key, value) {
+                        options += '<option value="' + value.sampling_point + '">' + value
+                            .sampling_point +
+                            '</option>';
+                    });
+                    // Set opsi dalam elemen Select2
+                    $('#pointFilter').append(options);
+                }
+            });
+            $.ajax({
+                url: "{% url 'samples-type' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.type, function (key, value) {
+                        options += '<option value="' + value.type_sample + '">' + value
+                            .type_sample +
+                            '</option>';
+                    });
+                    // Set opsi dalam elemen Select2
+                    $('#typeFilter').append(options);
+                }
+            });
+
+            $.ajax({
+                url: "{% url 'samples-discharge' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_discharge, function (key, value) {
+                        options += '<option value="' + value.factory_stock + '">' + value
+                            .factory_stock +
+                            '</option>';
+                    });
+                    // Set opsi dalam elemen Select2
+                    $('#factoriesFilter').append(options);
+                }
+            });
+            $.ajax({
+                url: "{% url 'samples-product' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_product, function (key, value) {
+                        options += '<option value="' + value.product_code + '">' + value
+                            .product_code +
+                            '</option>';
+                    });
+                    // Set opsi dalam elemen Select2
+                    $('#productFilter').append(options);
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#exportFilter').click(function () {
+                $(".select2").select2({
+                    width: '100%',
+                    dropdownParent: "#filterModal",
+                    theme: 'bootstrap-5',
+                });
+                $('#exportButton').show();
+                $('#applyFilterBtn').hide();
+                $('#no-sample').hide();
+                $('#discharge').hide();
+                $('#product').hide();
+                $('#area').hide();
+                $('#point').hide();
+                $('#filterModal').modal('show');
+            });
+
+            $('#exportButton').click(function () {
+                // Dapatkan nilai dari filter tanggal
+                var from_date = $('#from_date').val();
+                var to_date = $('#to_date').val();
+                var typeFilter = $('#typeFilter').val();
+                var materialFilter = $('#materialFilter').val();
+                var areaFilter = $('#areaFilter').val();
+                var pointFilter = $('#pointFilter').val();
+                var factoriesFilter = $('#factoriesFilter').val();
+                var productFilter = $('#productFilter').val();
+                // Buat URL dengan filter
+                var exportUrl = "{% url 'export-sale-data' %}?from_date=" + from_date + "&to_date=" +
+                    to_date + "&typeFilter=" + typeFilter + "&materialFilter=" + materialFilter
+
+                // Redirect ke URL eksport dengan filter
+                window.location.href = exportUrl;
+                $('#filterModal').modal('hide');
+            });
+        });
+    </script>
+
+
+    <!-- For Edit Row--->
+    <script>
+        $(document).ready(function () {
+            $('#sellingPoint').hide(); // Sebagai default kita sembunyikan
+            // Fetch and populate select options dynamically
+            // Variabel untuk menyimpan nilai terakhir dari id_type_sample dan id_method yang dipilih
+            var lastSelectedTypeId = null;
+            var lastSelectedMethodId = null;
+
+            $.ajax({
+                url: "",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Setelah mengisi opsi dropdown pertama
+                    console.log('Data untuk dropdown pertama:', data);
+                    var options = '';
+
+                    // Loop through data and add as Select2 options
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .type_sample +
+                            '</option>';
+                    });
+
+                    // Set options in the Select2 element
+                    $('#id_type_sample').append(options);
+                }
+            });
+            // Inisialisasi event handler change untuk elemen id_type_sample
+            $('#id_type_sample').change(function (e) {
+                var selectTypeSample = $(this);
+                var inputType = $('#type');
+                var selectedText = selectTypeSample.find(':selected').text();
+                switch (selectedText) {
+                    case "PDS":
+                        $('#sellingPoint').hide();
+                        $('#sellingArea').hide();
+                        $('#samplePoint').show();
+                        $('#sampleArea').show();
+                        inputType.val(selectedText);
+                        break;
+                    case "HOS":
+                        inputType.val(selectedText);
+                        $('#sellingArea').show();
+                        $('#sellingPoint').show();
+                        $('#samplePoint').hide();
+                        $('#sampleArea').hide();
+                        break;
+                    case "ROS":
+                        inputType.val(selectedText);
+                        $('#sellingArea').show();
+                        $('#sellingPoint').show();
+                        $('#samplePoint').hide();
+                        $('#sampleArea').hide();
+                        break;
+                    case "ROS_CKS":
+                        inputType.val(selectedText);
+                        $('#sellingArea').show();
+                        $('#sellingPoint').show();
+                        $('#samplePoint').hide();
+                        $('#sampleArea').hide();
+                        break;
+                    case "ROS_PSI":
+                        inputType.val(selectedText);
+                        $('#sellingArea').show();
+                        $('#sellingPoint').show();
+                        $('#samplePoint').hide();
+                        $('#sampleArea').hide();
+                        break;
+                    case "ROS_SPC":
+                        $('#sellingArea').show();
+                        $('#sellingPoint').show();
+                        $('#samplePoint').hide();
+                        $('#sampleArea').hide();
+                        break;
+                    default:
+                        inputType.val(selectedText);
+                        $('#sellingArea').hide();
+                        $('#sellingPoint').hide();
+                        $('#samplePoint').show();
+                        $('#sampleArea').show();
+                }
+                // // // Mendapatkan nilai id_type_sample yang dipilih
+                // var selectedTypeId = selectTypeSample.val();
+                // // alert(selectedTypeId);
+                // var idMethodSelect = $('#id_method');
+
+                var selectedTypeId = $(this).val();
+                var idMethodSelect = $('#id_method');
+
+                // Atur nilai terpilih untuk dropdown id_type_sample
+                // $('#id_type_sample').val(selectedTypeId);
+
+                // Simpan nilai id_method yang dipilih sebelumnya
+                lastSelectedMethodId = idMethodSelect.val();
+
+                // Simpan nilai id_type_sample yang dipilih sebelumnya
+                lastSelectedTypeId = selectedTypeId;
+
+                // Lakukan AJAX request untuk mengisi ulang opsi id_method[] berdasarkan id_type_sample yang dipilih
+                $.ajax({
+                    url: "/get-method/" +
+                        selectedTypeId, // Ganti dengan URL yang sesuai
+                    method: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        // Setelah mengisi opsi dropdown kedua
+                        console.log('Data untuk dropdown kedua:', data);
+                        // Kosongkan opsi yang ada sebelumnya
+                        idMethodSelect.empty();
+                        // Loop melalui data dan tambahkan sebagai opsi baru
+                        $.each(data, function (key, value) {
+                            idMethodSelect.append('<option value="' + value
+                                .id +
+                                '">' + value.sample_method + '</option>'
+                            );
+                        });
+
+                        // // Ambil nilai id_method dari data yang diambil dari server
+                        var selectedMethodId = data.id;
+
+                        // Atur nilai terpilih untuk dropdown id_method
+                        idMethodSelect.val(selectedMethodId);
+                        // Setel kembali nilai id_method yang dipilih sebelumnya jika masih valid
+                        if (lastSelectedMethodId && idMethodSelect.find('option[value="' +
+                            lastSelectedMethodId + '"]').length > 0) {
+                            idMethodSelect.val(lastSelectedMethodId);
+                        }
+
+                        console.log('ID Method:', idMethodSelect.val());
+                        // Refresh atau inisialisasi kembali Select2 untuk id_method[] yang telah diperbarui
+                        idMethodSelect.trigger('change');
+                    }
+                });
+            });
+
+            $.ajax({
+                url: "", // Ganti dengan route yang sesuai
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var options = '';
+
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .nama_material +
+                            '</option>';
+                    });
+                    // Set options in the Select2 element
+                    $('#id_material').append(options);
+                }
+            });
+
+            $.ajax({
+                url: "",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .sampling_area +
+                            '</option>';
+                    });
+                    // Set opsi dalam elemen Select2
+                    $('#sampling_area').append(options);
+                }
+            });
+
+            $.ajax({
+                url: "",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .sampling_point +
+                            '</option>';
+                    });
+
+                    // Set opsi dalam elemen Select2
+                    $('#sampling_point').append(options);
+                }
+            });
+
+
+
+            $.ajax({
+                url: "",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .factory_stock +
+                            '</option>';
+                    });
+
+                    // Set opsi dalam elemen Select2
+                    $('#discharge_area').append(options);
+                }
+            });
+
+
+            $('#discharge_area').change(function (e) {
+                var selectDischargeArea = $(this);
+                var inputDischarge = $('#discharge');
+                var selectedText = selectDischargeArea.find(':selected').text();
+                inputDischarge.val(selectedText);
+            });
+
+
+            $.ajax({
+                url: "",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .product_code +
+                            '</option>';
+                    });
+
+                    // Set opsi dalam elemen Select2
+                    $('#product_code').append(options);
+                }
+            });
+
+            $('#product_code').change(function (e) {
+                var selectProductCode = $(this);
+                var inputCode = $('#code');
+                var selectedText = selectProductCode.find(':selected').text();
+                inputCode.val(selectedText);
+            });
+
+            // Inisialisasi event handler change untuk elemen id_method
+            $('#id_method').change(function (e) {
+                var selectMethodSample = $(this);
+                var inputTruck = $('#unit_truck');
+                var inputDesk = $('#desk');
+                var inputPoint = $('#sampling_point');
+                var selectedText = selectMethodSample.find(':selected').text();
+                if (selectedText == 'TS_ADT') {
+                    var ts_adt = 'ADT';
+                    inputTruck.val(ts_adt);
+                    inputDesk.hide();
+                    inputPoint.show();
+                } else if (selectedText == 'TS_DT') {
+                    var ts_dt = 'DT';
+                    inputTruck.val(ts_dt);
+                    inputDesk.hide();
+                    inputPoint.show();
+                } else if (selectedText == 'TS_DT20') {
+                    var ts_dt20 = 'DT20';
+                    inputTruck.val(ts_dt20);
+                    inputDesk.hide();
+                    inputPoint.show();
+                } else if (selectedText == 'TS_DT30') {
+                    var ts_dt30 = 'DT30';
+                    inputTruck.val(ts_dt30);
+                    inputDesk.hide();
+                    inputPoint.show();
+                }
+                // GRAB
+                else if (selectedText == 'GRB_ADT') {
+                    var grb_adt = 'ADT';
+                    inputTruck.val(grb_adt);
+                    inputDesk.hide();
+                    inputPoint.show();
+                } else if (selectedText == 'GRB_DT') {
+                    var grb_dt = 'DT';
+                    inputTruck.val(grb_dt);
+                    inputDesk.hide();
+                    inputPoint.show();
+                } else if (selectedText == 'GRB_DT20') {
+                    var grb_dt20 = 'DT20';
+                    inputTruck.val(grb_dt20);
+                    inputDesk.hide();
+                    inputPoint.show();
+                } else if (selectedText == 'GRB_DT30') {
+                    var grb_dt30 = 'DT30';
+                    inputTruck.val(grb_dt30);
+                    inputDesk.hide();
+                    inputPoint.show();
+                } else {
+                    inputTruck.val(selectedText);
+                    inputPoint.hide();
+                    inputDesk.show();
+
+                }
+            });
+
+        });
+
+        /*--- Click to Edit Button ---*/
+        $('body').on('click', '.editData', function () {
+            var id = $(this).data('id');
+            $("#shift,#id_type_sample,#id_method,#id_material,#sampling_area,#sampling_point,#product_code,#discharge_area,#gc_expect")
+                .select2({
+                    width: '100%',
+                    dropdownParent: "#ajaxModal",
+                    theme: 'bootstrap-5'
+                });
+            /* Hide */
+            $('#validasiError').hide();
+            $.ajax({
+                type: "GET",
+                url: "/edit-sample/" + id, // Ganti dengan URL yang sesuai
+                dataType: "json",
+                success: function (response) {
+                    if (response) {
+                        // Mengisi formulir dengan data yang diterima
+                        $('#titleHeading').html("Edit Sample");
+                        $('#saveBtn').val("edit-user");
+                        $('#ajaxModal').modal('show');
+                        $('#saveBtn').html('Update Data');
+                        $('#id').val(response.id);
+                        $('#tgl_sample').val(response.tgl_sample);
+                        $('#shift').val(response.shift).trigger('change');
+                        $('#id_type_sample').val(response.id_type_sample).trigger('change');
+                        $('#id_method').val(response.id_method).trigger('change');
+                        $('#id_material').val(response.id_material).trigger('change');
+                        $('#sampling_area').val(response.sampling_area).trigger('change');
+                        $('#sampling_point').val(response.sampling_point).trigger('change');
+                        $('#product_code').val(response.product_code).trigger(
+                            'change'); // selling
+                        $('#discharge_area').val(response.discharge_area).trigger(
+                            'change'); // selling
+                        $('#batch_code').val(response.batch_code);
+                        $('#increments').val(response.increments);
+                        $('#sample_weight').val(parseFloat(response.sample_weight).toFixed(1));
+                        $('#sample_number').val(response.sample_number);
+                        $('#primer_raw').val(parseFloat(response.primer_raw).toFixed(1));
+                        $('#duplicate_raw').val(parseFloat(response.duplicate_raw).toFixed(1));
+                        // $('#to_its').val(response.to_its.trim());
+                        var responseToIts = response.to_its;
+                        // Ini akan mengambil bagian jam (00:00:00)
+                        var jam = responseToIts.substring(0, 8);
+                        $('#to_its').val(jam);
+                        $('#unit_truck').val(response.unit_truck);
+                        $('#type').val(response.type);
+                        $('#sampling_deskripsi').val(response.sampling_deskripsi);
+                        $('#gc_expect').val(response.gc_expect).trigger('change');
+                        $('#remark').val(response.remark);
+                    } else {
+                        alert(
+                            'Data tidak ditemukan'
+                        ); // Atau tindakan lain jika data tidak ditemukan
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Terjadi kesalahan: ' + error); // Handle kesalahan AJAX
+                }
+            });
+        });
+    </script>
+
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="" aria-modal="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <form id="filterModalLabel" name="filterModalLabel" class="form-horizontal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="">Filter Data</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted" for="from_date">Start Date</label>
+                                    <input class="form-control" type="date" id='from_date' name='from_date'>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted" for="formrow-password-input">End Date</label>
+                                    <input class="form-control" type="date" id='to_date' name='to_date'>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted" for="typeFilter">Sampling Type</label>
+                                    <select class="form-control select2" id="typeFilter" name="typeFilter">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted" for="materialFilter">Materials</label>
+                                    <select class="form-control select2" id="materialFilter" name="materialFilter">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" id="area">
+                                <div class="mb-3">
+                                    <label for="areaFilter" class="form-label text-muted">Sampling Area</label>
+                                    <select class="form-control select2" id="areaFilter" name="areaFilter"
+                                        style="width: 100%;">
+                                        <option value="">--- Select --- </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6" id="point">
+                                <div class="mb-3">
+                                    <label for="pointFilter" class="form-label text-muted">Sampling Point</label>
+                                    <select class="form-control select2" id="pointFilter" name="pointFilter">
+                                        <option value="">--- Select --- </option>
+                                    </select>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" id="no-sample">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted" for="formrow-password-input">No
+                                        Production</label>
+                                    <input class="form-control" type="text" id='no_sample' name='no_sample'>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6" id="discharge">
+                                    <div class="mb-3">
+                                        <label for="factoriesFilter" class="control-label text-blue">Discharge</label>
+                                        <select class="form-control select2" id="factoriesFilter" name="factoriesFilter"
+                                            style="width: 100%;">
+                                            <option value="">--- Select --- </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" id="product">
+                                    <div class="mb-3">
+                                        <label for="productFilter" class="control-label text-blue">Product Code</label>
+                                        <select class="form-control select2" id="productFilter" name="productFilter"
+                                            style="width: 100%;">
+                                            <option value="">--- Select --- </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="applyFilterBtn"> <i
+                                class="mdi mdi-filter me-1"></i>Submit</button>
+                        <button type="button" class="btn btn-success btn-sm" id="exportButton"> <i
+                                class="mdi mdi-file-export me-1"></i>Export</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal Edit -->
+    <div class="modal fade" id="ajaxModal" tabindex="-1" aria-labelledby="" aria-modal="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addInvoiceModalLabel">Edit Sample</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="entryForm" name="entryForm">
+                        <input type="hidden" name="id" id="id">
+                        <div id="validasiError" class="alert alert-danger alert-dismissible fade show" role="alert"
+                            style="display: none;">
+                            <i class="uil uil-exclamation-octagon me-1"></i>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Tgl Sample <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control input" name="tgl_sample" id="tgl_sample">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Shift<span class="text-danger">*</span></label>
+                                    <select id="shift" name="shift" class="form-control select2" style="width: 100%;">
+                                        <option value="">-- Select--</option>
+                                        <option value="D">D</option>
+                                        <option value="N">N</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Sample Type<span class="text-danger">*</span></label>
+                                    <select id="id_type_sample" name="id_type_sample" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">--- Select ---</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label id="methodTitle">Sampling Method<span class="text-danger">*</span></label>
+                                    <select id="id_method" name="id_method" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">--- Select ---</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Layer<span class="text-danger">*</span></label>
+                                    <select id="id_material" name="id_material" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">--- Select ---</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2" id="sampleArea">
+                                <div class="mb-3">
+                                    <label>Sampling Area<span class="text-danger">*</span></label>
+                                    <select id="sampling_area" name="sampling_area" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">--- Select ---</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2" id="samplePoint">
+                                <div class="mb-3">
+                                    <label>Sampling Point<span class="text-danger"></span></label>
+                                    <select id="sampling_point" name="sampling_point" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">--- Select ---</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2" id="sellingArea">
+                                <div class="mb-3">
+                                    <label>Discharge<span class="text-danger">*</span></label>
+                                    <select id="discharge_area" name="discharge_area" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">--- Select ---</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2" id="sellingPoint">
+                                <div class="mb-3">
+                                    <label>Product Code<span class="text-danger"></span></label>
+                                    <select id="product_code" name="product_code" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">-- Code --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2" id="desk">
+                                <div class="mb-3">
+                                    <label>Sampling Deskripsi<span class="text-danger">*</span></label>
+                                    <input type="text" id="sampling_deskripsi" name="sampling_deskripsi"
+                                        class="form-control" placeholder="Sampling Deskripsi">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Batch Code<span class="text-danger">*</span></label>
+                                    <input type="text" id="batch_code" name="batch_code" class="form-control"
+                                        placeholder="Batch Code">
+                                    {{-- <div class="invalid-feedback" id="validasiError" style="display: none;">
+                                    </div> --}}
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Increment<span class="text-danger">*</span></label>
+                                    <input type="text" id="increments" name="increments" class="form-control"
+                                        placeholder="Increment">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Sample Weight(Kg)<span class="text-danger">*</span></label>
+                                    <input type="text" id="sample_weight" name="sample_weight" class="form-control"
+                                        placeholder="Sample Weight(Kg)">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Sample Number<span class="text-danger">*</span></label>
+                                    <input type="text" id="sample_number" name="sample_number" class="form-control"
+                                        placeholder="Sample Number">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Primer Raw(Kg)<span class="text-danger">*</span></label>
+                                    <input type="text" id="primer_raw" name="primer_raw" class="form-control"
+                                        placeholder="Primer Raw(Kg)">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Duplicate Raw(Kg)<span class="text-danger">*</span></label>
+                                    <input type="text" id="duplicate_raw" name="duplicate_raw" class="form-control"
+                                        placeholder="Duplicate Raw(Kg)">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Sent to ITS<span class="text-danger">*</span></label>
+                                    <input type="text" id="to_its" name="to_its" class="form-control"
+                                        placeholder="Sent to ITS">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Gc Expectation<span class="text-danger">*</span></label>
+                                    <select id="gc_expect" name="gc_expect" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>-<span class="text-danger"></span></label>
+                                    <input type="text" readonly="" id="type" name="type" class="form-control"
+                                        placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>-<span class="text-danger"></span></label>
+                                    <input type="text" readonly="" id="unit_truck" name="unit_truck"
+                                        class="form-control" placeholder="Methods">
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-8">
+                                <div class="mb-3">
+                                    <label for="remark" class="form-label">Remarks :</label>
+                                    <textarea class="form-control" id="remark" name="remark" rows="2"
+                                        style="height: 17px;"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>-<span class="text-danger"></span></label>
+                                    <input type="text" readonly="" id="code" name="code" class="form-control"
+                                        placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>-<span class="text-danger"></span></label>
+                                    <input type="text" readonly="" id="discharge" name="discharge" class="form-control"
+                                        placeholder="">
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                    <div class="modal-footer mb-0">
+                        <button type="button" class="btn btn-primary" id="updateButton" value="edit">Update
+                            Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+
+
+
+<style type="text/css">
+    .small-custom-alert {
+        width: auto;
+        /* Menggunakan ukuran default */
+    }
+
+    .small-popup-alert {
+        max-width: 300px;
+        /* Sesuaikan ukuran yang diinginkan */
+    }
+
+    .small-content-alert {
+        padding: 10px;
+        /* Sesuaikan ukuran padding yang diinginkan */
+    }
+</style>

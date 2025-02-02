@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout/head.html' %}
+</head>
+
+
+<body data-topbar="dark" data-sidebar="dark">
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!-- Herader -->
+        {% include 'layout/header.html' %}
+        <!-- ========== Left Sidebar Start ========== -->
+
+        {% include 'layout/sidebar.html' %}
+        <!-- Left Sidebar End -->
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="card">
+                                <div class="card-header justify-content-between d-flex align-items-center">
+                                    <h4 class="card-title">Inventory Stockpile - RKEF</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body pb-3">
+                                    <div class="col-sm">
+                                        <div>
+                                            <a class="btn btn-soft-primary btn-sm mb-4" href="javascript:void(0)"
+                                                id="openFilter"> <i class="mdi mdi-filter me-1"></i>Filter Data
+                                            </a>
+                                            <a class="btn btn-soft-warning btn-sm mb-4" href="javascript:void(0)"
+                                                name="reload" id="reload">
+                                                <i class="mdi mdi-refresh me-1"></i>Reload
+                                            </a>
+                                            <a class="btn btn-sm mb-4 btn-soft-secondary"
+                                                onclick="selectElementContents( document.getElementById('list-table') );">Copy
+                                                Data</a>
+                                        </div>
+                                    </div>
+
+                                    <div class="">
+                                        <div class="table-responsive table-scrollable">
+                                            <table id="list-table"
+                                                class="table project-list-table table-nowrap align-middle table-borderless mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col" style="width:4%">No</th>
+                                                        <th scope="col" style="width: 110px">Stockpile</th>
+                                                        <th scope="col">Material</th>
+                                                        <th scope="col">Stock Ore</th>
+                                                        <th scope="col">Released</th>
+                                                        <th scope="col">Selling</th>
+                                                        <th scope="col">Balance</th>
+                                                        <th scope="col">Perc.</th>
+                                                        <th scope="col">Ni</th>
+                                                        <th scope="col">Co</th>
+                                                        <th scope="col">Al2O3</th>
+                                                        <th scope="col">CaO</th>
+                                                        <th scope="col">Cr2O3</th>
+                                                        <th scope="col">Fe</th>
+                                                        <th scope="col">MgO</th>
+                                                        <th scope="col">SiO2</th>
+                                                        <th scope="col">Sm</th>
+                                                        <th scope="col">Mc</th>
+                                                        <th scope="col">Class</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>-</td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="flex-grow-1">-</div>
+                                                            </div>
+                                                        </td>
+                                                        <td>-</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00%</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>0.00</td>
+                                                        <td>-</td>
+                                                    </tr>
+
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="3">Grand Total</td>
+                                                        <td id="grand-total-ore">-</td>
+                                                        <td id="grand-total-released">-</td>
+                                                        <td id="grand-total-selling">-</td>
+                                                        <td id="grand-total-balance">-</td>
+                                                        <td id="grand-total-percentage">-</td>
+                                                        <td id="grand-sum-ni">-</td>
+                                                        <td id="grand-sum-co">-</td>
+                                                        <td id="grand-sum-al2o3">-</td>
+                                                        <td id="grand-sum-cao">-</td>
+                                                        <td id="grand-sum-cr2o3">-</td>
+                                                        <td id="grand-sum-fe">-</td>
+                                                        <td id="grand-sum-mgo">-</td>
+                                                        <td id="grand-sum-sio2">-</td>
+                                                        <td id="grand-sum-sm">-</td>
+                                                        <td id="grand-sum-mc">-</td>
+                                                        <td id="">-</td>
+                                                        <!-- Tambahkan kolom lainnya jika diperlukan -->
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end row -->
+
+
+                </div> <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+            <!-- Footer -->
+            {% include 'layout/footer.html' %}
+
+        </div>
+        <!-- end main content-->
+
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Right Sidebar -->
+    {% include 'layout/right.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout/js.html" %}
+
+
+    <!-- Scripts -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /*--- Pass Header Token ---*/
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            // Inisialisasi grand total
+            var grandTotalOre = 0;
+            var grandTotalRelease = 0;
+            var grandTotalSelling = 0;
+            var grandTotalBalance = 0;
+            var rowCount = 0; // Jumlah baris
+            var sumNi = 0;
+            var sumCo = 0;
+            var sumAl2O3 = 0;
+            var sumCao = 0;
+            var sumCr2O3 = 0;
+            var sumFe = 0;
+            var sumMgo = 0;
+            var sumSiO2 = 0;
+            var sumMC = 0;
+            var sumSM = 0;
+            var data_Ni = [];
+            var data_Co = [];
+            var data_Al2O3 = [];
+            var data_CaO = [];
+            var data_Cr2O3 = [];
+            var data_Fe = [];
+            var data_Mgo = [];
+            var data_SiO2 = [];
+            var data_MC = [];
+            var data_SM = [];
+            var table = $("#list-table").find("tbody");
+
+            // Bersihkan isi tabel sebelum menambahkan data baru
+            table.empty();
+            // Fungsi untuk menambahkan data ke tabel
+            function appendDataToTable(data) {
+                // Reset grand total ke nol
+                grandTotalOre = 0;
+                grandTotalRelease = 0;
+                grandTotalSelling = 0;
+                grandTotalBalance = 0;
+                sumNi = 0;
+                sumCo = 0;
+                sumAl2O3 = 0;
+                sumCao = 0;
+                sumCr2O3 = 0;
+                sumFe = 0;
+                sumMgo = 0;
+                sumSiO2 = 0;
+                sumMC = 0;
+                sumSM = 0;
+                // Loop melalui data dan tambahkan ke tabel
+                $.each(data, function (index, row) {
+                    var newRow = $("<tr>");
+                    newRow.append("<td>" + (index + 1) + "</td>"); // Menambahkan nomor urut
+                    newRow.append("<td>" + row.stockpile + "</td>");
+                    newRow.append("<td>" + row.nama_material + "</td>");
+                    newRow.append("<td>" + parseFloat(row.total_ore).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.released).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.total_selling).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.balance).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+
+
+                    // Hitung persentase (percentage)
+                    var percentage = (row.total_selling / row.total_ore) * 100;
+                    // Tambahkan class CSS ke elemen persentase
+                    newRow.append("<td><div class='badge badge-soft-success font-size-12'>" + percentage
+                        .toFixed(2) + "%</div></td>");
+                    newRow.append("<td>" + row.Ni + "</td>");
+                    newRow.append("<td>" + row.Co + "</td>");
+                    newRow.append("<td>" + row.Al2O3 + "</td>")
+                    newRow.append("<td>" + row.CaO + "</td>")
+                    newRow.append("<td>" + row.Cr2O3 + "</td>")
+                    newRow.append("<td>" + row.Fe + "</td>")
+                    newRow.append("<td>" + row.Mgo + "</td>")
+                    newRow.append("<td>" + row.SiO2 + "</td>")
+                    newRow.append("<td>" + parseFloat(row.SM).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + row.MC + "</td>")
+
+
+
+                    // Kolom "grade" berdasarkan kondisi Ni dan Mgo
+                    var grade = "NULL"; // Default
+                    if (row.Ni < 0.7 && row.Mgo < 5.01) {
+                        grade = "WASTE";
+                    } else if (row.Ni < 1.2 && row.Mgo < 5.01) {
+                        grade = "LGLO";
+                    } else if (row.Ni < 1.45 && row.Mgo < 5.01) {
+                        grade = "MGLO";
+                        // } else if (row.Ni < 1.7 && row.Mgo < 6.00) {
+                        //     grade = "HGLO";
+                    } else if (row.Ni >= 1.45 && row.Mgo < 6.00) {
+                        grade = "HGLO";
+                        // } else if (row.Ni >= 1.7 && row.Mgo < 5.01) {
+                        //     grade = "UGLO";
+                    } else if (row.Ni < 1.2 && row.Mgo > 5) {
+                        grade = "WASTE";
+                    } else if (row.Ni < 1.4 && row.Mgo > 5) {
+                        grade = "LGSO";
+                    } else if (row.Ni < 1.7 && row.Mgo > 5) {
+                        grade = "MGSO";
+                    } else if (row.Ni >= 1.7 && row.Mgo > 5) {
+                        grade = "HGSO";
+                    }
+
+                    // Tambahkan kelas CSS berdasarkan nilai "grade"
+                    var gradeClass = "";
+                    switch (grade) {
+                        case "WASTE":
+                            gradeClass = "badge badge-soft-danger"; // Ganti dengan kelas CSS yang sesuai
+                            break;
+                        case "LGLO":
+                            gradeClass = "badge badge-soft-primary";
+                            break;
+                        case "MGLO":
+                            gradeClass = "badge badge-soft-warning";
+                            break;
+                        case "HGLO":
+                            gradeClass = "badge badge-soft-success";
+                            break;
+                        case "UGLO":
+                            gradeClass = "badge badge-soft-warning";
+                            break;
+                        case "LGSO":
+                            gradeClass = "badge badge-soft-primary";
+                            break;
+                        case "MGSO":
+                            gradeClass = "badge badge-soft-success";
+                            break;
+                        case "HGSO":
+                            gradeClass = "badge badge-soft-warning";
+                            break;
+                        default:
+                            gradeClass = "badge badge-soft-danger";
+                    }
+
+                    // Tambahkan elemen <td> ke tabel dengan kelas CSS yang sesuai
+                    newRow.append("<td class='" + gradeClass + "'>" + grade + "</td>");
+
+                    // Akumulasi ke grand total
+                    grandTotalOre += parseFloat(row.total_ore);
+                    grandTotalRelease += parseFloat(row.released);
+                    grandTotalSelling += parseFloat(row.total_selling);
+                    grandTotalBalance += parseFloat(row.balance);
+
+                    /* Hitung SUM Product */
+                    var productNi = row.released * row.Ni;
+                    data_Ni.push(productNi);
+
+                    var productCo = row.released * row.Co;
+                    data_Co.push(productCo);
+
+                    var productAl2O3 = row.released * row.Al2O3;
+                    data_Al2O3.push(productAl2O3);
+
+                    var productCaO = row.released * row.CaO;
+                    data_CaO.push(productCaO);
+                    var productCaO = row.released * row.CaO;
+                    data_CaO.push(productCaO);
+
+                    var productCr2O3 = row.released * row.Cr2O3;
+                    data_Cr2O3.push(productCr2O3);
+
+                    var productFe = row.released * row.Fe;
+                    data_Fe.push(productFe);
+
+                    var productMgo = row.released * row.Mgo;
+                    data_Mgo.push(productMgo);
+
+                    var productSiO2 = row.released * row.SiO2;
+                    data_SiO2.push(productSiO2);
+
+                    var productMC = row.released * row.MC;
+                    data_MC.push(productMC);
+
+                    var productSM = row.released * row.SM;
+                    data_SM.push(productSM);
+
+                    // Tambahkan baris ke tabel
+                    table.append(newRow);
+                });
+
+                // Set grand total di bawah footer tabel
+                $("#grand-total-ore").text(grandTotalOre.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-total-released").text(grandTotalRelease.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-total-selling").text(grandTotalSelling.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-total-balance").text(grandTotalBalance.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+
+
+                // Sum Product Grade
+                for (var i = 0; i < data_Ni.length; i++) {
+                    sumNi += data_Ni[i];
+                }
+                for (var i = 0; i < data_Co.length; i++) {
+                    sumCo += data_Co[i];
+                }
+
+                for (var i = 0; i < data_Al2O3.length; i++) {
+                    sumAl2O3 += data_Al2O3[i];
+                }
+
+                for (var i = 0; i < data_CaO.length; i++) {
+                    sumCao += data_CaO[i];
+                }
+
+                for (var i = 0; i < data_Cr2O3.length; i++) {
+                    sumCr2O3 += data_Cr2O3[i];
+                }
+
+                for (var i = 0; i < data_Fe.length; i++) {
+                    sumFe += data_Fe[i];
+                }
+
+                for (var i = 0; i < data_Mgo.length; i++) {
+                    sumMgo += data_Mgo[i];
+                }
+
+                for (var i = 0; i < data_SiO2.length; i++) {
+                    sumSiO2 += data_SiO2[i];
+                }
+
+                // for (var i = 0; i < data_SM.length; i++) {
+                //     sumSM += data_SM[i];
+                // }
+
+                for (var i = 0; i < data_MC.length; i++) {
+                    sumMC += data_MC[i];
+                }
+
+                // Bagi dengan total released
+                var sumNiResult = (grandTotalRelease != 0) ? (sumNi / grandTotalRelease) : 0;
+                var sumCoResult = (grandTotalRelease != 0) ? (sumCo / grandTotalRelease) : 0;
+                var sumAl2O3Result = (grandTotalRelease != 0) ? (sumAl2O3 / grandTotalRelease) : 0;
+                var sumCaOResult = (grandTotalRelease != 0) ? (sumCao / grandTotalRelease) : 0;
+                var sumCr2O3Result = (grandTotalRelease != 0) ? (sumCr2O3 / grandTotalRelease) : 0;
+                var sumFeResult = (grandTotalRelease != 0) ? (sumFe / grandTotalRelease) : 0;
+                var sumMgoResult = (grandTotalRelease != 0) ? (sumMgo / grandTotalRelease) : 0;
+                var sumSiO2Result = (grandTotalRelease != 0) ? (sumSiO2 / grandTotalRelease) : 0;
+                // var sumSMResult = (grandTotalRelease != 0) ? (sm / grandTotalRelease) : 0;
+                var sumMCResult = (grandTotalRelease != 0) ? (sumMC / grandTotalRelease) : 0;
+
+                // Tampilkan hasil di elemen sum product Grade (footer)
+                $("#grand-sum-ni").text(sumNiResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-sum-co").text(sumCoResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-sum-al2o3").text(sumAl2O3Result.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-sum-cao").text(sumCaOResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-sum-cr2o3").text(sumCr2O3Result.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-sum-fe").text(sumFeResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-sum-mgo").text(sumMgoResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#grand-sum-sio2").text(sumSiO2Result.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                // $("#grand-sum-sm").text(sumSMResult.toLocaleString('en-US', {
+                //     maximumFractionDigits: 2
+                // }));
+                $("#grand-sum-mc").text(sumMCResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+
+                // Hitung persentase dari grand total
+                var grandTotalPercentage = (grandTotalSelling / grandTotalOre) * 100;
+                // $("#grand-total-percentage").text(grandTotalPercentage.toFixed(2) + "%");
+                $("#grand-total-percentage").html("<div class='badge badge-soft-warning font-size-12'>" +
+                    grandTotalPercentage.toFixed(2) + "%</div>")
+            }
+
+            // Lakukan permintaan Ajax ke endpoint controller Anda
+            $.ajax({
+                type: "GET",
+                url: "{% url 'get-stockpile-rkef'%}",
+                success: function (response) {
+                    var sqlData = response.data
+                    appendDataToTable(sqlData);
+                },
+                error: function () {
+                    // Penanganan kesalahan jika diperlukan
+                    console.log("Gagal mengambil data dari server.");
+                },
+            });
+
+            /*---  Filter Modal and Apply Filter  ----*/
+            $('#openFilter').click(function () {
+                $('#filterModal').modal('show');
+                $(".select2").select2({
+                    width: '100%',
+                    dropdownParent: "#filterModal",
+                    theme: 'bootstrap-5',
+                    placeholder: '--- Select ---',
+                });
+            });
+
+            $('#applyFilterBtn').click(function () {
+                // Mengambil nilai filter dari elemen-elemen HTML yang sesuai
+                var areaFilter = $('#areaFilter').val();
+                var pointFilter = $('#pointFilter').val();
+                // Bersihkan tabel sebelum memuat data baru
+                var table = $("#list-table").find("tbody");
+                table.empty();
+                // Reset array
+                data_Ni = [];
+                data_Co = [];
+                data_Al2O3 = [];
+                data_CaO = [];
+                data_Cr2O3 = [];
+                data_Fe = [];
+                data_Mgo = [];
+                data_SiO2 = [];
+                data_MC = [];
+                // Kirim permintaan AJAX ke server dengan filter
+                $("#grand-total-ore").text('-');
+                $("#grand-total-released").text('-');
+                $("#grand-total-balance").text('-');
+                $("#grand-total-percentage").text('-');
+                $("#grand-total-selling").text('-');
+                $("#grand-sum-ni").text('-');
+                $("#grand-sum-co").text('-');
+                $("#grand-sum-al2o3").text('-');
+                $("#grand-sum-cao").text('-');
+                $("#grand-sum-cr2o3").text('-');
+                $("#grand-sum-fe").text('-');
+                $("#grand-sum-mgo").text('-');
+                $("#grand-sum-sio2").text('-');
+                $("#grand-sum-sm").text('-');
+                $("#grand-sum-mc").text('-');
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'get-stockpile-rkef'%}",
+                    data: {
+                        areaFilter: areaFilter,
+                        pointFilter: pointFilter,
+                    },
+                    success: function (response) {
+                        var sqlData = response.data
+                        appendDataToTable(sqlData);
+                    },
+                    error: function () {
+                        // Penanganan kesalahan jika diperlukan
+                        console.log("Gagal mengambil data dari server.");
+                    },
+                });
+                $('#filterModal').modal('hide');
+            });
+            $('#reload').click(function () {
+                // Kirim permintaan AJAX ke server
+                // Bersihkan isi tabel sebelum menambahkan data baru
+                var table = $("#list-table").find("tbody");
+                table.empty();
+                // Reset array
+                data_Ni = [];
+                data_Co = [];
+                data_Al2O3 = [];
+                data_CaO = [];
+                data_Cr2O3 = [];
+                data_Fe = [];
+                data_Mgo = [];
+                data_SiO2 = [];
+                data_MC = [];
+                $("#grand-total-ore").text('-');
+                $("#grand-total-released").text('-');
+                $("#grand-total-balance").text('-');
+                $("#grand-total-percentage").text('-');
+                $("#grand-total-selling").text('-');
+                $("#grand-sum-ni").text('-');
+                $("#grand-sum-co").text('-');
+                $("#grand-sum-al2o3").text('-');
+                $("#grand-sum-cao").text('-');
+                $("#grand-sum-cr2o3").text('-');
+                $("#grand-sum-fe").text('-');
+                $("#grand-sum-mgo").text('-');
+                $("#grand-sum-sio2").text('-');
+                $("#grand-sum-sm").text('-');
+                $("#grand-sum-mc").text('-');
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'get-stockpile-rkef'%}",
+                    success: function (response) {
+                        var sqlData = response.data
+
+                        appendDataToTable(sqlData);
+
+                        $('#areaFilter').val('').trigger('change');
+                        $('#pointFilter').val('').trigger('change');
+                    },
+                    error: function () {
+                        // Penanganan kesalahan jika diperlukan
+                        console.log("Gagal mengambil data dari server.");
+                    },
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Get Dropdown 
+            $.ajax({
+                url: "{% url 'material-dropdown' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.materials, function (key, value) {
+                        options += '<option value="' + value.nama_material + '">' + value
+                            .nama_material +
+                            '</option>';
+                    });
+                    $('#materialFilter').append(options);
+                }
+            });
+            $.ajax({
+                url: "{% url 'get-details-area' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_area, function (key, value) {
+                        options += '<option value="' + value.sampling_area + '">' + value
+                            .sampling_area +
+                            '</option>';
+                    });
+                    $('#areaFilter').append(options);
+                }
+            });
+        });
+    </script>
+
+    <!-- modal -->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="" aria-modal="true">
+        <div class="modal-dialog ">
+            <form id="filterModalLabel" name="filterModalLabel" class="form-horizontal needs-validation" novalidate>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="">Filter Data</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-md-12">
+                            <p> Silahkan pilih opsi terlebih untuk meload data!</p>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label for="areaFilter" class="control-label text-blue">Stockpile</label>
+                                <select class="form-control select2" id="areaFilter" name="areaFilter"
+                                    style="width: 100%;" multiple="multiple">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="applyFilterBtn"> <i
+                                class="mdi mdi-filter me-1"></i>Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
+
+
+
+
+<style type="text/css">
+    .table-scrollable {
+        max-height: 600px;
+        /* Atur tinggi maksimum yang Anda inginkan */
+        overflow-y: auto;
+        /* Aktifkan scroll vertikal jika melebihi tinggi maksimum */
+    }
+</style>

@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+  {% include 'layouts/head.html' %}
+</head>
+
+
+<body x-data="" class="is-header-blur" x-bind="$store.global.documentBody">
+  <!-- App preloader-->
+  <div class="app-preloader fixed z-50 grid h-full w-full place-content-center bg-slate-50 dark:bg-navy-900">
+    <div class="app-preloader-inner relative inline-block size-48"></div>
+  </div>
+
+  <!-- Page Wrapper -->
+  <div id="root" class="min-h-100vh flex grow bg-slate-50 dark:bg-navy-900" x-cloak="">
+    <div class="fixed top-0 hidden p-6 lg:block lg:px-12">
+      <a href="#" class="flex items-center space-x-2">
+        <img class="size-12" src="{% static 'assets/images/logo-mbm.png'%}" alt="logo">
+        <p class="text-xl font-semibold uppercase text-slate-700 dark:text-navy-100">
+          GeosPy
+        </p>
+      </a>
+    </div>
+    <div class="hidden w-full place-items-center lg:grid">
+      <div class="w-full max-w-lg p-6">
+        <img class="w-full" x-show="!$store.global.isDarkModeEnabled"
+          src="{% static 'assets/images/illustrations/dashboard-meet.svg'%}" alt="image">
+        <img class="w-full" x-show="$store.global.isDarkModeEnabled"
+          src="{% static 'assets/images/illustrations/dashboard-meet-dark.svg'%}" alt="image">
+      </div>
+    </div>
+    <!-- set_client.html di dalam geosPy/templates/geosPy/ -->
+    <main class="flex w-full flex-col items-center bg-white dark:bg-navy-700 lg:max-w-md">
+      <div class="flex w-full max-w-sm grow flex-col justify-center p-5">
+        <div class="text-center">
+          <img class="mx-auto size-16 lg:hidden" src="{% static 'assets/images/logo-mbm.png' %}" alt="logo">
+          <div class="mt-4">
+            <h2 class="text-2xl font-semibold text-slate-600 dark:text-navy-100">
+              Welcome To GeosPy
+            </h2>
+            <p class="text-slate-400 dark:text-navy-300">
+              Please set the server to continue
+            </p>
+          </div>
+        </div>
+
+        <div class="my-7 flex items-center space-x-3">
+          <div class="h-px flex-1 bg-slate-200 dark:bg-navy-500"></div>
+          <p class="text-tiny+ uppercase">or database configuration</p>
+          <div class="h-px flex-1 bg-slate-200 dark:bg-navy-500"></div>
+        </div>
+
+        <form method="POST">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div class="mt-4 space-y-4">
+            <label class="relative flex">
+              {{ form.client_name }}
+            </label>
+            <label class="relative flex">
+              {{ form.db_host }}
+            </label>
+            <label class="relative flex">
+              {{ form.db_port }}
+            </label>
+            <label class="relative flex">
+              {{ form.db_name }}
+            </label>
+            <label class="relative flex">
+              {{ form.db_user }}
+            </label>
+            <label class="relative flex">
+              {{ form.db_password }}
+            </label>
+          </div>
+          <div class="mt-4 flex items-center space-x-2">
+            <input
+              class="form-checkbox is-basic size-5 rounded border-slate-400/70 checked:border-primary checked:bg-primary hover:border-primary focus:border-primary dark:border-navy-400 dark:checked:border-accent dark:checked:bg-accent dark:hover:border-accent dark:focus:border-accent"
+              type="checkbox">
+            <p class="line-clamp-1">
+              I agree with
+              <a href="#" class="text-slate-400 hover:underline dark:text-navy-300">
+                privacy policy
+              </a>
+            </p>
+          </div>
+          <button type="submit"
+            class="btn mt-10 h-10 w-full bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
+            Connect
+          </button>
+        </form>
+
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- 
+        This is a place for Alpine.js Teleport feature 
+        @see https://alpinejs.dev/directives/teleport
+      -->
+  <div id="x-teleport-target"></div>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => Alpine.start());
+  </script>
+
+
+</body>
+
+</html>
+
+<script>
+  document.getElementById('configure-database-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch(form.action, {
+        method: form.method,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const responseData = await response.json();
+        if (responseData.error) {
+          alert(responseData.error);  // Menampilkan pesan kesalahan
+        }
+      } else {
+        // Redirect or do something else if successful
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+    }
+  });
+</script>

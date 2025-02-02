@@ -1,0 +1,92 @@
+<div class="mb-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="panel h-full p-0">
+        <div class="flex p-5">
+            <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary dark:text-white-light">
+                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5">
+                    <circle cx="12" cy="6" r="4" stroke="currentColor" stroke-width="1.5">
+                    </circle>
+                    <path opacity="0.5" d="M18 9C19.6569 9 21 7.88071 21 6.5C21 5.11929 19.6569 4 18 4"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                    <path opacity="0.5" d="M6 9C4.34315 9 3 7.88071 3 6.5C3 5.11929 4.34315 4 6 4" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round"></path>
+                    <ellipse cx="12" cy="17" rx="6" ry="4" stroke="currentColor" stroke-width="1.5">
+                    </ellipse>
+                    <path opacity="0.5" d="M20 19C21.7542 18.6153 23 17.6411 23 16.5C23 15.3589 21.7542 14.3847 20 14"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                    <path opacity="0.5" d="M4 19C2.24575 18.6153 1 17.6411 1 16.5C1 15.3589 2.24575 14.3847 4 14"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                </svg>
+            </div>
+            <div class="font-semibold ltr:ml-3 rtl:mr-3">
+                <p class="text-lg font-semibold dark:text-white-light">Sale to Dome</p>
+                <h5 class="text-xs text-[#506690]">Sale Year to date</h5>
+            </div>
+        </div>
+
+        <!-- <div id="pie-selling-ytd"></div> -->
+        <div x-ref="saleByCategory" class="rounded-lg bg-white dark:bg-black">
+            <!-- loader -->
+            <div class="grid min-h-[353px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                <span
+                    class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="panel h-full p-0">
+
+        <div class="flex p-5">
+            <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary dark:text-white-light">
+                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5">
+                    <circle cx="12" cy="6" r="4" stroke="currentColor" stroke-width="1.5">
+                    </circle>
+                    <path opacity="0.5" d="M18 9C19.6569 9 21 7.88071 21 6.5C21 5.11929 19.6569 4 18 4"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                    <path opacity="0.5" d="M6 9C4.34315 9 3 7.88071 3 6.5C3 5.11929 4.34315 4 6 4" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round"></path>
+                    <ellipse cx="12" cy="17" rx="6" ry="4" stroke="currentColor" stroke-width="1.5">
+                    </ellipse>
+                    <path opacity="0.5" d="M20 19C21.7542 18.6153 23 17.6411 23 16.5C23 15.3589 21.7542 14.3847 20 14"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                    <path opacity="0.5" d="M4 19C2.24575 18.6153 1 17.6411 1 16.5C1 15.3589 2.24575 14.3847 4 14"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                </svg>
+            </div>
+            <div class="font-semibold ltr:ml-3 rtl:mr-3">
+                <p class="text-lg font-semibold dark:text-white-light">Sale to Dome</p>
+                <h5 class="text-xs text-[#506690]">Sale Month to date</h5>
+            </div>
+        </div>
+        <div x-ref="saleByCategoryMtd" class="rounded-lg bg-white dark:bg-black">
+            <!-- loader -->
+            <div class="grid min-h-[353px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                <span
+                    class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+            </div>
+        </div>
+    </div>
+    <div class="panel h-full xl:col-span-2">
+        <div class="mb-5 flex items-center dark:text-white-light">
+            <h5 class="text-lg font-semibold">Seling this Month</h5>
+            <div x-data="form" class="dropdown ltr:ml-auto rtl:mr-auto">
+                <input class="form-input" type="date" id="saleDate" name="saleDate" value="{{ start_date}}">
+            </div>
+        </div>
+        <div class="relative overflow-hidden">
+            <div x-ref="sellingDaily" class="rounded-lg bg-white dark:bg-black">
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

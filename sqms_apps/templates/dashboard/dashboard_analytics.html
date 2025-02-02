@@ -1,0 +1,1914 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout-new/head.html' %}
+</head>
+
+<body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased"
+    :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
+    <!-- sidebar menu overlay -->
+    <div x-cloak="" class="fixed inset-0 z-50 bg-[black]/60 lg:hidden" :class="{'hidden' : !$store.app.sidebar}"
+        @click="$store.app.toggleSidebar()"></div>
+
+    <!-- screen loader -->
+    <div
+        class="screen_loader animate__animated fixed inset-0 z-[60] grid place-content-center bg-[#fafafa] dark:bg-[#060818]">
+        <svg width="64" height="64" viewbox="0 0 135 135" xmlns="http://www.w3.org/2000/svg" fill="#4361ee">
+            <path
+                d="M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z">
+                <animatetransform attributename="transform" type="rotate" from="0 67 67" to="-360 67 67" dur="2.5s"
+                    repeatcount="indefinite"></animatetransform>
+            </path>
+            <path
+                d="M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z">
+                <animatetransform attributename="transform" type="rotate" from="0 67 67" to="360 67 67" dur="8s"
+                    repeatcount="indefinite"></animatetransform>
+            </path>
+        </svg>
+    </div>
+
+    <!-- scroll to top button -->
+    <div class="fixed bottom-6 z-50 ltr:right-6 rtl:left-6" x-data="scrollToTop">
+        <template x-if="showTopButton">
+            <button type="button"
+                class="btn btn-outline-primary animate-pulse rounded-full bg-[#fafafa] p-2 dark:bg-[#060818] dark:hover:bg-primary"
+                @click="goToTop">
+                <svg width="24" height="24" class="h-4 w-4" viewbox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.5" fill-rule="evenodd" clip-rule="evenodd"
+                        d="M12 20.75C12.4142 20.75 12.75 20.4142 12.75 20L12.75 10.75L11.25 10.75L11.25 20C11.25 20.4142 11.5858 20.75 12 20.75Z"
+                        fill="currentColor"></path>
+                    <path
+                        d="M6.00002 10.75C5.69667 10.75 5.4232 10.5673 5.30711 10.287C5.19103 10.0068 5.25519 9.68417 5.46969 9.46967L11.4697 3.46967C11.6103 3.32902 11.8011 3.25 12 3.25C12.1989 3.25 12.3897 3.32902 12.5304 3.46967L18.5304 9.46967C18.7449 9.68417 18.809 10.0068 18.6929 10.287C18.5768 10.5673 18.3034 10.75 18 10.75L6.00002 10.75Z"
+                        fill="currentColor"></path>
+                </svg>
+            </button>
+        </template>
+    </div>
+
+    <!-- start theme customizer section -->
+    {% include 'layout-new/customizer.html' %}
+    <!-- end theme customizer section -->
+
+    <div class="main-container min-h-screen text-black dark:text-white-dark" :class="[$store.app.navbar]">
+        <!-- start sidebar section -->
+        {% include 'layout-new/sidebar.html' %}
+        <!-- end sidebar section -->
+
+        <div class="main-content flex flex-col min-h-screen">
+            <!-- start header section -->
+            {% include 'layout-new/header.html' %}
+            <!-- end header section -->
+
+            <div class="animate__animated p-6" :class="[$store.app.animation]">
+                <div x-data="finance">
+                    <!-- <ul class="flex space-x-2 rtl:space-x-reverse">
+                        <li>
+                            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+                        </li>
+                        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                            <span>Analytics</span>
+                        </li>
+                    </ul> -->
+
+                    <!-- Menampilkan nama pengguna yang login -->
+                    <div class="mt-4 text-lg text-gray-300">
+                        <!-- Welcome, {{ user.first_name }} {{ user.last_name }}! -->
+                        <!-- Jika hanya ingin menampilkan nama pengguna (username) -->
+                        <div class="mt-4 text-lg text-gray-600"> Welcome, {{ user.first_name }} </div>
+                    </div>
+                    <!-- Card Top -->
+                    {% include 'view_top.html' %}
+                </div>
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <!-- Panel Kiri -->
+                    <div class="mt-4 mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <!-- Card Item -->
+                        <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                            <div class="flex items-center justify-between space-x-1">
+                                <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">67.6k</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary dark:text-accent"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Income</p>
+                        </div>
+                        <!-- Card Item -->
+                        <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                            <div class="flex items-center justify-between space-x-1">
+                                <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-secondary" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed</p>
+                        </div>
+                        <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                            <div class="flex items-center justify-between space-x-1">
+                                <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed</p>
+                        </div>
+                        <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                            <div class="flex items-center justify-between space-x-1">
+                                <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed</p>
+                        </div>
+
+                        <!-- Tambahkan elemen lainnya sesuai kebutuhan -->
+                    </div>
+
+                    <!-- Panel Kanan -->
+                    <div class="mt-4 mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                            <div class="flex items-center justify-between space-x-1">
+                                <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed</p>
+                        </div>
+                        <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                            <div class="flex items-center justify-between space-x-1">
+                                <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-info" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0">
+                                    </path>
+                                </svg>
+                            </div>
+                            <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed</p>
+                        </div>
+                        <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                            <div class="flex items-center justify-between space-x-1">
+                                <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-warning" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed</p>
+                        </div>
+                        <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                            <div class="flex items-center justify-between space-x-1">
+                                <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed</p>
+                        </div>
+
+                        <!-- Tambahkan elemen lainnya sesuai kebutuhan -->
+                    </div>
+                </div>
+
+
+
+                <div class="mb-6 grid gap-6 xl:grid-cols-3">
+                    <div class="panel h-full xl:col-span-2">
+                        <div class="mb-5 flex items-center dark:text-white-light">
+                            <h5 class="text-lg font-semibold">Revenue</h5>
+                            <div x-data="dropdown" @click.outside="open = false"
+                                class="dropdown ltr:ml-auto rtl:mr-auto">
+                                <a href="javascript:;" @click="toggle">
+                                    <svg class="h-5 w-5 text-black/70 hover:!text-primary dark:text-white/70"
+                                        viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="5" cy="12" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+                                        <circle opacity="0.5" cx="12" cy="12" r="2" stroke="currentColor"
+                                            stroke-width="1.5"></circle>
+                                        <circle cx="19" cy="12" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+                                    </svg>
+                                </a>
+                                <ul x-show="open" x-transition="" x-transition.duration.300ms=""
+                                    class="ltr:right-0 rtl:left-0" style="display: none;">
+                                    <li><a href="javascript:;" @click="toggle">Weekly</a></li>
+                                    <li><a href="javascript:;" @click="toggle">Monthly</a></li>
+                                    <li><a href="javascript:;" @click="toggle">Yearly</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="h-full">
+                        <div class="mb-5 flex items-center">
+                            <h5 class="text-lg font-semibold dark:text-white-light">Mines By Materials</h5>
+                        </div>
+                        <div class="overflow-hidden">
+                            <div x-ref="salesByCategory" class="rounded-lg  dark:bg-black"
+                                style="min-height: 380.55px;">
+                                <div
+                                    class="mt-4 mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+                                    <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                                        <div class="flex items-center justify-between space-x-1">
+                                            <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed
+                                        </p>
+                                    </div>
+                                    <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-200">
+                                        <div class="flex items-center justify-between space-x-1">
+                                            <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-info"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path
+                                                    d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z">
+                                                </path>
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed
+                                        </p>
+                                    </div>
+                                    <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                                        <div class="flex items-center justify-between space-x-1">
+                                            <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-warning"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed
+                                        </p>
+                                    </div>
+                                    <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                                        <div class="flex items-center justify-between space-x-1">
+                                            <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed
+                                        </p>
+                                    </div>
+                                    <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                                        <div class="flex items-center justify-between space-x-1">
+                                            <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-warning"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed
+                                        </p>
+                                    </div>
+                                    <div class="rounded-lg bg-slate-150 p-4 shadow-md dark:bg-navy-700">
+                                        <div class="flex items-center justify-between space-x-1">
+                                            <p class="text-xl font-semibold text-slate-700 dark:text-navy-100">12.6K</p>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">Completed
+                                        </p>
+                                    </div>
+
+                                    <!-- Tambahkan elemen lainnya sesuai kebutuhan -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Call View Ore Year to Date -->
+                {% include 'view_ore_ytd.html' %}
+
+                <!-- Call View Ore Month to Date -->
+                {% include 'view_ore_mtd.html' %}
+
+                <!-- Call View Selling Year to Date -->
+                {% include 'view_selling_ytd.html' %}
+
+                <!-- Call View Selling Month to Date -->
+                <!-- {% include 'view_selling_mtd.html' %} -->
+
+
+            </div>
+
+            <!-- start footer section -->
+            <div class="p-6 pt-0 mt-auto text-center dark:text-white-dark ltr:sm:text-left rtl:sm:text-right">
+                © <span id="footer-year">2022</span>. SQMS All rights reserved.
+            </div>
+            <!-- end footer section -->
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout-new/js.html" %}
+
+
+    <script>
+        // main section
+        document.addEventListener('alpine:init', () => {
+            // content section
+            Alpine.data('finance', () => ({
+                init() {
+                    isDark = this.$store.app.theme === 'dark' || this.$store.app.isDarkMode ? true : false;
+                    isRtl = this.$store.app.rtlClass === 'rtl' ? true : false;
+                    const dailyOreChart = null;
+                    const saleByCategory = null;
+                    const oreYear = null;
+                    const oreClassYear = null;
+                    const oreTotalMtd = null;
+                    const oreTotalYtd = null;
+                    const oreClassMtd = null;
+                    const saleYear = null;
+                    const sellingDaily = null;
+                    // const sellingTime = null;
+                    const saleByCategoryMtd = null;
+
+                    // Pass Header Token
+                    $.ajaxSetup({
+                        headers: {
+                            "X-CSRFToken": $('meta[name="csrf-token"]').attr("content"),
+                        },
+                    });
+
+                    // Fetch year options for ore
+                    $.ajax({
+                        url: "{% url 'get-year-ore' %}",
+                        method: "GET",
+                        dataType: "json",
+                        success: (data) => {
+                            let options = "";
+                            $.each(data.tahun_pds, (key, value) => {
+                                options += `<option value="${value.tahun}">${value.tahun}</option>`;
+                            });
+                            $("#filter_year").append(options);
+                            $("#filter_mtd_ore").append(options);
+                        },
+                    });
+
+                    // Fetch year options for sale
+                    $.ajax({
+                        url: "{% url 'get-year-sale' %}",
+                        method: "GET",
+                        dataType: "json",
+                        success: (data) => {
+                            let options = "";
+                            $.each(data.tahun, (key, value) => {
+                                options += `<option value="${value.tahun}">${value.tahun}</option>`;
+                            });
+                            $("#filter_year_sale").append(options);
+                            $("#filter_mtd_sale").append(options);
+                        },
+                    });
+
+
+                    this.fetchOrePtd();
+
+                    // Fetch initial data and update chart
+                    this.fetchData();
+                    this.fetchSalePtd();
+                    this.fetchClassOre();
+                    this.fetchLim();
+                    this.fetchSap();
+                    this.fetchYtdOre();
+                    this.fetchMtdOre();
+                    this.dailyChartClass();
+                    this.dailyChart();
+                    this.sellingYtdChart();
+                    this.dailyChartSale();
+                    this.saleChartMTD();
+                    // this.timeSaleChart();
+
+
+
+                    this.oreYear = new ApexCharts(this.$refs.oreYear, this.barOptions);
+                    this.$refs.oreYear.innerHTML = '';
+                    this.oreYear.render();
+
+                    this.oreClassYear = new ApexCharts(this.$refs.oreClassYear, this.oreClassOptions);
+                    this.$refs.oreClassYear.innerHTML = '';
+                    this.oreClassYear.render();
+
+                    this.oreTotalYtd = new ApexCharts(this.$refs.oreTotalYtd, this.donutChartOptions);
+                    this.$refs.oreTotalYtd.innerHTML = '';
+                    this.oreTotalYtd.render();
+
+                    this.dailyOreChart = new ApexCharts(this.$refs.dailyOreChart, this.dailyChartOptions);
+                    this.$refs.dailyOreChart.innerHTML = '';
+                    this.dailyOreChart.render();
+
+                    this.oreClassMtd = new ApexCharts(this.$refs.oreClassMtd, this.barOptions);
+                    this.$refs.oreClassMtd.innerHTML = '';
+                    this.oreClassMtd.render();
+
+                    this.oreTotalMtd = new ApexCharts(this.$refs.oreTotalMtd, this.donutChartOptions);
+                    this.$refs.oreClassMtd.innerHTML = '';
+                    this.oreTotalMtd.render();
+
+
+                    this.saleYear = new ApexCharts(this.$refs.saleYear, this.barOptions);
+                    this.$refs.saleYear.innerHTML = '';
+                    this.saleYear.render();
+
+                    // sales by category
+                    this.saleByCategory = new ApexCharts(this.$refs.saleByCategory, this.saleByCategoryOptions);
+                    this.$refs.saleByCategory.innerHTML = '';
+                    this.saleByCategory.render();
+
+
+                    this.sellingDaily = new ApexCharts(this.$refs.sellingDaily, this.dailyChartOptions);
+                    this.$refs.sellingDaily.innerHTML = '';
+                    this.sellingDaily.render();
+
+                    this.saleByCategoryMtd = new ApexCharts(this.$refs.saleByCategoryMtd, this.saleByCategoryOptions);
+                    this.$refs.saleByCategoryMtd.innerHTML = '';
+                    this.saleByCategoryMtd.render();
+
+
+                    // Watch for theme changes
+                    this.$watch('$store.app.theme', () => {
+                        this.isDark = this.$store.app.theme === 'dark' || this.$store.app.isDarkMode ? true : false;
+                        this.updateChartTheme();
+                    });
+
+                    // Watch for RTL changes
+                    this.$watch('$store.app.rtlClass', () => {
+                        this.isRtl = this.$store.app.rtlClass === 'rtl' ? true : false;
+                        this.updateChartTheme();
+                    });
+
+                    // Fetch data when filter changes
+                    document.getElementById('filter_year').addEventListener('change', (event) => {
+                        const selectedYear = event.target.value;
+                        const filter = { filter_year: selectedYear };
+                        this.fetchData(filter);
+                        this.fetchClassOre(filter);
+                        this.fetchLim(filter);
+                        this.fetchSap(filter);
+                        this.fetchYtdOre(filter);
+                    });
+
+                    document.getElementById('filter_year_sale').addEventListener('change', (event) => {
+                        const selectedYearSale = event.target.value;
+                        const filter = { filter_year: selectedYearSale };
+                        this.sellingYtdChart(filter);
+                    });
+
+                    document.getElementById('filter_mtd_ore').addEventListener('change', (event) => {
+                        const selectedYear = event.target.value;
+                        const selectedMonth = $("#filter_month_ore").val();;
+                        const filter = {
+                            filter_year: selectedYear,
+                            filter_month: selectedMonth
+                        };
+                        this.dailyChartClass(filter);
+                        this.fetchMtdOre(filter);
+                    });
+                    document.getElementById('filter_month_ore').addEventListener('change', (event) => {
+                        const selectedMonth = event.target.value;
+                        const selectedYear = $("#filter_mtd_ore").val();;
+                        const filter = {
+                            filter_year: selectedYear,
+                            filter_month: selectedMonth
+                        };
+                        this.dailyChartClass(filter);
+                        this.fetchMtdOre(filter);
+                    });
+
+                    document.getElementById('oreDate').addEventListener('change', (event) => {
+                        const selectedDate = event.target.value;
+                        const filter = { filter_days: selectedDate };
+                        this.dailyChart(filter);
+                    });
+
+                    document.getElementById('saleDate').addEventListener('change', (event) => {
+                        const selectedDate = event.target.value;
+                        const filter = { filter_days: selectedDate };
+                        this.dailyChartSale(filter);
+                    });
+
+
+                    document.getElementById('filter_mtd_sale').addEventListener('change', (event) => {
+                        const selectedYear = event.target.value;
+                        const selectedMonth = $("#filter_month_sale").val();;
+                        var filter = {
+                            filter_year: selectedYear,
+                            filter_month: selectedMonth
+                        };
+                        this.saleChartMTD(filter);
+                    });
+
+                    document.getElementById('filter_month_sale').addEventListener('change', (event) => {
+                        const selectedMonth = event.target.value;
+                        const selectedYear = $("#filter_mtd_sale").val();;
+                        var filter = {
+                            filter_year: selectedYear,
+                            filter_month: selectedMonth
+                        };
+                        this.saleChartMTD(filter);
+                    });
+                    // document.getElementById('saleDays').addEventListener('change', (event) => {
+                    //     const selectedDate = event.target.value;
+                    //     const filter = { filter_days: selectedDate };
+                    //     this.timeSaleChart(filter);
+                    // });
+
+                },
+
+                fetchOrePtd() {
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-ore-ptd" %}',
+                        success: function (data) {
+                            // createLim(data)
+                            var data_hpal = data.data_hpal;
+                            var data_rkef = data.data_rkef;
+                            var total_ore = data.total_ore;
+                            var total = total_ore.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                            var rkef_percentage = 0;
+                            var hpal_percentage = 0;
+
+                            // Periksa apakah total tidak nol sebelum menghitung persentase
+                            if (total !== 0) {
+                                rkef_percentage = (data_rkef / total) * 100;
+                                hpal_percentage = (data_hpal / total) * 100;
+                            }
+
+                            // $("#lim_ptd").html(
+                            //     data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            // );
+                            // $("#sap_ptd").html(
+                            //     data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            // );
+                            // $("#total_ptd").html(
+                            //     total_ore.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            // );
+                            // Fungsi untuk memformat angka
+                            function formatAngka(jumlah) {
+                                if (jumlah >= 1_000_000_000) {
+                                    return (jumlah / 1_000_000_000).toFixed(3) + ' B';
+                                } else if (jumlah >= 1_000_000) {
+                                    return (jumlah / 1_000_000).toFixed(3) + ' M';
+                                } else if (jumlah >= 1_000) {
+                                    return (jumlah / 1_000).toFixed(3) + ' K';
+                                } else {
+                                    return jumlah.toString();
+                                }
+                            }
+
+                            $("#lim_ptd").html(formatAngka(data_hpal));
+                            $("#sap_ptd").html(formatAngka(data_rkef));
+                            $("#total_ptd").html(formatAngka(total));
+
+                            $("#lim_ptd_perc").html(hpal_percentage.toFixed(1) + '%');
+                            $("#sap_ptd_perc").html(rkef_percentage.toFixed(1) + '%');
+
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+                },
+
+                fetchSalePtd() {
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-sale-ptd" %}',
+                        success: function (data) {
+                            // createLim(data)
+                            var data_hpal = data.data_hpal;
+                            var data_rkef = data.data_rkef;
+                            var total_sale = data.total_sale;
+                            var total = total_sale.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                            var rkef_percentage = 0;
+                            var hpal_percentage = 0;
+
+                            // Periksa apakah total tidak nol sebelum menghitung persentase
+                            if (total !== 0) {
+                                rkef_percentage = (data_rkef / total) * 100;
+                                hpal_percentage = (data_hpal / total) * 100;
+                            }
+
+                            function formatAngka(jumlah) {
+                                if (jumlah >= 1_000_000_000) {
+                                    return (jumlah / 1_000_000_000).toFixed(3) + ' B';
+                                } else if (jumlah >= 1_000_000) {
+                                    return (jumlah / 1_000_000).toFixed(3) + ' M';
+                                } else if (jumlah >= 1_000) {
+                                    return (jumlah / 1_000).toFixed(3) + ' K';
+                                } else {
+                                    return jumlah.toString();
+                                }
+                            }
+
+                            $("#hpal_ptd").html(formatAngka(data_hpal));
+                            $("#rkef_ptd").html(formatAngka(data_rkef));
+                            $("#sale_ptd").html(formatAngka(total_sale));
+
+
+                            // $("#hpal_ptd").html(
+                            //     data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            // );
+                            // $("#rkef_ptd").html(
+                            //     data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            // );
+                            // $("#sale_ptd").html(
+                            //     total_sale.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            // );
+
+                            $("#hpal_ptd_perc").html(hpal_percentage.toFixed(1) + '%');
+                            $("#rkef_ptd_perc").html(rkef_percentage.toFixed(1) + '%');
+
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+                },
+
+                fetchLim(filter = {}) {
+                    // Your AJAX call to fetch Lim data
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-total-lim" %}',
+                        data: filter,
+                        success: function (data) {
+                            // createLim(data)
+                            var data_hpal = data.data_hpal;
+                            var data_ni = data.data_ni;
+                            // var formattedTotal = data_hpal.toLocaleString('en-US', {
+                            //     maximumFractionDigits: 2
+                            // });
+                            // $("#total_hpal").html(formattedTotal);
+                            $("#ni_lim").html(" Ni : " + data_ni);
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+                },
+
+                fetchSap(filter = {}) {
+                    // Your AJAX call to fetch Sap data
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-total-sap" %}',
+                        data: filter,
+                        success: function (data) {
+                            // createLim(data)
+                            var data_rkef = data.data_rkef;
+                            var data_ni = data.data_ni;
+                            $("#ni_sap").html(" Ni : " + data_ni);
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+                },
+
+                fetchYtdOre(filter = {}) {
+                    // Your AJAX call to fetch Ytd Ore data
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-ytd-ore" %}',
+                        data: filter,
+                        success: (data) => {
+                            const data_rkef = data.total_sap;
+                            const data_hpal = data.total_lim;
+                            const data_total = data.x_data;
+
+                            $("#total_ore_ytd").html(
+                                data_total.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+                            $("#total_hpal_ytd").html(
+                                data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+                            $("#total_rkef_ytd").html(
+                                data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+
+
+
+
+                            // var total = data_total.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                            // var rkef_percentage = 0;
+                            // var hpal_percentage = 0;
+
+                            // // Periksa apakah total tidak nol sebelum menghitung persentase
+                            // if (total !== 0) {
+                            //     rkef_percentage = (data_rkef / total) * 100;
+                            //     hpal_percentage = (data_hpal / total) * 100;
+                            // }
+
+                            // // Tampilkan persentase
+                            // $("#ytd_hpal").html(
+                            //     data_total.toLocaleString("en-US", { maximumFractionDigits: 2 }) +
+                            //     " Total"
+                            // );
+                            // $("#total_hpal").html(
+                            //     data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            // );
+                            // $("#ytd_rkef").html(
+                            //     data_total.toLocaleString("en-US", { maximumFractionDigits: 2 }) +
+                            //     " Total"
+                            // );
+                            // $("#total_rkef").html(
+                            //     data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            // );
+                            // $("#lim_perc").css("width", hpal_percentage.toFixed(2) + "%"); // Atur lebar progres Lim
+                            // $("#sap_perc").css("width", rkef_percentage.toFixed(2) + "%"); // Atur lebar progres Sap
+
+                            // $("#total_ore_ytd").html(
+                            //     data_total.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            // );
+
+                            var data = {
+                                series: [parseFloat(data.total_lim), parseFloat(data.total_sap)],
+                                labels: ['HPAL', 'RKEF'],
+                            };
+
+
+                            this.oreTotalYtd.updateOptions({
+                                labels: data.labels,
+                                series: data.series,
+                                colors: ["#405a88", '#ffc107', "#b9decf"],
+                                // colors: ["#30638a", "#c8d1d4"],
+                                // chart: {
+                                //     height: 290,
+                                //     type: 'donut',
+                                //     background: '0',
+                                //     toolbar: {
+                                //         show: false
+                                //     }
+                                // },
+                            });
+
+
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+                },
+
+                fetchMtdOre(filter = {}) {
+                    // Your AJAX call to fetch Mtd Ore data
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-mtd-ore" %}',
+                        data: filter,
+                        success: (data) => {
+                            const data_rkef = data.total_sap;
+                            const data_hpal = data.total_lim;
+                            const data_total = data.x_data;
+
+                            $("#total_ore_mtd").html(
+                                data_total.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+                            $("#total_hpal_mtd").html(
+                                data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+                            $("#total_rkef_mtd").html(
+                                data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+
+
+
+                            var data = {
+                                series: [parseFloat(data.total_lim), parseFloat(data.total_sap)],
+                                labels: ['HPAL', 'RKEF'],
+
+                            };
+
+
+                            this.oreTotalMtd.updateOptions({
+                                labels: data.labels,
+                                series: data.series,
+                                // colors: ["#ede2c0", "#b9decf"],
+                                colors: ["#30638a", "#c8d1d4"],
+                            });
+
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+                },
+
+                // Function Charts to fetch data from server 
+                fetchData(filter = {}) {
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get_chart_data" %}', // Replace with your actual endpoint
+                        data: filter,
+                        success: (data) => {
+                            const x_data = data.x_data;
+                            const y_data_material_lim = data.y_data_material_lim;
+                            const y_data_material_sap = data.y_data_material_sap;
+
+                            this.oreYear.updateOptions({
+                                series: [
+                                    { name: 'HPAL', data: y_data_material_lim },
+                                    { name: 'RKEF', data: y_data_material_sap }
+                                ],
+                                chart: {
+                                    height: 320,
+                                    type: 'bar',
+                                    fontFamily: 'Nunito, sans-serif',
+                                    toolbar: {
+                                        show: false,
+                                    },
+                                },
+                                xaxis: {
+                                    categories: x_data,
+                                },
+                                // fill: {
+                                //     type: 'gradient',
+                                //     gradient: {
+                                //         shade: isDark ? 'dark' : 'light',
+                                //         type: 'vertical',
+                                //         shadeIntensity: 0.3,
+                                //         inverseColors: false,
+                                //         opacityFrom: 1,
+                                //         opacityTo: 0.8,
+                                //         stops: [0, 100],
+                                //     },
+                                // },
+                            });
+                        },
+                        error: (xhr, errmsg, err) => {
+                            console.error("Error:", errmsg);
+                        },
+                    });
+                },
+
+                fetchClassOre(filter = {}) {
+                    // Your AJAX call to fetch Class Ore data
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "chart-ore-class" %}',
+                        data: filter,
+                        success: (data) => { // Menggunakan arrow function di sini
+                            const x_data = ["LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"];
+                            const y_data = data.y_data;
+
+                            // Membuat data series
+                            var seriesData = [];
+                            for (var i = 0; i < x_data.length; i++) {
+                                seriesData.push({
+                                    x: x_data[i],
+                                    y: y_data[i],
+                                });
+                            }
+                            // Perbarui data series
+                            this.oreClassYear.updateSeries([
+                                {
+                                    data: seriesData,
+                                },
+                            ]);
+                        },
+                        error: (xhr, errmsg, err) => {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+                },
+
+                dailyChart(filter = {}) {
+                    // update daily chart
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "chart-ore-daily" %}',
+                        data: filter,
+                        success: (data) => { // Menggunakan arrow function di sini
+                            const x_data = data.x_data;
+                            const y_data_lim = data.y_data_lim;
+                            const y_data_sap = data.y_data_sap;
+
+                            // Membuat data series untuk LIM
+                            var seriesDataLIM = [];
+                            for (var i = 0; i < x_data.length; i++) {
+                                seriesDataLIM.push({
+                                    x: x_data[i],
+                                    y: y_data_lim[i],
+                                });
+                            }
+
+                            // Membuat data series untuk SAP
+                            var seriesDataSAP = [];
+                            for (var i = 0; i < x_data.length; i++) {
+                                seriesDataSAP.push({
+                                    x: x_data[i],
+                                    y: y_data_sap[i],
+                                });
+                            }
+                            // Mengatur ulang data kategori dan data seri
+                            this.dailyOreChart.updateOptions({
+                                series: [
+                                    {
+                                        name: "LIM",
+                                        data: seriesDataLIM,
+                                    },
+
+                                    {
+                                        name: "SAP",
+                                        data: seriesDataSAP,
+                                    },
+                                ],
+                                // colors: (chartBarColors = getChartColorsArray("line-daily")),
+                            });
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        },
+                    });
+                },
+
+                dailyChartClass(filter = {}) {
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "chart-ore-class-daily" %}',
+                        data: filter,
+                        success: (data) => {
+                            const x_data = ["LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"];
+                            const y_data = data.y_data;
+                            // Membuat data series
+                            var seriesData = [];
+                            for (var i = 0; i < x_data.length; i++) {
+                                seriesData.push({ data: y_data[i] });
+                            }
+                            // Mengatur ulang data kategori dan data seri
+                            this.oreClassMtd.updateOptions({
+                                series: [
+                                    {
+                                        name: "Total",
+                                        data: y_data,
+                                    },
+                                ],
+                                chart: {
+                                    height: 330,
+                                    type: "bar",
+                                    animations: {
+                                        enabled: true,
+                                        easing: "easein",
+                                        speed: 800,
+                                        animateGradually: {
+                                            enabled: true,
+                                            delay: 150,
+                                        },
+                                        dynamicAnimation: {
+                                            enabled: true,
+                                            speed: 350,
+                                        },
+                                    },
+                                },
+                                plotOptions: {
+                                    bar: {
+                                        borderRadius: 4,
+                                        borderRadiusApplication: 'end',
+                                        horizontal: true,
+                                    }
+                                },
+                                // colors: ["#64a5af", "#02b1a4", "#f3ce04", "#87e52c"],
+                                colors: ["#0d2e5d"],
+                                // colors: ['#1abc9c'],
+                                yaxis: {
+                                    categories: [],
+                                    axisBorder: {
+                                        show: true,
+                                        color: isDark ? '#3b3f5c' : '#e0e6ed',
+                                    },
+                                },
+                                xaxis: {
+                                    categories: x_data,
+                                    tickAmount: 4,
+                                    labels: {
+                                        formatter: (value) => {
+                                            return value / 1000 + 'K';
+                                        },
+                                        offsetX: isRtl ? -10 : 0,
+                                        offsetY: 0,
+                                        style: {
+                                            fontSize: '12px',
+                                            cssClass: 'apexcharts-yaxis-title',
+                                        },
+                                    },
+                                    opposite: isRtl ? true : false,
+                                },
+                            });
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        },
+                    });
+                },
+
+                sellingYtdChart(filter = {}) {
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-chart-sale-ytd" %}',
+                        data: filter,
+                        success: (data) => { // Menggunakan arrow function di sini
+                            // Panggil fungsi pembuatan grafik dengan data yang diperoleh
+                            const x_data = data.x_data;
+                            const y_data_hpal = data.y_data_hpal;
+                            const y_data_rkef = data.y_data_rkef;
+
+                            this.saleYear.updateOptions({
+                                series: [{
+                                    name: 'HPAL',
+                                    data: y_data_hpal
+                                }, {
+                                    name: 'RKEF',
+                                    data: y_data_rkef
+                                },
+                                ],
+                                xaxis: {
+                                    categories: x_data,
+                                },
+                                colors: ['#ffc107', "#405a88", "#b9decf"],
+                                // colors: ["#EED8C9", "#64a5af", "#8E9B97"],
+                                // colors: ["#268bb7", "#ffa726", "#8E9B97"],
+                                // fill: {
+                                //     type: 'gradient',
+                                //     gradient: {
+                                //         shade: isDark ? 'dark' : 'light',
+                                //         type: 'vertical',
+                                //         shadeIntensity: 0.3,
+                                //         inverseColors: false,
+                                //         opacityFrom: 1,
+                                //         opacityTo: 0.8,
+                                //         stops: [0, 100],
+                                //     },
+                                // },
+                            });
+
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-pie-sale-ytd" %}',
+                        data: filter,
+                        success: (data) => {
+
+                            this.saleByCategory.updateOptions({
+                                series: data.x_data, // Gunakan data.x_data dari respons
+                                labels: data.y_data, // Gunakan data.y_data dari respons
+                                colors: ["#d2c4aa", "#b7bba0", "#829d96", '#c87968'],
+                                responsive: [{
+                                    breakpoint: 400,
+                                    options: {
+                                        chart: {
+                                            width: 340
+                                        },
+                                        legend: {
+                                            show: false
+                                        }
+                                    }
+                                }],
+                                // legend: {
+                                //     position: 'bottom',
+                                //     offsetY: 0,
+                                //     height: 50,
+                                // },
+                                title: {
+                                    text: 'Sale Production - Ytd',
+                                    // floating: true,
+                                    offsetY: 0,
+                                    align: 'center',
+                                    style: {
+                                        color: '#444'
+                                    }
+                                }
+                            });
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-sale-ytd" %}',
+                        data: filter,
+                        success: function (data) {
+                            var data_rkef = data.total_rkef;
+                            var data_hpal = data.total_hpal;
+                            var data_total = data.x_data;
+                            // var total = data_total.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                            $("#total_sale_ytd").html(
+                                data_total.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+                            $("#sale_hpal_ytd").html(
+                                data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+                            $("#sale_rkef_ytd").html(
+                                data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+
+                            var data = {
+                                series: [parseFloat(data.total_hpal), parseFloat(data.total_rkef)],
+                                labels: ['HPAL', 'RKEF'],
+                            };
+
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+
+                },
+
+                dailyChartSale(filter = {}) {
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-daily-sale" %}',
+                        data: filter,
+                        success: (data) => {
+                            const x_data = data.x_data;
+                            const y_data_lim = data.y_data_lim;
+                            const y_data_sap = data.y_data_sap;
+
+                            // Membuat data series untuk LIM
+                            var seriesDataLIM = [];
+                            for (var i = 0; i < x_data.length; i++) {
+                                seriesDataLIM.push({
+                                    x: x_data[i],
+                                    y: y_data_lim[i],
+                                });
+                            }
+
+                            // Membuat data series untuk SAP
+                            var seriesDataSAP = [];
+                            for (var i = 0; i < x_data.length; i++) {
+                                seriesDataSAP.push({
+                                    x: x_data[i],
+                                    y: y_data_sap[i],
+                                });
+                            }
+                            // Mengatur ulang data kategori dan data seri
+                            this.sellingDaily.updateOptions({
+                                series: [
+                                    {
+                                        name: "LIM",
+                                        data: seriesDataLIM,
+                                    },
+
+                                    {
+                                        name: "SAP",
+                                        data: seriesDataSAP,
+                                    },
+                                ],
+                                colors: ["#AAC8A7", "#02b1a4", "#f3ce04", "#E48F45"],
+
+                                tooltip: {
+                                    shared: true,
+                                    intersect: false,
+                                    y: {
+                                        formatter: function (y) {
+                                            if (typeof y !== "undefined") {
+                                                return y.toLocaleString() + "  WMT";
+                                            }
+                                            return y;
+                                        },
+                                    },
+                                },
+                            });
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        },
+                    });
+                },
+
+                saleChartMTD(filter = {}) {
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-daily-sale-discharge" %}',
+                        data: filter,
+                        success: (data) => {
+                            const x_data = data.x_data;
+                            const y_data = data.y_data;
+
+                            // Mengatur ulang data kategori dan data seri
+                            this.saleByCategoryMtd.updateOptions({
+                                series: data.x_data, // Gunakan data.x_data dari respons
+                                labels: data.y_data, // Gunakan data.y_data dari respons
+                                colors: ["#AAC8A7", "#02b1a4", "#f3ce04", "#E48F45"],
+                                // dataLabels: {
+                                //     enabled: false
+                                // },
+                                responsive: [{
+                                    breakpoint: 400,
+                                    options: {
+                                        chart: {
+                                            width: 340
+                                        },
+                                        legend: {
+                                            show: false
+                                        }
+                                    }
+                                }],
+                                legend: {
+                                    position: 'bottom',
+                                    offsetY: 0,
+                                    // height: 50,
+                                },
+                                title: {
+                                    text: 'Sale to dome - Mtd',
+                                    // floating: true,
+                                    offsetY: 0,
+                                    align: 'center',
+                                    style: {
+                                        color: '#444'
+                                    }
+                                }
+                            });
+
+
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        },
+                    });
+
+                    $.ajax({
+                        type: "GET",
+                        url: '{% url "get-mtd-sale" %}',
+                        data: filter,
+                        success: function (data) {
+                            var data_rkef = data.total_rkef;
+                            var data_hpal = data.total_hpal;
+                            var data_total = data.x_data;
+                            // var total = data_total.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                            $("#total_sale_mtd").html(
+                                data_total.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+                            $("#sale_hpal_mtd").html(
+                                data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+                            $("#sale_rkef_mtd").html(
+                                data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                            );
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log("Error:", errmsg);
+                        },
+                    });
+                },
+
+                // timeSaleChart(filter = {}) {
+                //     $.ajax({
+                //         url: '{% url "get-daily-time" %}',
+                //         method: "GET",
+                //         data: filter,
+                //         success: (data) => {
+                //             const x_data = data.x_data;
+                //             const y_1 = data.y_data;
+                //             const y_2 = data.accumulated;
+
+
+                //             // Mengatur ulang data kategori dan data seri
+                //             this.sellingTime.updateOptions({
+                //                 series: [
+                //                     {
+                //                         name: 'WMT',
+                //                         data: y_1,
+                //                         type: 'column',
+                //                     },
+                //                     {
+                //                         name: 'Accumulated',
+                //                         data: y_2,
+                //                         type: 'line',
+                //                     }
+                //                 ],
+                //                 stroke: {
+                //                     width: [0, 2]
+                //                 },
+                //                 title: {
+                //                     text: 'Sale by Times'
+                //                 },
+                //                 dataLabels: {
+                //                     enabled: true,
+                //                     enabledOnSeries: [1],
+                //                     formatter: function (val) {
+                //                         return val.toLocaleString(undefined, {
+                //                             maximumFractionDigits: 0
+                //                         });
+
+                //                     },
+
+                //                 },
+                //                 labels: x_data,
+                //                 yaxis: [{
+                //                     title: {
+                //                         text: 'WMT',
+                //                     },
+                //                     labels: {
+                //                         formatter: (value) => {
+                //                             return value / 1000 + 'K';
+                //                         },
+
+                //                         style: {
+                //                             colors: '#B5B5C3',
+                //                             fontSize: '11px',
+                //                             cssClass: 'apexcharts-yaxis-title',
+                //                         },
+                //                     },
+                //                     opposite: isRtl ? true : false,
+                //                 },
+                //                 {
+                //                     opposite: true,
+                //                     // opposite: isRtl ? true : false,
+                //                     title: {
+                //                         text: 'Accumulated'
+                //                     },
+                //                     // },
+                //                     labels: {
+                //                         formatter: (value) => {
+                //                             return value / 1000 + 'K';
+                //                         },
+
+                //                         style: {
+                //                             colors: '#B5B5C3',
+                //                             fontSize: '11px',
+                //                             cssClass: 'apexcharts-yaxis-title',
+                //                         },
+                //                     },
+
+                //                 }],
+
+
+                //             });
+                //         },
+                //         error: function (error) {
+                //             console.error(error);
+                //         }
+                //     });
+
+                // },
+
+                updateChartTheme() {
+                    this.oreYear.updateOptions({
+                        grid: {
+                            borderColor: this.isDark ? '#191e3a' : '#e0e6ed',
+                        },
+                        xaxis: {
+                            axisBorder: { show: true, color: this.isDark ? '#3b3f5c' : '#e0e6ed' },
+                        },
+                    });
+                    this.saleYear.updateOptions({
+                        grid: {
+                            borderColor: this.isDark ? '#191e3a' : '#e0e6ed',
+                        },
+                        xaxis: {
+                            axisBorder: { show: true, color: this.isDark ? '#3b3f5c' : '#e0e6ed' },
+                        },
+                    });
+
+                    this.oreTotalYtd.updateOptions({
+                        grid: {
+                            borderColor: this.isDark ? '#191e3a' : '#e0e6ed',
+                        },
+                        yaxis: {
+                            axisBorder: { show: true, color: this.isDark ? '#3b3f5c' : '#e0e6ed' },
+                        },
+                        xaxis: {
+                            axisBorder: { show: true, color: this.isDark ? '#3b3f5c' : '#e0e6ed' },
+                        },
+                    });
+
+                    this.dailyOreChart.updateOptions({
+                        grid: {
+                            borderColor: this.isDark ? '#191e3a' : '#e0e6ed',
+                        },
+                        xaxis: {
+                            axisBorder: { show: true, color: this.isDark ? '#3b3f5c' : '#e0e6ed' },
+                        },
+                    });
+                    this.sellingDaily.updateOptions({
+                        grid: {
+                            borderColor: this.isDark ? '#191e3a' : '#e0e6ed',
+                        },
+                        xaxis: {
+                            axisBorder: { show: true, color: this.isDark ? '#3b3f5c' : '#e0e6ed' },
+                        },
+                    });
+                    this.oreClassMtd.updateOptions({
+                        grid: {
+                            borderColor: this.isDark ? '#191e3a' : '#e0e6ed',
+                        },
+                        yaxis: {
+                            axisBorder: { show: true, color: this.isDark ? '#3b3f5c' : '#e0e6ed' },
+                        },
+                        xaxis: {
+                            axisBorder: { show: true, color: this.isDark ? '#3b3f5c' : '#e0e6ed' },
+                        },
+                    });
+                    // this.sellingTime.updateOptions({
+                    //     grid: {
+                    //         borderColor: this.isDark ? '#191e3a' : '#e0e6ed',
+                    //     },
+                    //     xaxis: {
+                    //         axisBorder: { show: true, color: this.isDark ? '#3b3f5c' : '#e0e6ed' },
+                    //     },
+                    // });
+                },
+
+                get barOptions() {
+                    return {
+                        series: [
+                            { name: 'HPAL', data: [] },
+                            { name: 'RKEF', data: [] }
+                        ],
+                        chart: {
+                            height: 360,
+                            type: 'bar',
+                            fontFamily: 'Nunito, sans-serif',
+                            toolbar: {
+                                show: false,
+                            },
+                        },
+                        dataLabels: {
+                            enabled: false,
+                        },
+                        stroke: {
+                            width: 2,
+                            colors: ['transparent'],
+                        },
+                        // colors: ['#5c1ac3', '#5c739a', '#ffbb44'],
+                        colors: ['#ffca2c', '#5c739a', '#5c1ac3', '#ffbb44'],
+                        // colors: ['#ffc107', '#546ea2', '#5c739a'],
+                        dropShadow: {
+                            enabled: true,
+                            blur: 3,
+                            color: '#515365',
+                            opacity: 0.4,
+                        },
+                        plotOptions: {
+                            bar: {
+                                horizontal: false,
+                                columnWidth: '70%',
+                                borderRadius: 0,
+                            },
+                        },
+                        legend: {
+                            position: 'bottom',
+                            horizontalAlign: 'center',
+                            fontSize: '14px',
+                            itemMargin: {
+                                horizontal: 8,
+                                vertical: 8,
+                            },
+                        },
+                        grid: {
+                            borderColor: isDark ? '#191e3a' : '#e0e6ed',
+                            padding: {
+                                left: 20,
+                                right: 20,
+                            },
+                        },
+                        xaxis: {
+                            categories: [],
+                            axisBorder: {
+                                show: true,
+                                color: isDark ? '#3b3f5c' : '#e0e6ed',
+                            },
+                        },
+                        yaxis: {
+                            tickAmount: 4,
+                            labels: {
+                                formatter: (value) => {
+                                    return value / 1000 + 'K';
+                                },
+                                offsetX: isRtl ? -10 : 0,
+                                offsetY: 0,
+                                style: {
+                                    fontSize: '12px',
+                                    cssClass: 'apexcharts-yaxis-title',
+                                },
+                            },
+                            opposite: isRtl ? true : false,
+                        },
+                        fill: {
+
+                        },
+                        tooltip: {
+                            marker: {
+                                show: true,
+                            },
+                            y: {
+                                formatter: (val) => {
+                                    return val;
+                                },
+                            },
+                        },
+                        noData: {
+                            text: "No Data...",
+                        },
+                    };
+                },
+
+                // area chart
+                get dailyChartOptions() {
+                    return {
+                        series: [
+                            {
+                                name: 'HPAL',
+                                data: [],
+                            },
+                            {
+                                name: 'REKF',
+                                data: [],
+                            },
+                        ],
+                        chart: {
+                            height: 325,
+                            type: 'area',
+                            fontFamily: 'Nunito, sans-serif',
+                            zoom: {
+                                enabled: false,
+                            },
+                            toolbar: {
+                                show: false,
+                            },
+                        },
+                        dataLabels: {
+                            enabled: false,
+                        },
+                        stroke: {
+                            show: true,
+                            curve: 'smooth',
+                            width: 2,
+                            lineCap: 'square',
+                        },
+                        dropShadow: {
+                            enabled: true,
+                            opacity: 0.2,
+                            blur: 10,
+                            left: -7,
+                            top: 22,
+                        },
+                        //  colors: isDark ? ['#2196f3', '#e7515a'] : ['#1b55e2', '#e7515a'],
+                        colors: ['#f4c63d', '#17a2b8'],
+                        // markers: {
+                        //     discrete: [
+                        //         {
+                        //             seriesIndex: 0,
+                        //             dataPointIndex: 6,
+                        //             fillColor: '#1b55e2',
+                        //             strokeColor: 'transparent',
+                        //             size: 7,
+                        //         },
+                        //         {
+                        //             seriesIndex: 1,
+                        //             dataPointIndex: 5,
+                        //             fillColor: '#e7515a',
+                        //             strokeColor: 'transparent',
+                        //             size: 7,
+                        //         },
+                        //     ],
+                        // },
+                        labels: [],
+                        xaxis: {
+                            axisBorder: {
+                                show: false,
+                            },
+                            axisTicks: {
+                                show: false,
+                            },
+                            crosshairs: {
+                                show: true,
+                            },
+                            labels: {
+                                offsetX: isRtl ? 2 : 0,
+                                offsetY: 5,
+                                style: {
+                                    fontSize: '12px',
+                                    cssClass: 'apexcharts-xaxis-title',
+                                },
+                            },
+                        },
+                        yaxis: {
+                            tickAmount: 5,
+                            labels: {
+                                formatter: (value) => {
+                                    return value / 1000 + 'K';
+                                },
+                                offsetX: isRtl ? -30 : -10,
+                                offsetY: 0,
+                                style: {
+                                    fontSize: '12px',
+                                    cssClass: 'apexcharts-yaxis-title',
+                                },
+                            },
+                            opposite: isRtl ? true : false,
+                        },
+                        grid: {
+                            borderColor: isDark ? '#191e3a' : '#e0e6ed',
+                            strokeDashArray: 0,
+                            xaxis: {
+                                lines: {
+                                    show: false,
+                                },
+                            },
+                            yaxis: {
+                                lines: {
+                                    show: true,
+                                },
+                            },
+                            padding: {
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                left: 0,
+                            },
+                        },
+                        legend: {
+                            position: 'top',
+                            horizontalAlign: 'right',
+                            fontSize: '16px',
+                            markers: {
+                                width: 10,
+                                height: 10,
+                                offsetX: -2,
+                            },
+                            itemMargin: {
+                                horizontal: 10,
+                                vertical: 5,
+                            },
+                        },
+                        tooltip: {
+                            marker: {
+                                show: true,
+                            },
+                            x: {
+                                show: false,
+                            },
+                        },
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                shadeIntensity: 1,
+                                inverseColors: !1,
+                                opacityFrom: isDark ? 0.19 : 0.28,
+                                opacityTo: 0.05,
+                                stops: isDark ? [100, 100] : [45, 100],
+                            },
+                        },
+                    };
+                },
+
+                // tree chart
+                get oreClassOptions() {
+                    return {
+                        series: [
+                            {
+                                data: [
+                                    {
+                                        x: 'New Delhi',
+                                        y: 218
+                                    },
+                                    {
+                                        x: 'Kolkata',
+                                        y: 149
+                                    },
+                                    {
+                                        x: 'Mumbai',
+                                        y: 184
+                                    },
+                                    {
+                                        x: 'Ahmedabad',
+                                        y: 55
+                                    },
+                                    {
+                                        x: 'Bangaluru',
+                                        y: 84
+                                    },
+
+
+                                ]
+                            }
+                        ],
+                        legend: {
+                            show: false,
+                        },
+                        noData: {
+                            text: "No data...",
+                        },
+                        chart: {
+                            height: 320,
+                            type: "treemap",
+                        },
+                        animations: {
+                            enabled: true,
+                            easing: "easeinout",
+                            speed: 1500,
+                            animateGradually: {
+                                enabled: true,
+                                delay: 150,
+                            },
+                            dynamicAnimation: {
+                                enabled: true,
+                                speed: 800,
+                            },
+                        },
+                        // colors: [
+                        //     "#588A87",
+                        //     "#B6C6BE",
+                        //     "#DFD9CA",
+                        //     "#EFCABF",
+                        //     "#EEA995",
+                        //     "#E0AF61",
+                        // ],
+                        colors: [
+                            '#3B93A5',
+                            '#F7B844',
+                            '#ADD8C7',
+                            '#EC3C65',
+                            '#CDD7B6',
+                            '#C1F666',
+                            '#D43F97',
+                            '#1E5D8C',
+                            '#421243',
+                            '#7F94B0',
+                            '#EF6537',
+                            '#C0ADDB'
+                        ],
+                        plotOptions: {
+                            treemap: {
+                                distributed: true,
+                                enableShades: false,
+                            },
+                        },
+                    };
+                },
+
+                // sales by category
+                get saleByCategoryOptions() {
+                    return {
+                        series: [],
+                        chart: {
+                            height: 300,
+                            type: 'pie',
+                            zoom: {
+                                enabled: false
+                            },
+                            toolbar: {
+                                show: false
+                            }
+                        },
+                        labels: [],
+                        colors: ['#4361ee', '#805dca', '#00ab55', '#e7515a', '#e2a03f'],
+                        responsive: [{
+                            breakpoint: 480,
+                            options: {
+                                chart: {
+                                    width: 200
+                                }
+                            }
+                        }],
+                        stroke: {
+                            show: false,
+                        },
+                        legend: {
+                            position: 'bottom',
+                        }
+
+
+                    };
+                },
+
+
+                get donutChartOptions() {
+                    return {
+                        series: [],
+                        chart: {
+                            height: 290,
+                            type: 'donut',
+                            zoom: {
+                                enabled: false
+                            },
+                            toolbar: {
+                                show: false
+                            }
+                        },
+                        stroke: {
+                            show: false,
+                        },
+                        labels: [],
+                        colors: [],
+                        responsive: [{
+                            breakpoint: 400,
+                            options: {
+                                chart: {
+                                    width: 320
+                                }
+                            }
+                        }],
+                        legend: {
+                            position: 'bottom',
+                        },
+                    }
+                },
+
+                get mixedOptions() {
+                    return {
+                        series: [],
+                        chart: {
+                            height: 350,
+                            type: 'line',
+                            animations: {
+                                enabled: true,
+                                easing: 'linear',
+                                dynamicAnimation: {
+                                    speed: 1000
+                                }
+                            },
+                            toolbar: {
+                                show: true
+                            },
+                            zoom: {
+                                enabled: false,
+                            }
+                        },
+                        noData: {
+                            text: 'No Data...'
+                        },
+                        stroke: {},
+                        title: {},
+                        dataLabels: {},
+                        labels: [],
+                        xaxis: {},
+                        yaxis: [],
+                        // colors: ["#AAC8A7", "#f3ce04", "#02b1a4", "#E48F45"],
+                        colors: ['#4e6987', '#fdc362'],
+                        tooltip: {
+                            marker: {
+                                show: true,
+                            },
+                            y: {
+                                formatter: (val) => {
+                                    return val;
+                                },
+                            },
+                        },
+                    };
+                },
+            }));
+
+        });
+    </script>
+
+</body>
+
+</html>

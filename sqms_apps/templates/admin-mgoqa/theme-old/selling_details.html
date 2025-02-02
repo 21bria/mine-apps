@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout/head.html' %}
+</head>
+
+
+<body data-topbar="dark" data-sidebar="dark">
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!-- Herader -->
+        {% include 'layout/header.html' %}
+        <!-- ========== Left Sidebar Start ========== -->
+
+        {% include 'layout/sidebar.html' %}
+        <!-- Left Sidebar End -->
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header justify-content-between d-flex align-items-center">
+                                    <h4 class="card-title">Details Selling</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body">
+                                    <div class="col-md-12">
+                                        <div id="success-entry" class="alert alert-success alert-dismissible fade show"
+                                            role="alert" style="display: none;">
+                                            <i class="uil uil-exclamation-octagon me-2"></i> Data saved successfully.
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
+
+                                        <div class="col-xl-4">
+                                            <a class="btn btn-soft-primary btn-sm mb-4" href="javascript:void(0)"
+                                                id="openFilter"> <i class="mdi mdi-filter me-1"></i>Filter Data
+                                            </a>
+                                            <a class="btn btn-soft-warning btn-sm mb-4" href="javascript:void(0)"
+                                                name="reload" id="reload">
+                                                <i class="mdi mdi-refresh me-1"></i>Reload
+                                            </a>
+                                            <a class="btn btn-soft-success btn-sm mb-4" href="javascript:void(0)"
+                                                id="exportFilter">
+                                                <i class="mdi mdi-file-excel me-1"></i>Export Data
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="data_table" class="table table-striped nowrap" style="width: 100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="bg-soft-secondary" width="5%">No</th>
+                                                    <th class="bg-soft-secondary">Date_Hauling</th>
+                                                    <th class="bg-soft-secondary">Shift</th>
+                                                    <th class="bg-soft-secondary">Stockpile</th>
+                                                    <th class="bg-soft-secondary">PileID</th>
+                                                    <th class="bg-soft-secondary">Materials</th>
+                                                    <th class="bg-soft-secondary">Batch</th>
+                                                    <th class="bg-soft-secondary">SCCI</th>
+                                                    <th class="bg-soft-secondary">AWK</th>
+                                                    <th class="bg-soft-secondary">Date_Weigth</th>
+                                                    <th class="bg-soft-secondary">Berat[Isi]/Kg</th>
+                                                    <th class="bg-soft-secondary">Berat[Kosong]/Kg</th>
+                                                    <th class="bg-soft-secondary">Netto/Kg</th>
+                                                    <th class="bg-soft-secondary">Tonnage</th>
+                                                    <th class="bg-soft-secondary">ProductCode</th>
+                                                    <th class="bg-soft-secondary">Factory</th>
+                                                    <th class="bg-soft-secondary">Haulage code</th>
+                                                    <th class="bg-soft-secondary">Action</th>
+                                                </tr>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- end card body -->
+                            </div>
+                            <!-- end card -->
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+                </div> <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+            <!-- Footer -->
+            {% include 'layout/footer.html' %}
+
+        </div>
+        <!-- end main content-->
+
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Right Sidebar -->
+    {% include 'layout/right.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout/js.html" %}
+
+
+    <script type="text/javascript">
+        var table;
+        $(document).ready(function () {
+            /*--- Pass Header Token ---*/
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $('.select2').select2({
+                theme: 'bootstrap-5'
+            });
+
+
+            /*-- Render DataTable --*/
+            table = $('#data_table').DataTable().clear().destroy();
+            let data_url = '{% url "sale-list" %}';
+
+            var table = $('#data_table').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'responsive': true,
+                'autoWidth': true,
+                // 'select': true,
+                "ajax": {
+                    "url": data_url,
+                    "type": "POST",
+                    dataType: 'json',
+                    "data": function (data) {
+                        data.from_date = $('#from_date').val();
+                        data.to_date = $('#to_date').val();
+                        data.materialFilter = $('#materialFilter').val();
+                        data.areaFilter = $('#areaFilter').val();
+                        data.pointFilter = $('#pointFilter').val();
+                        data.productFilter = $('#productFilter').val();
+                        data.factoriesFilter = $('#factoriesFilter').val();
+                        return data;
+                    },
+                },
+                columns: [
+                    {
+                        data: null,
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    }, // Kolom nomor otomatis
+                    {
+                        data: 'tgl_hauling',
+                        name: 'tgl_hauling',
+                    },
+
+                    {
+                        data: 'shift',
+                        name: 'shift'
+                    },
+                    {
+                        data: 'sampling_area',
+                        name: 'sampling_area'
+                    },
+                    {
+                        data: 'sampling_point',
+                        name: 'sampling_point'
+                    },
+                    {
+                        data: 'nama_material',
+                        name: 'nama_material'
+                    },
+                    {
+                        data: 'batch',
+                        name: 'batch'
+                    },
+                    {
+                        data: 'new_scci_sub',
+                        name: 'new_scci_sub'
+                    },
+                    {
+                        data: 'new_awk_sub',
+                        name: 'new_awk_sub'
+                    },
+                    {
+                        data: 'timbang_isi',
+                        name: 'timbang_isi'
+                    },
+                    {
+                        data: 'fill_weigth_f',
+                        name: 'fill_weigth_f',
+                    },
+
+                    {
+                        data: 'empety_weigth_f',
+                        name: 'empety_weigth_f'
+                    },
+                    {
+                        data: 'netto_kg',
+                        name: 'netto_kg'
+                    },
+
+                    {
+                        data: 'netto_ton',
+                        name: 'netto_ton',
+                        render: function (data) {
+                            return parseFloat(data).toFixed(3);
+                        }
+                    },
+                    {
+                        data: 'delivery_order',
+                        name: 'delivery_order'
+                    },
+                    {
+                        data: 'factory_stock',
+                        name: 'factory_stock'
+                    },
+                    {
+                        data: 'haulage_code',
+                        name: 'haulage_code',
+                        searchable: true
+                    },
+                    {
+                        data: null,
+                        name: 'action',
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            var editBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Edit" class="edit text-success btn-sm editData"><i class="mdi mdi-pencil font-size-18"></i></a>';
+                            var deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Delete" class="text-danger btn-sm deleteData"><i class="mdi mdi-delete font-size-18"></i></a>';
+                            return editBtn + ' ' + deleteBtn;
+                        }
+                    },
+
+                ],
+                // Mengatur default sort pada kolom 
+                order: [
+                    [0, 'desc']
+                ],
+
+            });
+            /*--Filter Modal and Apply Filter---*/
+            $('#applyFilterBtn').click(function () {
+                var from_date = $('#from_date').val();
+                var to_date = $('#to_date').val();
+                var materialFilter = $('#materialFilter').val();
+                var factoriesFilter = $('#factoriesFilter').val();
+                var areaFilter = $('#areaFilter').val();
+                var pointFilter = $('#pointFilter').val();
+                var productFilter = $('#productFilter').val();
+
+                // Kirim permintaan AJAX ke server dengan filter
+                $('#filterModal').modal('hide');
+                table.ajax.reload();
+            });
+
+            // Tombol Reset
+            $('#reload').on('click', function () {
+                $('#from_date').val('');
+                $('#to_date').val('');
+                $('#materialFilter').val('').trigger('change');
+                $('#factoriesFilter').val('').trigger('change');
+                $('#areaFilter').val('').trigger('change');
+                $('#pointFilter').val('').trigger('change');
+                $('#productFilter').val('').trigger('change');
+
+                table.ajax.reload(); //just reload table;
+            });
+
+            /*--- Fungsi Delete ---*/
+            $('#data_table').on('click', '.deleteData', function () {
+                var id = $(this).data('id');
+                var no_production = $('#no_production').val();
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'btn btn-success',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Delete it!',
+                    width: 350,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "",
+                            type: "DELETE",
+                            dataType: 'json',
+                            data: {
+                                id: id,
+                            },
+                            success: function (data) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'Your file has been deleted.',
+                                    icon: 'success',
+                                    width: 350,
+                                })
+                                $('#data_table').DataTable().clear().draw();
+                            },
+                            error: function (data) {
+                                console.log('Error:', data);
+                            }
+                        });
+
+                    }
+                })
+            });
+            /* Update Data*/
+            $('#updateButton').click(function () {
+                var id = $('#id').val(); // Ganti dengan ID yang sesuai
+                var tgl_hauling = $('#tgl_hauling').val().trim();
+                // var time_hauling = $('#time_hauling').val().trim();
+                var shift = $('#shift').val().trim();
+                var id_truck = $('#id_truck').val();
+                var id_stockpile = $('#id_stockpile').val();
+                var id_pile = $('#id_pile').val();
+                var id_material = $('#id_material').val();
+                var id_factory = $('#id_factory').val();
+                var batch = $('#batch').val().trim();
+                var empety_weigth_f = $('#empety_weigth_f').val();
+                var fill_weigth_f = $('#fill_weigth_f').val();
+                var timbang_kosong = $('#timbang_kosong').val().trim();
+                var timbang_isi = $('#timbang_isi').val().trim();
+                var delivery_order = $('#delivery_order').val().trim();
+                var type = $('#type').val().trim();
+                var remarks = $('#remarks').val().trim();
+                var batch_g = $('#batch_g').val().trim();
+                var new_scci_sub = $('#new_scci_sub').val().trim();
+                var new_awk_sub = $('#new_awk_sub').val().trim();
+                var kode_batch_g = $('#kode_batch_g').val().trim();
+                var new_kode_batch_scci = $('#new_kode_batch_scci').val().trim();
+                var new_kode_batch_awk = $('#new_kode_batch_awk').val().trim();
+                var new_batch_awk_pulp = $('#new_batch_awk_pulp').val().trim();
+
+                var updatedData = {
+                    tgl_hauling: tgl_hauling,
+                    // time_hauling: time_hauling,
+                    shift: shift,
+                    id_truck: id_truck,
+                    id_stockpile: id_stockpile,
+                    id_pile: id_pile,
+                    id_material: id_material,
+                    id_factory: id_factory,
+                    batch: batch,
+                    fill_weigth_f: fill_weigth_f,
+                    empety_weigth_f: empety_weigth_f,
+                    timbang_kosong: timbang_kosong,
+                    timbang_isi: timbang_isi,
+                    delivery_order: delivery_order,
+                    type: type,
+                    remarks: remarks,
+                    batch_g: batch_g,
+                    new_scci_sub: new_scci_sub,
+                    new_awk_sub: new_awk_sub,
+                    kode_batch_g: kode_batch_g,
+                    new_kode_batch_scci: new_kode_batch_scci,
+                    new_kode_batch_awk: new_kode_batch_awk,
+                    new_batch_awk_pulp: new_batch_awk_pulp
+
+                };
+
+                $.ajax({
+                    url: '/update-selling/' + id, // Ganti dengan URL endpoint update yang sesuai
+                    type: 'PUT', // Anda bisa menggunakan 'POST' atau 'PUT' sesuai preferensi
+                    data: updatedData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#id').val('');
+                            $('#tgl_hauling').val('');
+                            // $('#time_hauling').val('');
+                            $('#shift').val('').trigger('change');
+                            $('#id_truck').val('').trigger('change');
+                            $('#id_stockpile').val('').trigger('change');
+                            $('#id_pile').val('').trigger('change');
+                            $('#id_material').val('').trigger('change');
+                            $('#id_factory').val('').trigger('change');
+                            $('#batch').val('');
+                            $('#fill_weigth_f').val('');
+                            $('#empety_weigth_f').val('');
+                            $('#timbang_kosong').val('');
+                            $('#timbang_isi').val('');
+                            $('#delivery_order').val('');
+                            $('#type').val('').trigger('change');
+                            $('#remarks').val('');
+                            $('#batch_g').val('');
+                            $('#new_scci_sub').val('');
+                            $('#new_scci_sub').val('');
+                            $('#new_awk_sub').val('');
+                            $('#kode_batch_g').val('');
+                            $('#new_kode_batch_scci').val('');
+                            $('#new_kode_batch_awk').val('');
+                            $('#new_batch_awk_pulp').val('');
+                            $('#ajaxModal').modal('hide'); // Menutup modal
+                            // Tampilkan notifikasi sukses
+                            $('#success-entry').show();
+                            // Sembunyikan notifikasi setelah beberapa detik
+                            setTimeout(function () {
+                                $('#success-entry').hide();
+                            }, 2500); // 2500 milidetik = 2.5 detik
+                            $('#validasiError').hide();
+                            $('#stockpileError').hide();
+                            $('#pileError').hide();
+                            $('#materialError').hide();
+                            $('#factoryError').hide();
+                            $('#deliveryError').hide();
+                            $('#batchError').hide();
+                            $('#groupError').hide();
+                            $('#scciError').hide();
+                            $('#awkError').hide();
+                            $('#refGroupError').hide();
+                            $('#refSCCIError').hide();
+                            $('#refAwkError').hide();
+                            $('#refAwkPulpError').hide();
+                            var no_production = $('#no_production').val();
+                            // Kirim permintaan AJAX ke server dengan filter
+                            // $('#data_table').DataTable().clear().destroy();
+                            // load_data(no_production)
+                            table.clear().draw();
+
+                        } else {
+                            // Penanganan kesalahan jika validasi gagal atau kesalahan lainnya
+                            alert('Terjadi kesalahan: ' + response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Penanganan kesalahan koneksi atau server
+                        // alert('Terjadi kesalahan saat mengirim permintaan AJAX.');
+                        $('#validasiError').hide();
+                        $('#stockpileError').hide();
+                        $('#pileError').hide();
+                        $('#materialError').hide();
+                        $('#factoryError').hide();
+                        $('#deliveryError').hide();
+                        $('#batchError').hide();
+                        $('#groupError').hide();
+                        $('#scciError').hide();
+                        $('#awkError').hide();
+                        $('#refGroupError').hide();
+                        $('#refSCCIError').hide();
+                        $('#refAwkError').hide();
+                        $('#refAwkPulpError').hide();
+                        // Penanganan kesalahan koneksi atau server
+                        // Handle validation errors
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.id_stockpile) {
+                                $('#stockpileError').text(xhr.responseJSON.errors.id_stockpile[
+                                    0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.id_pile) {
+                                $('#pileError').text(xhr.responseJSON.errors.id_pile[0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.id_material) {
+                                $('#materialError').text(xhr.responseJSON.errors.id_material[0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.id_factory) {
+                                $('#factoryError').text(xhr.responseJSON.errors.id_factory[0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.delivery_order) {
+                                $('#deliveryError').text(xhr.responseJSON.errors.delivery_order[
+                                    0]).show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.batch) {
+                                $('#batchError').text(xhr.responseJSON.errors.batch[0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.batch_g) {
+                                $('#groupError').text(xhr.responseJSON.errors.batch_g[0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.new_scci_sub) {
+                                $('#scciError').text(xhr.responseJSON.errors.new_scci_sub[0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.new_awk_sub) {
+                                $('#awkError').text(xhr.responseJSON.errors.new_awk_sub[0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.kode_batch_g) {
+                                $('#refGroupError').text(xhr.responseJSON.errors.kode_batch_g[
+                                    0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.new_kode_batch_scci) {
+                                $('#refSCCIError').text(xhr.responseJSON.errors
+                                    .new_kode_batch_scci[0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.new_kode_batch_awk) {
+                                $('#refAwkError').text(xhr.responseJSON.errors
+                                    .new_kode_batch_awk[0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            if (xhr.responseJSON.errors.new_batch_awk_pulp) {
+                                $('#refAwkPulpError').text(xhr.responseJSON.errors
+                                    .new_batch_awk_pulp[
+                                    0])
+                                    .show();
+                            }
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            $('#validasiError').text(xhr.responseJSON.message).show();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Filter Data -->
+    <script>
+        $(document).ready(function () {
+            $('#openFilter').click(function () {
+                $('#filterModal').modal('show');
+                $('#exportButton').hide();
+                $('#applyFilterBtn').show();
+                $(".select2").select2({
+                    width: '100%',
+                    dropdownParent: "#filterModal",
+                    theme: 'bootstrap-5',
+                    // placeholder: '--- Select ---',
+                });
+            });
+
+            // Ambil data material dari server dan tambahkan sebagai opsi Select2
+            $.ajax({
+                url: "{% url 'material-dropdown' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var options = '';
+
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.materials, function (key, value) {
+                        options += '<option value="' + value.nama_material + '">' + value
+                            .nama_material +
+                            '</option>';
+                    });
+
+                    $('#materialFilter').append(options);
+                }
+            });
+
+            // const sourceDropdown = new Choices(document.getElementById('factoriesFilter'));
+            $.ajax({
+                url: "{% url 'get-sale-stockpile' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_area, function (key, value) {
+                        options += '<option value="' + value.sampling_area + '">' + value
+                            .sampling_area +
+                            '</option>';
+                    });
+
+                    // Set opsi dalam elemen Select2
+                    $('#areaFilter').append(options);
+                }
+            });
+            $.ajax({
+                url: "{% url 'get-sale-dome' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_point, function (key, value) {
+                        options += '<option value="' + value.sampling_point + '">' + value
+                            .sampling_point +
+                            '</option>';
+                    });
+
+                    // Set opsi dalam elemen Select2
+                    $('#pointFilter').append(options);
+                }
+            });
+            $.ajax({
+                url: "{% url 'get-sale-discharge' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_discharge, function (key, value) {
+                        options += '<option value="' + value.factory_stock + '">' + value
+                            .factory_stock +
+                            '</option>';
+                    });
+                    // Set opsi dalam elemen Select2
+                    $('#factoriesFilter').append(options);
+                }
+            });
+
+            $.ajax({
+                url: "{% url 'get-sale-product' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.details_product, function (key, value) {
+                        options += '<option value="' + value.delivery_order + '">' + value
+                            .delivery_order +
+                            '</option>';
+                    });
+                    // Set opsi dalam elemen Select2
+                    $('#productFilter').append(options);
+                }
+            });
+        });
+    </script>
+    <!-- Exports -->
+    <script>
+        $(document).ready(function () {
+            $('#exportFilter').click(function () {
+                $(".select2").select2({
+                    width: '100%',
+                    dropdownParent: "#filterModal",
+                    theme: 'bootstrap-5',
+                });
+                $('#exportButton').show();
+                $('#applyFilterBtn').hide();
+                $('#no-sample').hide();
+                $('#filterModal').modal('show');
+            });
+
+            $('#exportButton').click(function () {
+                // Dapatkan nilai dari filter tanggal
+                var from_date = $('#from_date').val();
+                var to_date = $('#to_date').val();
+                var materialFilter = $('#materialFilter').val();
+                var factoriesFilter = $('#factoriesFilter').val();
+                var areaFilter = $('#areaFilter').val();
+                var pointFilter = $('#pointFilter').val();
+                var productFilter = $('#productFilter').val();
+
+                // Buat URL dengan filter
+                var exportUrl = "{% url 'export-sale-data' %}?from_date=" + from_date + "&to_date=" +
+                    to_date + "&materialFilter=" + materialFilter +
+                    "&areaFilter=" + areaFilter +
+                    "&pointFilter=" + pointFilter + "&factoriesFilter=" + factoriesFilter +
+                    "&productFilter=" + productFilter
+                // Redirect ke URL eksport dengan filter
+                window.location.href = exportUrl;
+                $('#filterModal').modal('hide');
+            });
+        });
+    </script>
+
+    <!-- Get Data for Edit -->
+    <script>
+        $(document).ready(function () {
+
+            // Fetch and populate select options dynamically
+            $.ajax({
+                url: "",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .nama_material +
+                            '</option>';
+                    });
+                    // Set options in the Select2 element
+                    $('#id_material').append(options);
+                }
+            });
+
+            $.ajax({
+                url: "",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .sampling_area +
+                            '</option>';
+                    });
+                    // Set opsi dalam elemen Select2
+                    $('#id_stockpile').append(options);
+                }
+            });
+            $.ajax({
+                url: "",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .sampling_point +
+                            '</option>';
+                    });
+
+                    // Set opsi dalam elemen Select2
+                    $('#id_pile').append(options);
+                }
+            });
+
+            $.ajax({
+                url: "", // Ganti dengan route yang sesuai
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var options = '';
+
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .unit_code +
+                            '</option>';
+                    });
+                    // Set options in the Select2 element
+                    $('#id_truck').append(options);
+                }
+            });
+
+            $.ajax({
+                url: "",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var options = '';
+
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data, function (key, value) {
+                        options += '<option value="' + value.id + '">' + value
+                            .factory_stock +
+                            '</option>';
+                    });
+                    // Set options in the Select2 element
+                    $('#id_factory').append(options);
+                }
+            });
+
+            $('#id_material').change(function (e) {
+                var selectType = $(this);
+                var inputType = $('#type');
+                var getMaterial = selectType.val();
+                // var getDischarge = $("#id_factory option:selected").text().trim();
+                // var getDischarge = $('#id_factory').find('option:selected').text().trim();
+                // var getCode = $('#delivery_order').val().trim();
+                // var getBathGroup = $('#batch_g').val().trim();
+
+                var selectedText = selectType.find(':selected').text();
+
+                var relationsGroup = $('#kode_batch_g');
+                var relationsSCCI = $('#new_kode_batch_scci');
+                var relationsAWK = $('#new_kode_batch_awk');
+                var relationsAWKPULP = $('#new_batch_awk_pulp');
+                if (selectedText.trim() === 'LIM') {
+                    var type = 'HOS';
+                    // var groupRelations = 'HOSTS_HOS';
+                    // var scciRelations = 'HOSSplit_SCCI';
+                    // var awkRelations = 'HOSSplit_AWK';
+                    inputType.val(type);
+                    relationsGroup.val('');
+                    relationsSCCI.val('');
+                    relationsAWK.val('');
+                    relationsAWKPULP.val('');
+                    // relationsGroup.val(groupRelations);
+                } else {
+                    inputType.val('ROS');
+                    // var groupRelations = 'ROSTS_ROS' + getDischarge + getMaterial + getCode + getBathGroup;
+                    // var scciRelations = 'ROSSplit_SCCI';
+                    // var awkRelations = 'ROSSplit_AWK';
+                    relationsGroup.val('');
+                    relationsSCCI.val('');
+                    relationsAWK.val('');
+                    relationsAWKPULP.val('');
+                    // relationsGroup.val(groupRelations);
+                }
+            });
+
+            $('#id_factory').change(function (e) {
+                var selectDischarge = $(this);
+                var getMaterial = $('#id_material').find('option:selected').text().trim();
+                var relationsGroup = $('#kode_batch_g');
+                var relationsSCCI = $('#new_kode_batch_scci');
+                var relationsAWK = $('#new_kode_batch_awk');
+                var relationsAWKPULP = $('#new_batch_awk_pulp');
+                if (getMaterial === 'LIM') {
+                    relationsGroup.val('');
+                    relationsSCCI.val('');
+                    relationsAWK.val('');
+                    relationsAWKPULP.val('');
+                } else {
+                    relationsGroup.val('');
+                    relationsSCCI.val('');
+                    relationsAWK.val('');
+                    relationsAWKPULP.val('');
+                }
+            });
+
+
+            $('#delivery_order').on('input', function (e) {
+                var getCode = $(this).val().trim();
+                var getMaterial = $('#id_material').find('option:selected').text().trim();
+                var relationsGroup = $('#kode_batch_g');
+                var relationsSCCI = $('#new_kode_batch_scci');
+                var relationsAWK = $('#new_kode_batch_awk');
+                var relationsAWKPULP = $('#new_batch_awk_pulp');
+                // var getBathGroup = $('#batch_g').val().trim();
+                if (getMaterial === 'LIM') {
+                    relationsGroup.val('');
+                    relationsSCCI.val('');
+                    relationsAWK.val('');
+                    relationsAWKPULP.val('');
+                } else {
+                    relationsGroup.val('');
+                    relationsSCCI.val('');
+                    relationsAWK.val('');
+                    relationsAWKPULP.val('');
+                }
+            });
+
+            $('#applyRelations').on('click', function () {
+                var selectDischarge = $('#id_factory').find('option:selected').text().trim();
+                var getCode = $('#delivery_order').val().trim();
+                var getMaterial = $('#id_material').find('option:selected').text().trim();
+                var valMaterial = $('#id_material').val();
+                var getBathGroup = $('#batch_g').val().trim();
+                var getBathSCCI = $('#new_scci_sub').val().trim();
+                var getBathAWK = $('#new_awk_sub').val().trim();
+
+                var relationsGroup = $('#kode_batch_g');
+                var relationsSCCI = $('#new_kode_batch_scci');
+                var relationsAWK = $('#new_kode_batch_awk');
+                var relationsAWKPULP = $('#new_batch_awk_pulp');
+                if (getMaterial === 'LIM') {
+                    var groupRelations = 'HOSTS_HOS' + valMaterial +
+                        getBathGroup;
+                    var scciRelations = 'HOSSplit_SCCI' + valMaterial + getBathGroup +
+                        '/' +
+                        getBathSCCI;
+                    var awkRelations = 'HOSSplit_AWK' + valMaterial + getCode +
+                        getBathAWK;
+                    var awkpulpRelations = 'HOSSplit_AWK' + getCode +
+                        getBathAWK;
+                    relationsGroup.val('');
+                    relationsSCCI.val('');
+                    relationsAWK.val('');
+                    relationsAWKPULP.val('');
+                    relationsGroup.val(groupRelations);
+                    relationsSCCI.val(scciRelations);
+                    relationsAWK.val(awkRelations);
+                    relationsAWKPULP.val(awkpulpRelations);
+                } else {
+                    var groupRelations = 'ROSTS_ROS' + valMaterial + getCode +
+                        getBathGroup;
+                    var scciRelations = 'ROSSplit_SCCI' + valMaterial + getCode +
+                        getBathSCCI;
+                    var awkRelations = 'ROSSplit_AWK' + valMaterial + getCode +
+                        getBathAWK;
+                    var awkpulpRelations = 'ROSSplit_AWK' + getCode +
+                        getBathAWK;
+                    relationsGroup.val('');
+                    relationsSCCI.val('');
+                    relationsAWK.val('');
+                    relationsAWKPULP.val('');
+                    relationsGroup.val(groupRelations);
+                    relationsSCCI.val(scciRelations);
+                    relationsAWK.val(awkRelations);
+                    relationsAWKPULP.val(awkpulpRelations);
+                }
+            });
+
+        });
+
+        /* Button Edit Click */
+        $('body').on('click', '.editData', function () {
+            var id = $(this).data('id');
+            $(".select2").select2({
+                width: '100%',
+                dropdownParent: "#ajaxModal",
+                theme: 'bootstrap-5',
+                // placeholder: '--- Select ---',
+            });
+            $.ajax({
+                type: "GET",
+                url: "/edit-selling/" + id,
+                dataType: "json",
+                success: function (response) {
+                    if (response) {
+                        // Mengisi formulir dengan data yang diterima
+                        $('#saveBtn').val("edit");
+                        $('#ajaxModal').modal('show');
+                        $('#saveBtn').html('Update Data');
+                        $('#id').val(response.id);
+                        $('#tgl_hauling').val(response.tgl_hauling);
+                        var responseTHauling = response.time_hauling;
+                        // Ini akan mengambil bagian jam (00:00:00)
+                        // var jam = responseTHauling.substring(0, 8);
+                        // $('#time_hauling').val(jam);
+                        $('#shift').val(response.shift).trigger('change');
+                        $('#id_material').val(response.id_material).trigger('change');
+                        $('#id_stockpile').val(response.id_stockpile).trigger('change');
+                        $('#id_pile').val(response.id_pile).trigger('change');
+                        $('#id_truck').val(response.id_truck).trigger('change');
+                        $('#fill_weigth_f').val(parseFloat(response.fill_weigth_f).toFixed(1));
+                        $('#empety_weigth_f').val(parseFloat(response.empety_weigth_f).toFixed(1));
+                        $('#timbang_isi').val(response.timbang_isi);
+                        $('#timbang_kosong').val(response.timbang_kosong);
+                        $('#id_factory').val(response.id_factory).trigger('change');
+                        $('#batch').val(response.batch);
+                        $('#batch_g').val(response.batch_g);
+                        $('#new_scci_sub').val(response.new_scci_sub);
+                        $('#new_awk_sub').val(response.new_awk_sub);
+                        $('#delivery_order').val(response.delivery_order);
+                        $('#remarks').val(response.remarks);
+                        // $('#kode_batch_g').val(response.kode_batch_g);
+                        // $('#new_kode_batch_scci').val(response.new_kode_batch_scci);
+                        // $('#new_kode_batch_awk').val(response.new_kode_batch_awk);
+                    } else {
+                        alert(
+                            'Data tidak ditemukan'
+                        ); // Atau tindakan lain jika data tidak ditemukan
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Terjadi kesalahan: ' + error); // Handle kesalahan AJAX
+                }
+            });
+        });
+    </script>
+
+    <!-- modal -->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="" aria-modal="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <form id="filterForm" name="filterForm" class="form-horizontal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="">Filter Data</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="from_date">Start Date </label>
+                                    <input class="form-control" type="date" id='from_date' name='from_date'>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="from_date">End Date</label>
+                                    <input class="form-control" type="date" id='to_date' name='to_date'>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="materialFilter">Materials</label>
+                                    <select class="form-control select2" id="materialFilter" name="materialFilter">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="areaFilter" class="control-label text-blue">Stockpile</label>
+                                    <select class="form-control select2" id="areaFilter" name="areaFilter"
+                                        style="width: 100%;">
+                                        <option value="">--- Select --- </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="mb-3">
+                                    <label for="pointFilter" class="control-label text-blue">PileID</label>
+                                    <select class="placeholder form-control select2" id="pointFilter"
+                                        name="pointFilter">
+                                        <option value="">--- Select --- </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="factoriesFilter" class="control-label text-blue">Discharge</label>
+                                    <select class="form-control select2" id="factoriesFilter" name="factoriesFilter"
+                                        style="width: 100%;">
+                                        <option value="">--- Select --- </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="productFilter" class="control-label text-blue">Product Code</label>
+                                    <select class="form-control select2" id="productFilter" name="productFilter"
+                                        style="width: 100%;">
+                                        <option value="">--- Select --- </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="applyFilterBtn"> <i
+                                class="mdi mdi-filter me-1"></i>Submit</button>
+                        <button type="button" class="btn btn-success btn-sm" id="exportButton"> <i
+                                class="mdi mdi-file-export me-1"></i>Export</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit -->
+    <div class="modal fade" id="ajaxModal" tabindex="-1" aria-labelledby="" aria-modal="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addInvoiceModalLabel">Edit Selling</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="entryForm" name="entryForm">
+                        @csrf
+                        <input type="hidden" name="id" id="id">
+                        <div id="validasiError" class="alert alert-danger alert-dismissible fade show" role="alert"
+                            style="display: none;">
+                            <i class="uil uil-exclamation-octagon me-1"></i>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Date hauling <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control input" name="tgl_hauling" id="tgl_hauling"
+                                        value="">
+                                </div>
+                            </div>
+                            {{-- <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Time hauling <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control input" name="time_hauling" id="time_hauling"
+                                        value="">
+                                </div>
+                            </div> --}}
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Shift<span class="text-danger">*</span></label>
+                                    <select id="shift" name="shift" class="form-control select2" style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                        <option value="D">D</option>
+                                        <option value="N">N</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Stockpile<span class="text-danger">*</span></label>
+                                    <select id="id_stockpile" name="id_stockpile" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                    <div class="invalid-feedback" id="stockpileError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Pile ID<span class="text-danger">*</span></label>
+                                    <select id="id_pile" name="id_pile" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                    <div class="invalid-feedback" id="pileError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Materials<span class="text-danger"> *</span></label>
+                                    <select id="id_material" name="id_material" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                    <div class="invalid-feedback" id="materialError" style="display: none;">
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Units</label>
+                                    <select id="id_truck" name="id_truck" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Berat Isi[Kg]<span class="text-danger">*</span></label>
+                                    <input type="number" id="fill_weigth_f" name="fill_weigth_f" class="form-control"
+                                        placeholder="Tonnage">
+                                </div>
+                            </div>
+                            <div class="col-lg-2" id="desk">
+                                <div class="mb-3">
+                                    <label>Berat Kosong[KG]<span class="text-danger">*</span></label>
+                                    <input type="number" id="empety_weigth_f" name="empety_weigth_f"
+                                        class="form-control" placeholder="Ritase">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Weight fill<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control input" name="timbang_isi" id="timbang_isi">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Weight empety<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control input" name="timbang_kosong"
+                                        id="timbang_kosong">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Discharge</label>
+                                    <select id="id_factory" name="id_factory" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">-- Discharge --</option>
+                                    </select>
+                                    <div class="invalid-feedback" id="factoryError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Product Code<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control input" name="delivery_order"
+                                        id="delivery_order" placeholder="SCB_00">
+                                    <div class="invalid-feedback" id="deliveryError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Type<span class="text-danger">*</span></label>
+                                    <input readonly type="text" class="form-control input" name="type" id="type">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Batch SCM<span class="text-danger">*</span></label>
+                                    <input type="text" id="batch" name="batch" class="form-control"
+                                        placeholder="Batch Group">
+                                    <div class="invalid-feedback" id="batchError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Batch GROUP<span class="text-danger">*</span></label>
+                                    <input type="text" id="batch_g" name="batch_g" class="form-control"
+                                        placeholder="Batch Group">
+                                    <div class="invalid-feedback" id="groupError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Batch SCCI<span class="text-danger">*</span></label>
+                                    <input type="text" id="new_scci_sub" name="new_scci_sub" class="form-control"
+                                        placeholder="Batch SSCI">
+                                    <div class="invalid-feedback" id="scciError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Batch AWK<span class="text-danger">*</span></label>
+                                    <input type="text" id="new_awk_sub" name="new_awk_sub" class="form-control"
+                                        placeholder="Batch AWK">
+                                    <div class="invalid-feedback" id="awkError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="mb-3">
+                                    <label>Remakrs</label>
+                                    <input id="remarks" name="remarks" class="form-control" placeholder="Remarks">
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="mb-3">
+
+                                    <div class="col-auto">
+                                        <button type="button" id="applyRelations" class="btn btn-soft-warning btn-sm><span
+                                            class=" d-none d-sm-inline-block me-2">Relations</span> <i
+                                                class="mdi mdi-refresh"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label>GROUP Relations</label>
+                                    <input readonly id="kode_batch_g" name="kode_batch_g" class="form-control"
+                                        placeholder="group relations">
+                                    <div class="invalid-feedback" id="refGroupError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label>SCCI Relations</label>
+                                    <input readonly id="new_kode_batch_scci" name="new_kode_batch_scci"
+                                        class="form-control" placeholder="scci relations">
+                                    <div class="invalid-feedback" id="refSCCIError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label>AWK Relations</label>
+                                    <input readonly id="new_kode_batch_awk" name="new_kode_batch_awk"
+                                        class="form-control" placeholder="awk relations">
+                                    <div class="invalid-feedback" id="refAwkError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label>AWK-PULP Relations</label>
+                                    <input readonly id="new_batch_awk_pulp" name="new_batch_awk_pulp"
+                                        class="form-control" placeholder="awk relations">
+                                    <div class="invalid-feedback" id="refAwkPulpError" style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="modal-footer mb-0">
+                        <button type="button" class="btn btn-sm btn-primary" id="updateButton" value="edit">Update
+                            Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+
+
+
+
+
+<style type="text/css">
+    .small-custom-alert {
+        width: auto;
+        /* Menggunakan ukuran default */
+    }
+
+    .small-popup-alert {
+        max-width: 300px;
+        /* Sesuaikan ukuran yang diinginkan */
+    }
+
+    .small-content-alert {
+        padding: 10px;
+        /* Sesuaikan ukuran padding yang diinginkan */
+    }
+</style>

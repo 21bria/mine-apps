@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout/head.html' %}
+</head>
+
+<body data-topbar="dark" data-sidebar="dark">
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+        <!-- Herader -->
+        {% include 'layout/header_dash.html' %}
+        <!-- ========== Left Sidebar Start ========== -->
+
+        {% include 'layout/sidebar.html' %}
+        <!-- Left Sidebar End -->
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    <!-- Ytd Ore -->
+                    {% include 'view_ore_ytd.html' %}
+                    <!-- Daily Ore -->
+                    {% include 'view_ore_daily.html' %}
+                    <!-- Ytd Selling -->
+                    {% include 'view_selling_ytd.html' %}
+                    <!-- Mtd Selling -->
+                    {% include 'view_selling_mtd.html' %}
+                    {% include 'view_total_year.html' %}
+
+                </div>
+                <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <script>
+                                document.write(new Date().getFullYear());
+                            </script>
+                            &copy; Vuesy.
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-sm-end d-none d-sm-block">
+                                Crafted with <i class="mdi mdi-heart text-danger"></i> by
+                                <a href="https://1.envato.market/themesdesign" target="_blank">Themesdesign</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+        <!-- end main content-->
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Right Sidebar -->
+    {% include 'layout/right.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout/js.html" %}
+</body>
+
+</html>
+
+<!-- Skrip untuk melakukan permintaan AJAX dan memperbarui grafik -->
+<script>
+    $(document).ready(function () {
+        /*--- Pass Header Token---*/
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": $('meta[name="csrf-token"]').attr("content"),
+            },
+        });
+
+        $.ajax({
+            url: "{% url 'get-year-ore' %}",
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+                var options = "";
+                // Loop melalui data dan tambahkan sebagai opsi Select2
+                $.each(data.tahun_pds, function (key, value) {
+                    options +=
+                        '<option value="' + value.tahun + '">' + value.tahun + "</option>";
+                });
+                $("#filter_year").append(options);
+                $("#filter_mtd_ore").append(options);
+            },
+
+        });
+        $.ajax({
+            url: "{% url 'get-year-sale' %}",
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+                var options = "";
+                // Loop melalui data dan tambahkan sebagai opsi Select2
+                $.each(data.tahun, function (key, value) {
+                    options +=
+                        '<option value="' + value.tahun + '">' + value.tahun + "</option>";
+                });
+                $("#filter_year_sale").append(options);
+                $("#filter_mtd_sale").append(options);
+            },
+        });
+
+        fetchOrePtd();
+        fetchSalePtd();
+        // Get Ore Production - Project to Date
+        function fetchOrePtd() {
+            $.ajax({
+                type: "GET",
+                url: '{% url "get-ore-ptd" %}',
+                success: function (data) {
+                    // createLim(data)
+                    var data_hpal = data.data_hpal;
+                    var data_rkef = data.data_rkef;
+                    var total_ore = data.total_ore;
+                    var total = total_ore.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                    var rkef_percentage = 0;
+                    var hpal_percentage = 0;
+
+                    // Periksa apakah total tidak nol sebelum menghitung persentase
+                    if (total !== 0) {
+                        rkef_percentage = (data_rkef / total) * 100;
+                        hpal_percentage = (data_hpal / total) * 100;
+                    }
+
+                    $("#lim_ptd").html(
+                        data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    $("#sap_ptd").html(
+                        data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    $("#total_ptd").html(
+                        total_ore.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+
+                    $("#lim_ptd_perc").html('HPAL : ' + hpal_percentage.toFixed(1) + '%');
+                    $("#sap_ptd_perc").html('RKEF : ' + rkef_percentage.toFixed(1) + '%');
+
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error:", errmsg);
+                },
+            });
+        }
+        // Call Sale ore - Project to Date 
+        function fetchSalePtd() {
+            $.ajax({
+                type: "GET",
+                url: '{% url "get-sale-ptd" %}',
+                success: function (data) {
+                    // createLim(data)
+                    var data_hpal = data.data_hpal;
+                    var data_rkef = data.data_rkef;
+                    var total_sale = data.total_sale;
+                    var total = total_sale.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                    var rkef_percentage = 0;
+                    var hpal_percentage = 0;
+
+                    // Periksa apakah total tidak nol sebelum menghitung persentase
+                    if (total !== 0) {
+                        rkef_percentage = (data_rkef / total) * 100;
+                        hpal_percentage = (data_hpal / total) * 100;
+                    }
+
+                    $("#hpal_ptd").html(
+                        data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    $("#rkef_ptd").html(
+                        data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    $("#sale_ptd").html(
+                        total_sale.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+
+                    $("#hpal_ptd_perc").html('HPAL : ' + hpal_percentage.toFixed(1) + '%');
+                    $("#rkef_ptd_perc").html('RKEF : ' + rkef_percentage.toFixed(1) + '%');
+
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error:", errmsg);
+                },
+            });
+        }
+
+        // Fungsi untuk mengambil data dari server
+        function fetchData(filter) {
+            $.ajax({
+                type: "GET",
+                url: '{% url "get_chart_data" %}',
+                data: filter,
+                success: function (data) {
+                    // Panggil fungsi pembuatan grafik dengan data yang diperoleh
+                    createChart(data);
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error:", errmsg);
+                },
+            });
+        }
+
+        // Fungsi untuk membuat atau memperbarui grafik
+        function createChart(data) {
+            var x_data = data.x_data;
+            var y_data_material_lim = data.y_data_material_lim;
+            var y_data_material_sap = data.y_data_material_sap;
+
+            var trace_lim = {
+                x: x_data,
+                y: y_data_material_lim,
+                type: "bar",
+                name: "HPAL",
+                marker: {
+                    color: "#ffd38f",
+                    opacity: 0.9,
+                },
+            };
+
+            var trace_sap = {
+                x: x_data,
+                y: y_data_material_sap,
+                type: "bar",
+                name: "RKEF",
+                marker: {
+                    color: "#9cb7b0",
+                },
+            };
+
+            var layout = {
+                autosize: true,
+                // width: 500,
+                // height: 350,
+                title: "Total of Month",
+                showlegend: true,
+                xaxis: {
+                    tickangle: -35,
+                    showgrid: false,
+                    gridcolor: "rgba(0,0,0,0.1)",
+                },
+                yaxis: {
+                    title: "Tonnage",
+                    showgrid: true,
+                    zeroline: false,
+                },
+                legend: {
+                    orientation: "h",
+                    yanchor: "bottom",
+                    y: 1.02,
+                    xanchor: "left",
+                },
+                bargap: 0.05,
+                font: {
+                    family: "Arial",
+                    size: 12,
+                },
+                // Tambahkan opsi animation untuk animasi saat dimuat
+                animation: {
+                    duration: 1500, // Durasi animasi dalam milidetik
+                    easing: "easeInOutCubic",
+                },
+            };
+            var config = { responsive: true };
+
+            // // Ubah jenis plot menjadi garis (line)
+            // trace_lim.type = 'line';
+            Plotly.newPlot("chart_ore_year", [trace_lim, trace_sap], layout, config);
+            // Buat plot tren garis dan letakkan di dalam kotak dengan id "trend-box"
+        }
+
+        // Fungsi untuk mengambil data dari server
+        function fetchClassOre(filter) {
+            $.ajax({
+                type: "GET",
+                url: '{% url "chart-ore-class" %}',
+                data: filter,
+                success: function (data) {
+                    // Panggil fungsi pembuatan grafik dengan data yang diperoleh
+                    // createChartClassOre(data);
+                    var x_data = ["LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"];
+                    var y_data = data.y_data;
+
+                    // Membuat data series
+                    var seriesData = [];
+                    for (var i = 0; i < x_data.length; i++) {
+                        seriesData.push({
+                            x: x_data[i],
+                            y: y_data[i],
+                        });
+                    }
+                    // Perbarui data series
+                    chart.updateSeries([
+                        {
+                            data: seriesData,
+                        },
+                    ]);
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error:", errmsg);
+                },
+            });
+        }
+
+        // Deklarasikan chart di luar fungsi agar dapat diakses ulang
+        var chart;
+
+        var options = {
+            series: [],
+            legend: {
+                show: false,
+            },
+            noData: {
+                text: "No data...",
+            },
+            chart: {
+                height: 268,
+                type: "treemap",
+            },
+            animations: {
+                enabled: true,
+                easing: "easeinout",
+                speed: 1500,
+                animateGradually: {
+                    enabled: true,
+                    delay: 150,
+                },
+                dynamicAnimation: {
+                    enabled: true,
+                    speed: 800,
+                },
+            },
+            colors: [
+                "#3B93A5",
+                "#F7B844",
+                "#ADD8C7",
+                "#EC3C65",
+                "#CDD7B6",
+                "#C1F666",
+                "#D43F97",
+                "#1E5D8C",
+                "#421243",
+                "#7F94B0",
+                "#EF6537",
+                "#C0ADDB",
+            ],
+            plotOptions: {
+                treemap: {
+                    distributed: true,
+                    enableShades: false,
+                },
+            },
+        };
+
+        // Jika chart belum diinisialisasi, lakukan inisialisasi
+        // if (!chart) {
+        chart = new ApexCharts(document.querySelector("#chart_ore_class"), options);
+        chart.render();
+
+        // Fungsi untuk mengambil data dari server
+        function fetchLim(filter) {
+            $.ajax({
+                type: "GET",
+                url: '{% url "get-total-lim" %}',
+                data: filter,
+                success: function (data) {
+                    // createLim(data)
+                    var data_hpal = data.data_hpal;
+                    var data_ni = data.data_ni;
+                    // var formattedTotal = data_hpal.toLocaleString('en-US', {
+                    //     maximumFractionDigits: 2
+                    // });
+                    // $("#total_hpal").html(formattedTotal);
+                    $("#ni_lim").html(" Ni : " + data_ni);
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error:", errmsg);
+                },
+            });
+        }
+
+        // Fungsi untuk mengambil data dari server
+        function fetchSap(filter) {
+            $.ajax({
+                type: "GET",
+                url: '{% url "get-total-sap" %}',
+                data: filter,
+                success: function (data) {
+                    // createLim(data)
+                    var data_rkef = data.data_rkef;
+                    var data_ni = data.data_ni;
+                    $("#ni_sap").html(" Ni : " + data_ni);
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error:", errmsg);
+                },
+            });
+        }
+
+        function fetchYtdOre(filter) {
+            $.ajax({
+                type: "GET",
+                url: '{% url "get-ytd-ore" %}',
+                data: filter,
+                success: function (data) {
+                    var data_rkef = data.total_sap;
+                    var data_hpal = data.total_lim;
+                    var data_total = data.x_data;
+                    var total = data_total.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                    var rkef_percentage = 0;
+                    var hpal_percentage = 0;
+
+                    // Periksa apakah total tidak nol sebelum menghitung persentase
+                    if (total !== 0) {
+                        rkef_percentage = (data_rkef / total) * 100;
+                        hpal_percentage = (data_hpal / total) * 100;
+                    }
+
+                    // Tampilkan persentase
+                    $("#ytd_hpal").html(
+                        data_total.toLocaleString("en-US", { maximumFractionDigits: 2 }) +
+                        " Total"
+                    );
+                    $("#total_hpal").html(
+                        data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    $("#ytd_rkef").html(
+                        data_total.toLocaleString("en-US", { maximumFractionDigits: 2 }) +
+                        " Total"
+                    );
+                    $("#total_rkef").html(
+                        data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    // $("#lim_perc").html(rkef_percentage.toFixed(2) + '%');
+                    $("#lim_perc").css("width", hpal_percentage.toFixed(2) + "%"); // Atur lebar progres Lim
+                    // $("#sap_perc").html(hpal_percentage.toFixed(2) + '%');
+                    $("#sap_perc").css("width", rkef_percentage.toFixed(2) + "%"); // Atur lebar progres Sap
+
+                    $("#total_ore_ytd").html(
+                        data_total.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    $("#total_hpal_ytd").html(
+                        data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    $("#total_rkef_ytd").html(
+                        data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+
+
+
+                    var data = {
+                        series: [parseFloat(data.total_lim), parseFloat(data.total_sap)],
+                        labels: ['HPAL', 'RKEF'],
+
+                    };
+
+                    donut_ytd.updateOptions({
+                        labels: data.labels,
+                        series: data.series,
+                        colors: ["#b9decf", "#9ab0b3"],
+                        chart: {
+                            width: 238,
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                    });
+
+
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error:", errmsg);
+                },
+            });
+        }
+
+        function fetchMtdOre(filter) {
+            $.ajax({
+                type: "GET",
+                url: '{% url "get-mtd-ore" %}',
+                data: filter,
+                success: function (data) {
+                    var data_rkef = data.total_sap;
+                    var data_hpal = data.total_lim;
+                    var data_total = data.x_data;
+
+                    $("#total_ore_mtd").html(
+                        data_total.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    $("#total_hpal_mtd").html(
+                        data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+                    $("#total_rkef_mtd").html(
+                        data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    );
+
+                    var data = {
+                        series: [parseFloat(data.total_lim), parseFloat(data.total_sap)],
+                        labels: ['HPAL', 'RKEF'],
+                    };
+
+
+                    donut_mtd.updateOptions({
+                        labels: data.labels,
+                        series: data.series,
+                        colors: ["#ede2c0", "#b9decf"],
+
+                        chart: {
+                            width: 238,
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                    });
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error:", errmsg);
+                },
+            });
+        }
+
+        function dailyChartClass(filter) {
+            $.ajax({
+                type: "GET",
+                url: '{% url "chart-ore-class-daily" %}',
+                data: filter,
+                success: function (data) {
+                    var x_data = ["LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"];
+                    var y_data = data.y_data;
+                    // Membuat data series
+                    var seriesData = [];
+                    for (var i = 0; i < x_data.length; i++) {
+                        seriesData.push({ data: y_data[i] });
+                    }
+                    // Mengatur ulang data kategori dan data seri
+                    chartClassDaily.updateOptions({
+                        series: [
+                            {
+                                name: "Total",
+                                data: y_data,
+                            },
+                        ],
+                        xaxis: {
+                            categories: x_data,
+                        },
+                        chart: {
+                            height: 350,
+                            type: "bar",
+                            animations: {
+                                enabled: true,
+                                easing: "easein",
+                                speed: 800,
+                                animateGradually: {
+                                    enabled: true,
+                                    delay: 150,
+                                },
+                                dynamicAnimation: {
+                                    enabled: true,
+                                    speed: 350,
+                                },
+                            },
+                        },
+                        colors: ["#64a5af", "#02b1a4", "#f3ce04", "#87e52c"],
+                    });
+                },
+                error: function (error) {
+                    console.error(error);
+                },
+            });
+        };
+
+        // Panggil fetchData saat halaman dimuat untuk pertama kalinya
+        fetchData();
+        fetchClassOre();
+        fetchLim();
+        fetchSap();
+        fetchYtdOre();
+        fetchMtdOre();
+        dailyChartClass();
+        dailyChart();
+        dailyChartSale();
+        // Panggil fetchData saat filter tahun dipilih
+        $("#filter_year").on("change", function () {
+            var selectedYear = $(this).val();
+            var filter = { filter_year: selectedYear };
+            fetchData(filter);
+            fetchClassOre(filter);
+            fetchLim(filter);
+            fetchSap(filter);
+            fetchYtdOre(filter);
+        });
+
+        // Panggil fetchData saat filter tahun dipilih
+        $("#filter_mtd_ore").on("change", function () {
+            var selectedYear = $(this).val();
+            var selectedMonth = $("#filter_month_ore").val();;
+            var filter = {
+                filter_year: selectedYear,
+                filter_month: selectedMonth
+            };
+            dailyChartClass(filter);
+            fetchMtdOre(filter);
+        });
+
+        $("#filter_month_ore").on("change", function () {
+            var selectedMonth = $(this).val();
+            var selectedYear = $("#filter_mtd_ore").val();;
+            var filter = {
+                filter_year: selectedYear,
+                filter_month: selectedMonth
+            };
+            dailyChartClass(filter);
+            fetchMtdOre(filter);
+        });
+
+
+        var donut_mtd = new ApexCharts(document.querySelector("#donut_mtd"), options_donut);
+        donut_mtd.render();
+
+        var donut_ytd = new ApexCharts(document.querySelector("#donut_ytd"), options_donut);
+        donut_ytd.render();
+
+    });
+</script>
+
+<!-- For Daily Chart Ore & Sale -->
+<script>
+    dailyChart();
+    dailyChartSale();
+
+    $("#oreDate").on("change", function () {
+        var selectedDate = $(this).val();
+        var filter = {
+            filter_days: selectedDate,
+        };
+        dailyChart(filter);
+    });
+
+    $("#saleDate").on("change", function () {
+        var selectedDate = $(this).val();
+        var filter = {
+            filter_days: selectedDate,
+        };
+        dailyChartSale(filter);
+    });
+
+    function dailyChart(filter) {
+        $.ajax({
+            type: "GET",
+            url: '{% url "chart-ore-daily" %}',
+            data: filter,
+            success: function (data) {
+                var x_data = data.x_data;
+                var y_data_lim = data.y_data_lim;
+                var y_data_sap = data.y_data_sap;
+
+                // Membuat data series untuk LIM
+                var seriesDataLIM = [];
+                for (var i = 0; i < x_data.length; i++) {
+                    seriesDataLIM.push({
+                        x: x_data[i],
+                        y: y_data_lim[i],
+                    });
+                }
+
+                // Membuat data series untuk SAP
+                var seriesDataSAP = [];
+                for (var i = 0; i < x_data.length; i++) {
+                    seriesDataSAP.push({
+                        x: x_data[i],
+                        y: y_data_sap[i],
+                    });
+                }
+                // Mengatur ulang data kategori dan data seri
+                chartLine.updateOptions({
+                    series: [
+                        {
+                            name: "LIM",
+                            data: seriesDataLIM,
+                        },
+
+                        {
+                            name: "SAP",
+                            data: seriesDataSAP,
+                        },
+                    ],
+                    colors: (chartBarColors = getChartColorsArray("line-daily")),
+                });
+            },
+            error: function (error) {
+                console.error(error);
+            },
+        });
+    };
+
+    function dailyChartSale(filter) {
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-daily-sale" %}',
+            data: filter,
+            success: function (data) {
+                var x_data = data.x_data;
+                var y_data_lim = data.y_data_lim;
+                var y_data_sap = data.y_data_sap;
+
+                // Membuat data series untuk LIM
+                var seriesDataLIM = [];
+                for (var i = 0; i < x_data.length; i++) {
+                    seriesDataLIM.push({
+                        x: x_data[i],
+                        y: y_data_lim[i],
+                    });
+                }
+
+                // Membuat data series untuk SAP
+                var seriesDataSAP = [];
+                for (var i = 0; i < x_data.length; i++) {
+                    seriesDataSAP.push({
+                        x: x_data[i],
+                        y: y_data_sap[i],
+                    });
+                }
+                // Mengatur ulang data kategori dan data seri
+                chartSaleDaily.updateOptions({
+                    series: [
+                        {
+                            name: "LIM",
+                            data: seriesDataLIM,
+                        },
+
+                        {
+                            name: "SAP",
+                            data: seriesDataSAP,
+                        },
+                    ],
+                    colors: ["#AAC8A7", "#02b1a4", "#f3ce04", "#E48F45"],
+
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        y: {
+                            formatter: function (y) {
+                                if (typeof y !== "undefined") {
+                                    return y.toLocaleString() + "  WMT";
+                                }
+                                return y;
+                            },
+                        },
+                    },
+                });
+            },
+            error: function (error) {
+                console.error(error);
+            },
+        });
+    };
+
+    var options = {
+        series: [],
+        chart: {
+            height: 350,
+            type: "area",
+            zoom: {
+                enabled: false
+            },
+            animations: {
+                enabled: true,
+                easing: "linear",
+                dynamicAnimation: {
+                    speed: 1000,
+                },
+            },
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        stroke: {
+            curve: "smooth",
+            width: 2.1,
+        },
+        // colors: ['#f3ce04', '#87e52c'],
+        colors: [],
+        legend: {
+            show: !1,
+        },
+        noData: {
+            text: "No Data...",
+        },
+        fill: {
+            type: "gradient",
+            gradient: {
+                shadeIntensity: 1,
+                inverseColors: !1,
+                opacityFrom: 0.45,
+                opacityTo: 0.05,
+                stops: [20, 100, 100, 100],
+            },
+        },
+        yaxis: {
+            show: !1,
+        },
+        xaxis: {
+            categories: [],
+        },
+
+        subtitle: {
+            text: "Monthly Recap Report",
+            offsetY: 15,
+            offsetX: 19,
+        },
+        markers: {
+            size: 0,
+        },
+        xaxis: {
+            categories: [],
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: "#B5B5C3",
+                    fontSize: "12px",
+                    fontFamily: "Poppins",
+                    fontWeight: 200,
+                },
+                formatter: function (value) {
+                    return value;
+                },
+            },
+            title: {
+                text: "Tonnage",
+            },
+        },
+
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: {
+                formatter: function (y) {
+                    if (typeof y !== "undefined") {
+                        return y.toLocaleString() + "  Ton";
+                    }
+                    return y;
+                },
+            },
+        },
+    };
+
+    var chartLine = new ApexCharts(document.querySelector("#line-daily"), options);
+    chartLine.render();
+    var chartSaleDaily = new ApexCharts(document.querySelector("#chart-selling-daily"), options);
+    chartSaleDaily.render();
+</script>
+
+<script>
+    var options = {
+        series: [],
+        chart: {
+            height: 350,
+            type: "bar",
+        },
+        plotOptions: {
+            bar: {
+                horizontal: true,
+            },
+        },
+        dataLabels: {
+            enabled: false,
+        },
+
+        colors: [],
+
+        legend: {
+            show: !1,
+        },
+        noData: {
+            text: "No Data...",
+        },
+
+        yaxis: {
+            show: !1,
+        },
+        xaxis: {
+            categories: [],
+        },
+        subtitle: {
+            text: "Monthly Recap Report",
+            offsetY: 15,
+            offsetX: 19,
+        },
+        xaxis: {
+            categories: [],
+        },
+
+        yaxis: {
+            labels: {
+                style: {
+                    colors: "#B5B5C3",
+                    fontSize: "12px",
+                    fontFamily: "Poppins",
+                    fontWeight: 200,
+                },
+                formatter: function (value) {
+                    return value;
+                },
+            },
+        },
+
+        tooltip: {
+            enabled: true,
+            shared: true,
+            intersect: false,
+            y: {
+                formatter: function (y) {
+                    if (typeof y !== "undefined") {
+                        return y.toLocaleString() + "  Ton";
+                    }
+                    return y;
+                },
+            },
+        },
+
+        dataLabels: {
+            enabled: false,
+            textAnchor: "middle",
+            distributed: false,
+            offsetX: 0,
+            offsetY: 0,
+            style: {
+                fontSize: "12px",
+                colors: ["#fff"],
+            },
+        },
+    };
+
+    var chartClassDaily = new ApexCharts(document.querySelector("#daily-chart-class"), options
+    ); chartClassDaily.render();
+
+</script>
+
+
+<!-- For Sale -->
+<script>
+    // Panggil fetchData saat filter tahun dipilih
+    $("#filter_year_sale").on("change", function () {
+        var selectedYear = $(this).val();
+        var filter = { filter_year: selectedYear };
+        sellingYtdChart(filter);
+    });
+
+    // Panggil fetchData saat filter tahun dipilih
+    $("#filter_mtd_sale").on("change", function () {
+        var selectedYear = $(this).val();
+        var selectedMonth = $("#filter_month_sale").val();;
+        var filter = {
+            filter_year: selectedYear,
+            filter_month: selectedMonth
+        };
+        saleChartMTD(filter);
+    });
+
+    $("#filter_month_sale").on("change", function () {
+        var selectedMonth = $(this).val();
+        var selectedYear = $("#filter_mtd_sale").val();;
+        var filter = {
+            filter_year: selectedYear,
+            filter_month: selectedMonth
+        };
+        saleChartMTD(filter);
+    });
+
+    function sellingYtdChart(filter) {
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-chart-sale-ytd" %}',
+            data: filter,
+            success: function (data) {
+                // Panggil fungsi pembuatan grafik dengan data yang diperoleh
+                var x_data = data.x_data;
+                var y_data_hpal = data.y_data_hpal;
+                var y_data_rkef = data.y_data_rkef;
+
+                chart_selling_ytd.updateOptions({
+                    series: [{
+                        name: 'HPAL',
+                        data: y_data_hpal
+                    }, {
+                        name: 'RKEF',
+                        data: y_data_rkef
+                    },
+                    ],
+                    xaxis: {
+                        categories: x_data,
+                    },
+                    plotOptions: {
+                        bar: {
+                            borderRadius: 10,
+                            dataLabels: {
+                                position: 'top', // top, center, bottom
+                            },
+                        }
+                    },
+                    colors: ["#EED8C9", "#64a5af", "#8E9B97"],
+                });
+
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error:", errmsg);
+            },
+        });
+
+
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-pie-sale-ytd" %}',
+            data: filter,
+            success: function (data) {
+                pie_selling_ytd.updateOptions({
+                    series: data.x_data, // Gunakan data.x_data dari respons
+                    labels: data.y_data, // Gunakan data.y_data dari respons
+                    colors: ["#EED8C9", "#64a5af", "#8E9B97", '#9EC8B9'],
+                    chart: {
+                        width: 450,
+                        type: 'donut',
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            chart: {
+                                width: 200
+                            },
+                            legend: {
+                                show: false
+                            }
+                        }
+                    }],
+                    legend: {
+                        position: 'bottom',
+                        offsetY: 0,
+                        height: 50,
+                    },
+                    title: {
+                        text: 'Sale Production - Ytd',
+                        // floating: true,
+                        offsetY: 0,
+                        align: 'center',
+                        style: {
+                            color: '#444'
+                        }
+                    }
+                });
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error:", errmsg);
+            },
+        });
+
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-sale-ytd" %}',
+            data: filter,
+            success: function (data) {
+                var data_rkef = data.total_rkef;
+                var data_hpal = data.total_hpal;
+                var data_total = data.x_data;
+                // var total = data_total.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                $("#total_sale_ytd").html(
+                    data_total.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                );
+                $("#sale_hpal_ytd").html(
+                    data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                );
+                $("#sale_rkef_ytd").html(
+                    data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                );
+
+                var data = {
+                    series: [parseFloat(data.total_hpal), parseFloat(data.total_rkef)],
+                    labels: ['HPAL', 'RKEF'],
+                };
+                donut_selling_ytd.updateOptions({
+                    labels: data.labels,
+                    series: data.series,
+                    colors: ["#EED8C9", "#64a5af", "#8E9B97"],
+                    chart: {
+                        width: 238,
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                });
+
+
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error:", errmsg);
+            },
+        });
+
+    }
+
+    var saleChartMTD = function (filter) {
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-daily-sale-discharge" %}',
+            data: filter,
+            success: function (data) {
+                var x_data = data.x_data;
+                var y_data = data.y_data;
+
+
+                // Mengatur ulang data kategori dan data seri
+                chartSaleMtd.updateOptions({
+                    series: data.x_data, // Gunakan data.x_data dari respons
+                    labels: data.y_data, // Gunakan data.y_data dari respons
+                    colors: ["#AAC8A7", "#02b1a4", "#f3ce04", "#E48F45"],
+                    chart: {
+                        width: 450,
+                        type: 'donut',
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            chart: {
+                                width: 200
+                            },
+                            legend: {
+                                show: false
+                            }
+                        }
+                    }],
+                    legend: {
+                        position: 'bottom',
+                        offsetY: 0,
+                        height: 50,
+                    },
+                    title: {
+                        text: 'Sale Production - Mtd',
+                        // floating: true,
+                        offsetY: 0,
+                        align: 'center',
+                        style: {
+                            color: '#444'
+                        }
+                    }
+                });
+
+
+            },
+            error: function (error) {
+                console.error(error);
+            },
+        });
+
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-mtd-sale" %}',
+            data: filter,
+            success: function (data) {
+                var data_rkef = data.total_rkef;
+                var data_hpal = data.total_hpal;
+                var data_total = data.x_data;
+                // var total = data_total.reduce((acc, curr) => acc + curr, 0); // Hitung total data
+
+                $("#total_sale_mtd").html(
+                    data_total.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                );
+                $("#sale_hpal_mtd").html(
+                    data_hpal.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                );
+                $("#sale_rkef_mtd").html(
+                    data_rkef.toLocaleString("en-US", { maximumFractionDigits: 2 })
+                );
+
+                var data = {
+                    series: [parseFloat(data.total_hpal), parseFloat(data.total_rkef)],
+                    labels: ['HPAL', 'RKEF'],
+                };
+
+                pieSaleMtd.updateOptions({
+                    labels: data.labels,
+                    series: data.series,
+                    colors: ["#f3ce04", "#AAC8A7", "#02b1a4", "#E48F45"],
+                    chart: {
+                        width: 238,
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                });
+
+
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error:", errmsg);
+            },
+        });
+    };
+
+
+    function summaryYear() {
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-total-ore-year" %}',
+            success: function (data) {
+                var x_data = data.tahun;
+                var y_data_hpal = data.total_hpal;
+                var y_data_rkef = data.total_rkef;
+
+                chart_summary_ytd.updateOptions({
+                    series: [{
+                        name: 'HPAL',
+                        data: y_data_hpal
+                    }, {
+                        name: 'RKEF',
+                        data: y_data_rkef
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 350,
+                        stacked: true,
+                        toolbar: {
+                            show: true
+                        },
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            borderRadius: 10,
+                            dataLabels: {
+                                total: {
+                                    enabled: true,
+                                    style: {
+                                        fontSize: '13px',
+                                        fontWeight: 900
+                                    }
+                                }
+                            }
+                        },
+                    },
+                    xaxis: {
+                        categories: x_data,
+                    },
+                    colors: ["#f1d77f", "#a5b592"],
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        y: {
+                            formatter: function (y) {
+                                if (typeof y !== "undefined") {
+                                    return y.toLocaleString() + "  Ton";
+                                }
+                                return y;
+                            },
+                        },
+                    },
+                });
+
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error:", errmsg);
+            },
+        });
+
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-total-sale-year" %}',
+            success: function (data) {
+                var x_data = data.tahun;
+                var y_data_hpal = data.total_hpal;
+                var y_data_rkef = data.total_rkef;
+
+                chart_summary_sale_ytd.updateOptions({
+                    series: [{
+                        name: 'HPAL',
+                        data: y_data_hpal
+                    }, {
+                        name: 'RKEF',
+                        data: y_data_rkef
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 350,
+                        stacked: true,
+                        toolbar: {
+                            show: true
+                        },
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            borderRadius: 10,
+                            dataLabels: {
+                                total: {
+                                    enabled: true,
+                                    style: {
+                                        fontSize: '13px',
+                                        fontWeight: 900
+                                    }
+                                }
+                            }
+                        },
+                    },
+                    xaxis: {
+                        categories: x_data,
+                    },
+
+                    colors: ["#f1d77f", "#a5b592"],
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        y: {
+                            formatter: function (y) {
+                                if (typeof y !== "undefined") {
+                                    return y.toLocaleString() + "  WMT";
+                                }
+                                return y;
+                            },
+                        },
+                    },
+                });
+
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error:", errmsg);
+            },
+        });
+    }
+
+    function summaryStockpile() {
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-total-hpal" %}',
+            success: function (data) {
+                var x_data = data.stockpile;
+                var y_data = data.total;
+
+                chart_stockpile_hpal.updateOptions({
+                    series: [{
+                        name: 'HPAL',
+                        data: y_data
+                    },
+                    ],
+                    xaxis: {
+                        categories: x_data,
+                    },
+                    colors: ["#f1d77f", "#a5b592"],
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        y: {
+                            formatter: function (y) {
+                                if (typeof y !== "undefined") {
+                                    return y.toLocaleString() + "  Ton";
+                                }
+                                return y;
+                            },
+                        },
+                    },
+                });
+
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error:", errmsg);
+            },
+        });
+
+        $.ajax({
+            type: "GET",
+            url: '{% url "get-total-rkef" %}',
+            success: function (data) {
+                var x_data = data.stockpile;
+                var y_data = data.total;
+
+                chart_stockpile_rkef.updateOptions({
+                    series: [{
+                        name: 'RKEF',
+                        data: y_data
+                    },
+                    ],
+                    xaxis: {
+                        categories: x_data,
+                    },
+
+                    colors: ["#a5b592", "#f1d77f"],
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        y: {
+                            formatter: function (y) {
+                                if (typeof y !== "undefined") {
+                                    return y.toLocaleString() + "  Ton";
+                                }
+                                return y;
+                            },
+                        },
+                    },
+                });
+
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error:", errmsg);
+            },
+        });
+    }
+
+    var options = {
+        series: [],
+        chart: {
+            height: 350,
+            type: "bar",
+            animations: {
+                enabled: true,
+                easing: "linear",
+                dynamicAnimation: {
+                    speed: 650,
+                },
+            },
+        },
+        options: {
+            plotOptions: {
+                bar: {
+                    borderRadius: 10,
+                    // borderRadiusApplication: 'end',
+                    // borderRadiusWhenStacked: 'last',
+                }
+            }
+        },
+        dataLabels: {
+            enabled: false,
+            formatter: function (val) {
+                return val;
+            },
+            offsetY: -20,
+            style: {
+                fontSize: '12px',
+                colors: ["#304758"]
+            }
+        },
+        noData: {
+            text: "No Data...",
+        },
+
+        xaxis: {
+            categories: [],
+        },
+        xaxis: {
+            categories: [],
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: "#B5B5C3",
+                    fontSize: "12px",
+                    fontFamily: "Poppins",
+                    fontWeight: 200,
+                },
+                formatter: function (value) {
+                    return value;
+                },
+            },
+            title: {
+                text: "Tonnage",
+            },
+        },
+
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: {
+                formatter: function (y) {
+                    if (typeof y !== "undefined") {
+                        return y.toLocaleString() + "  WMT";
+                    }
+                    return y;
+                },
+            },
+        },
+    };
+
+    var options_donut = {
+        series: [],
+        labels: [],
+        chart: {
+            type: 'donut',
+        },
+        colors: [],
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }],
+        noData: {
+            text: "No Data...",
+        },
+
+    };
+
+    var chart_selling_ytd = new ApexCharts(document.querySelector("#chart-selling-ytd"), options);
+    chart_selling_ytd.render();
+
+
+    var donut_selling_ytd = new ApexCharts(document.querySelector("#donut-selling-ytd"), options_donut);
+    donut_selling_ytd.render();
+
+    var pie_selling_ytd = new ApexCharts(document.querySelector("#pie-selling-ytd"), options_donut);
+    pie_selling_ytd.render();
+
+    var chartSaleMtd = new ApexCharts(document.querySelector("#chart-selling-mtd"), options_donut);
+    chartSaleMtd.render();
+
+    var chartSaleMtd = new ApexCharts(document.querySelector("#chart-selling-mtd"), options_donut);
+    chartSaleMtd.render();
+
+    var pieSaleMtd = new ApexCharts(document.querySelector("#pie-selling-mtd"), options_donut);
+    pieSaleMtd.render();
+
+    var chart_summary_ytd = new ApexCharts(document.querySelector("#chart-ore-year"), options);
+    chart_summary_ytd.render();
+
+    var chart_summary_sale_ytd = new ApexCharts(document.querySelector("#chart-sale-year"), options);
+    chart_summary_sale_ytd.render();
+
+    var chart_stockpile_hpal = new ApexCharts(document.querySelector("#chart-stokpile-hpal"), options);
+    chart_stockpile_hpal.render();
+
+    var chart_stockpile_rkef = new ApexCharts(document.querySelector("#chart-stokpile-rkef"), options);
+    chart_stockpile_rkef.render();
+
+    sellingYtdChart();
+    saleChartMTD();
+    summaryYear();
+    summaryStockpile();
+
+</script>
+
+<style>
+    .custom-progress {
+        height: 16px;
+        padding: 3px;
+        border-radius: 30px;
+    }
+</style>

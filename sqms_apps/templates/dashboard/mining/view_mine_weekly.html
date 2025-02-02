@@ -1,0 +1,31 @@
+<div class="mb-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-2">
+    <!-- by Type Material -->
+    <div class="panel h-full">
+        <div class="flex p-5"></div>
+        <div class="relative overflow-hidden">
+            <div x-ref="chartMaterialtoWeekly" class="rounded-lg bg-white dark:bg-black">
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel h-full p-0">
+        <div class="flex p-5">
+        </div>
+
+        <div x-ref="chartMaterialtoWeek" class="rounded-lg bg-white dark:bg-black">
+            <!-- loader -->
+            <div class="grid min-h-[353px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                <span
+                    class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+            </div>
+
+        </div>
+
+    </div>
+</div>

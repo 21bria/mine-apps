@@ -1,0 +1,85 @@
+<div class="mb-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="panel h-full">
+        <div
+            class="-mx-5 mb-5 flex items-start justify-between border-b border-[#e0e6ed] p-2 pt-0 dark:border-[#1b2e4b] dark:text-white-light">
+            <h5 class="text-lg font-semibold">Ytd - Ore Class</h5>
+        </div>
+        <div class="perfect-scrollbar relative -mr-3 h-[360px] pr-3">
+            <div class="relative overflow-hidden">
+                <div x-ref="oreClassYear" class="rounded-lg bg-white dark:bg-black">
+                    <div
+                        class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                        <span
+                            class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel h-full">
+        <div class="mt-4 mb-4 grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+            <div
+                class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                <div class="flex items-center justify-between space-x-1">
+                    <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="total_hpal_ytd"></p>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-warning" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                        </path>
+                    </svg>
+                </div>
+                <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">HPAL
+                </p>
+            </div>
+            <div
+                class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                <div class="flex items-center justify-between space-x-1">
+                    <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="total_rkef_ytd"></p>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                        </path>
+                    </svg>
+                </div>
+                <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">RKEF
+                </p>
+            </div>
+            <!-- Tambahkan elemen lainnya sesuai kebutuhan -->
+        </div>
+
+        <div x-ref="oreTotalYtd" class="rounded-lg bg-white dark:bg-black">
+            <!-- loader -->
+            <div class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                <span
+                    class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="panel h-full sm:col-span-3 xl:col-span-2">
+        <div class="mb-5 flex items-center dark:text-white-light">
+            <h5 class="text-lg font-semibold">Production this Month</h5>
+            <div x-data="form" class="dropdown ltr:ml-auto rtl:mr-auto">
+                <input class="form-input" type="date" id="oreDate" name="oreDate" value="{{ start_date }}">
+            </div>
+        </div>
+        <div class="relative overflow-hidden">
+            <div x-ref="dailyOreChart" class="rounded-lg bg-white dark:bg-black">
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>

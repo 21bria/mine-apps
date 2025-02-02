@@ -1,0 +1,139 @@
+<div class="mt-6 mb-6 grid gap-6 xl:grid-cols-3">
+    <div class="panel h-full xl:col-span-2">
+        <div class="mb-5 flex items-center dark:text-white-light">
+            <h5 class="text-lg font-semibold">Selling</h5>
+        </div>
+        <div class="relative overflow-hidden">
+            <div x-ref="saleYear" class="rounded-lg bg-white dark:bg-black">
+                <!-- loader -->
+                <div
+                    class="grid min-h-[225px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="h-full">
+        <!-- <div class="mb-5 flex items-center">
+            <h5 class="text-lg font-semibold dark:text-white-light">Selling By</h5>
+        </div> -->
+        <div class="overflow-hidden">
+            <div class="mt-4 mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+                <div
+                    class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                    <div class="flex items-center justify-between space-x-1">
+                        <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="hpal_ptd"></p>
+                        <svg xmlns=" http://www.w3.org/2000/svg" class="w-6 h-6 text-warning" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">HPAL Project to date
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                    <div class="flex items-center justify-between space-x-1">
+                        <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="rkef_ptd"></p>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">RKEF Project to date
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                    <div class="flex items-center justify-between space-x-1">
+                        <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="sale_hpal_ytd">0</p>
+                        <svg xmlns=" http://www.w3.org/2000/svg" class="w-6 h-6 text-warning" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">HPAL Ytd
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                    <div class="flex items-center justify-between space-x-1">
+                        <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="sale_rkef_ytd">0</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">RKEF Ytd
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                    <div class="flex items-center justify-between space-x-1">
+                        <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="sale_hpal_mtd">0</p>
+                        <svg xmlns=" http://www.w3.org/2000/svg" class="w-6 h-6 text-warning" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">HPAL Mtd
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                    <div class="flex items-center justify-between space-x-1">
+                        <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="sale_rkef_mtd">0</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">RKEF Mtd
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                    <div class="flex items-center justify-between space-x-1">
+                        <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="hpal_week">0</p>
+                        <svg xmlns=" http://www.w3.org/2000/svg" class="w-6 h-6 text-warning" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">HPAL on Week
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg p-3 border-border-white-dark/20 border-t bg-dark-light p-4 dark:border-[#0e1726] dark:bg-[#191e3a]">
+                    <div class="flex items-center justify-between space-x-1">
+                        <p class="text-xl font-semibold text-slate-700 dark:text-navy-100" id="rkef_week">0</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-success" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-300">RKEF on Week
+                    </p>
+                </div>
+
+                <!-- Tambahkan elemen lainnya sesuai kebutuhan -->
+            </div>
+            <!-- </div> -->
+        </div>
+
+    </div>
+</div>

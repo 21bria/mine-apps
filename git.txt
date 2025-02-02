@@ -1,0 +1,13 @@
+echo "# mine-apps" >> README.md
+git init
+git add README.md
+git commit -m "Update .gitignore to ignore .env and venv Remove debug.log file"
+git branch -M main
+git remote add origin https://github.com/21bria/mine-apps.git
+git push -u origin main
+
+
+or push an existing repository from the command line
+git remote add origin https://github.com/21bria/mine-apps.git
+git branch -M main
+git push -u origin main

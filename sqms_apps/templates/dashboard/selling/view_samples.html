@@ -1,0 +1,76 @@
+<div class="mb-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+
+    <!-- Kiri -->
+    <div class="panel h-full sm:col-span-3 xl:col-span-2">
+        <div class="mb-5 flex items-start justify-between">
+            <h5 class="text-lg font-semibold dark:text-white-light">Samples Selling - Ytd</h5>
+        </div>
+        <div class="relative overflow-hidden">
+            <div x-ref="sampleYear" class="rounded-lg bg-white dark:bg-black">
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kanan -->
+    <div class="col-span-2 grid gap-4 grid-rows-2">
+        <!-- Elemen di atas -->
+        <!-- card 4 -->
+        <div
+            class="w-full shadow-[4px_6px_10px_-3px_#bfc9d4] rounded dark:border-[#1b2e4b] dark:bg-[#191e3a] dark:shadow-none">
+            <div class="p-5 flex items-center flex-col sm:flex-row">
+                <div class="flex-1 ltr:sm:pl-5 rtl:sm:pr-5 text-center sm:text-left">
+                    <h5 class="text-[#3b3f5c] text-[15px] font-semibold mb-2 dark:text-white-light">Samples Selling
+                    </h5>
+                    <p class="text-lg dark:text-white-light/90">Total<span class="ml-2 text-primary"
+                            id="totals_samples_mtd">0</span></p>
+                    <!-- <span class="badge bg-primary rounded-full" id="totals_samples_mtd">0</span> -->
+                    <p class="font-semibold text-white-dark mt-4 sm:mt-4">Summary of sample selling based on selected
+                        month with weekly review within that month.</p>
+                </div>
+                <div class="overflow-hidden">
+                    <div x-ref="sampleMonth">
+                        <!-- loader -->
+                        <div
+                            class="grid min-h-[175px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                            <span
+                                class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Elemen dua di bawah -->
+        <div class="h-full sm:col-span-2 lg:col-span-1">
+            <!-- statistics -->
+            <div class="mb-5 flex items-center justify-between dark:text-white-light">
+                <h5 class="text-lg font-semibold">Statistics</h5>
+            </div>
+            <div class="grid gap-8 text-sm font-bold text-[#515365] sm:grid-cols-2">
+                <div>
+                    <div>
+                        <div>Total this week</div>
+                        <div class="text-lg text-[#f8538d]" id="samples_this_week">0</div>
+                    </div>
+                    <div x-ref="totalSampleWeeks" class="overflow-hidden"></div>
+                </div>
+
+                <div>
+                    <div>
+                        <div> -1 (days)</div>
+                        <div class="text-lg text-[#f8538d]" id="samples_this_day">0</div>
+                    </div>
+                    <div x-ref="sampleDays" class="overflow-hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

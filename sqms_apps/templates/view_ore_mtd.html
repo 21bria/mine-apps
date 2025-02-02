@@ -1,0 +1,104 @@
+<div class="mb-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+
+    <div class="panel h-full">
+        <div class="mb-5 flex items-center">
+            <!-- <h5 class="text-lg font-semibold dark:text-white-light">Mtd - Ore Class</h5> -->
+            <div x-data="form" class="dropdown ltr:ml-auto rtl:mr-auto">
+                <div class="inline-flex">
+                    <div>
+                        <select id="filter_mtd_ore" name="filter_mtd_ore" class="form-select text-white-dark">
+                            <option value="">-- Year --</option>
+                        </select>
+                    </div>
+
+                    <div class="dropdown">
+                        <select id="filter_month_ore" name="filter_month_ore" class="form-select text-white-dark">
+                            <option value="">Month</option>
+                            <option value="1">Januari</option>
+                            <option value="2">Februari</option>
+                            <option value="3">Maret</option>
+                            <option value="4">April</option>
+                            <option value="5">Mei</option>
+                            <option value="6">Juni</option>
+                            <option value="7">Juli</option>
+                            <option value="8">Agustus</option>
+                            <option value="9">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="overflow-hidden">
+            <div x-ref="oreTotalMtd" class="rounded-lg bg-white dark:bg-black">
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-5 flex p-0">
+            <div class="grid gap-6 text-sm font-bold text-[#515365] sm:grid-cols-2">
+
+                <div>
+                    <div>
+                        <div>HPAL :</div>
+                        <div class="text-lg text-[#f8538d]" id="total_hpal_mtd">0.0</div>
+                    </div>
+
+                </div>
+
+                <div>
+                    <div>
+                        <div>RKEF : </div>
+                        <div class="text-lg text-[#f8538d]" id="total_rkef_mtd">0.0</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel h-full">
+        <div class="mb-5 flex items-center">
+            <h5 class="text-lg font-semibold dark:text-white-light">Mtd - Ore Class</h5>
+
+        </div>
+        <div class="overflow-hidden">
+            <div x-ref="oreClassMtd" class="rounded-lg bg-white dark:bg-black">
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel h-full sm:col-span-3 xl:col-span-2">
+        <div class="mb-5 flex items-start justify-between">
+            <h5 class="text-lg font-semibold dark:text-white-light">Seling Report</h5>
+            <select id="filter_year_sale" name="filter_year_sale">
+                <option>Year</option>
+            </select>
+        </div>
+        <div class="relative overflow-hidden">
+            <div x-ref="saleYear" class="rounded-lg bg-white dark:bg-black">
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout/head.html' %}
+</head>
+
+
+<body data-topbar="dark" data-sidebar="dark">
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!-- Herader -->
+        {% include 'layout/header.html' %}
+        <!-- ========== Left Sidebar Start ========== -->
+
+        {% include 'layout/sidebar.html' %}
+        <!-- Left Sidebar End -->
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header justify-content-between d-flex align-items-center">
+                                    <h4 class="card-title">Sample Method</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body">
+                                    <div id="success-entry" class="alert alert-success alert-dismissible fade show"
+                                        role="alert" style="display: none;">
+                                        <i class="uil uil-exclamation-octagon me-2"></i> Data saved successfully.
+
+                                    </div>
+                                    <div class="col-sm">
+                                        <div>
+                                            <a class="btn btn-soft-success btn-sm mb-4" href="javascript:void(0)"
+                                                id="createNew"> <i class="mdi mdi-plus me-1"></i>Add New
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="example" class="table table-striped nowrap table-sm m-0"
+                                            style="width: 100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="bg-soft-secondary" width="5%">No</th>
+                                                    <th class="bg-soft-secondary" width="10%">Name</th>
+                                                    <th class="bg-soft-secondary">Description</th>
+                                                    <th class="bg-soft-secondary" width="10%">Active</th>
+                                                    <th class="bg-soft-secondary" width="7%">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- end card body -->
+                            </div>
+                            <!-- end card -->
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+                </div> <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+            <!-- Footer -->
+            {% include 'layout/footer.html' %}
+
+        </div>
+        <!-- end main content-->
+
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Right Sidebar -->
+    {% include 'layout/right.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout/js.html" %}
+    <script type="text/javascript">
+        $(function () {
+            /*----- Pass Header Token -----*/
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            /*--- Render DataTable ---*/
+            let data_url = '{% url "sample-method-list" %}';
+            var table = $('#example').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'responsive': true,
+                'autoWidth': true,
+                "ajax": {
+                    "url": data_url,
+                    "type": "POST",
+                    dataType: 'json',
+                },
+                columns: [
+                    {
+                        data: null,
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'sample_method',
+                        name: 'sample_method'
+                    },
+                    {
+                        data: 'keterangan',
+                        name: 'keterangan'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        render: function (data, type, row) {
+                            return data == 1 ?
+                                '<div class="badge badge-soft-success font-size-12">Yes</div>' :
+                                '<div class="badge badge-soft-warning font-size-12">No</div>';
+                        }
+                    },
+                    {
+                        data: null,
+                        name: 'action',
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            var editBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Edit" class="edit text-success btn-sm editData"><i class="mdi mdi-pencil font-size-18"></i></a>';
+                            var deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Delete" class="text-danger btn-sm deleteData"><i class="mdi mdi-delete font-size-18"></i></a>';
+                            // console.log('Row Object:', row);
+                            // console.log('ID:', row.id);
+                            return editBtn + ' ' + deleteBtn;
+                        }
+                    },
+                ]
+            });
+
+            /*Click to Button*/
+            $('#createNew').click(function () {
+                $('#saveBtn').val("create-method");
+                $('#id').val('');
+                $('#entryForm').trigger("reset");
+                $('#modelHeading').html("CreateNew Method");
+                $('#ajaxModal').modal('show');
+                $('#saveBtn').html('Save Changes');
+            });
+
+
+            /* Insert Data */
+            $('#saveBtn').click(function (e) {
+                e.preventDefault();
+                if ($('#sample_method').val().trim() === '') {
+                    // alert('Mine block tidak boleh kosong.');
+                    $('#duplicateError').text('Source filled is required').show();
+                    return;
+                }
+                $(this).html('Sending..');
+                $.ajax({
+                    data: $('#entryForm').serialize(),
+                    url: "{% url 'insert-sample-method' %}",
+                    type: "POST",
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.status === 'success') {
+                            console.log('Data saved successfully.');
+                            $('#entryForm').trigger("reset");
+                            $('#ajaxModal').modal('hide');
+                            table.draw();
+                            $('#duplicateError').hide();
+                            // Tampilkan notifikasi sukses
+                            $('#success-entry').show();
+                            // Sembunyikan notifikasi setelah beberapa detik
+                            setTimeout(function () {
+                                $('#success-entry').hide();
+                            }, 2500); // 2500 milidetik = 2.5 detik
+                        } else {
+                            alert('Error: ' + data.message);
+
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        if (xhr.status === 403) {
+                            $('#duplicateError').text(xhr.responseJSON.message).show();
+                        } else {
+                            alert('Error: ' + xhr.status + ', ' + xhr.responseJSON.message);
+                        }
+                    }
+                });
+            });
+
+            /* Click to Edit Button*/
+            $('#example').on('click', '.editData', function () {
+                var id = $(this).data('id');
+                var url = '/sqms_apps/sample-method/get_id/' + id + '/';
+                console.log('gtEdit URL:', url);
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response) {
+                            $('#saveBtn').val("edit-methos");
+                            $('#editModal').modal('show');
+                            $('#saveBtn').html('Save Changes');
+                            $('#id').val(response.id);
+                            $('#edit_sample_method').val(response.sample_method);
+                            $('#edit_keterangan').val(response.keterangan);
+                        } else {
+                            alert(
+                                'Data tidak ditemukan'
+                            );
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Terjadi kesalahan: ' + error); // Handle kesalahan AJAX
+                    }
+                });
+            });
+
+            /*--- Update---*/
+            $('#updateBtn').click(function (e) {
+                e.preventDefault();
+                var id = $('#id').val();
+                var url = '/sqms_apps/sample-method/update/' + id + '/';
+                if ($('#edit_sample_method').val().trim() === '') {
+                    // alert('Mine block tidak boleh kosong.');
+                    $('#editError').text('Source filled is required').show();
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: "json",
+                    data: {
+                        sample_method: $('#edit_sample_method').val(),
+                        keterangan: $('#edit_keterangan').val(),
+                        // status: $('#status').val()
+                    },
+                    success: function (data) {
+                        if (data) {
+                            $('#editError').hide();
+                            $('#editModal').modal('hide');
+                            table.draw()
+                            // Tampilkan notifikasi sukses
+                            $('#success-entry').show();
+                            // Sembunyikan notifikasi setelah beberapa detik
+                            setTimeout(function () {
+                                $('#success-entry').hide();
+                            }, 2500); // 2500 milidetik = 2.5 detik
+
+                        } else {
+                            alert('Gagal memperbarui data');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#editError').hide();
+                        if (xhr.status === 400) {
+                            // alert('Error 400: ' + xhr.responseJSON.message);
+                            $('#editError').text(xhr.responseJSON.message).show();
+                        } else {
+                            alert('Error: ' + xhr.status + ', ' + xhr.responseJSON.message);
+                        }
+                    }
+                });
+            });
+
+            /*--- Delete ---*/
+            $('#example').on('click', '.deleteData', function () {
+                var id = $(this).data('id');
+                var url = '{% url "delete-sample-method" %}?id=' + id;
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'btn btn-success',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Delete it!',
+                    width: 320,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            type: "DELETE",
+                            dataType: 'json',
+                            data: {
+                                id: id,
+                            },
+                            success: function (data) {
+                                table.draw();
+
+                            },
+                            error: function (data) {
+                                console.log('Error:', data);
+                            }
+                        });
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Your file has been deleted.',
+                            icon: 'success',
+                            width: 320,
+                        })
+                    }
+                })
+            });
+
+        });
+    </script>
+
+    <!-- modal -->
+    <div class="modal fade" id="ajaxModal" tabindex="-1" aria-labelledby="" aria-modal="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <form id="entryForm" name="entryForm" class="form-horizontal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="">Add Data</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="sample_method" name="sample_method"
+                                    placeholder="Enter Name" value="" maxlength="50" required="">
+                                <div class="invalid-feedback" id="duplicateError" style="display: none;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="col-sm-2 control-label">Description</label>
+                                    <textarea id="keterangan" name="keterangan" required=""
+                                        placeholder="Enter Description" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary btn-sm" id="saveBtn" value="create">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="" aria-modal="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <form id="editForm" name="editForm" class="form-horizontal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="">Update Data</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="id">
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="edit_sample_method"
+                                    name="edit_sample_method" placeholder="Enter Name" value="" maxlength="50"
+                                    required="">
+                                <div class="invalid-feedback" id="editError" style="display: none;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="col-sm-2 control-label">Description</label>
+                                    <textarea id="edit_keterangan" name="edit_keterangan" required=""
+                                        placeholder="Enter Description" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="updateBtn" value="updated">Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<style>
+    .swal2-styled {
+        margin: .3125em;
+        padding: .360em 1.1em;
+        transition: box-shadow .1s;
+        box-shadow: 0 0 0 3px transparent;
+        font-weight: 500;
+    }
+
+    .swal2-icon {
+        position: relative;
+        box-sizing: content-box;
+        justify-content: center;
+        width: 4em;
+        height: 4em;
+        margin: 2.5em auto .6em;
+        border: .25em solid transparent;
+        border-radius: 50%;
+        border-color: #000;
+        font-family: inherit;
+        line-height: 5em;
+        cursor: default;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+</style>

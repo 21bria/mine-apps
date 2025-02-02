@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout/head.html' %}
+</head>
+
+
+<body data-topbar="dark" data-sidebar="dark">
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!-- Herader -->
+        {% include 'layout/header.html' %}
+        <!-- ========== Left Sidebar Start ========== -->
+
+        {% include 'layout/sidebar.html' %}
+        <!-- Left Sidebar End -->
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header justify-content-between d-flex align-items-center">
+                                    <h4 class="card-title">Sampling Point</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body">
+                                    <div id="success-entry" class="alert alert-success alert-dismissible fade show"
+                                        role="alert" style="display: none;">
+                                        <i class="uil uil-exclamation-octagon me-2"></i> Data saved successfully.
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div>
+                                            <a class="btn btn-soft-success btn-sm mb-4" href="javascript:void(0)"
+                                                id="createNew"> <i class="mdi mdi-plus me-1"></i>Add New
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="example" class="table table-striped nowrap table-sm m-0"
+                                            style="width: 100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="bg-soft-secondary" width="5%">No</th>
+                                                    <th class="bg-soft-secondary" width="10%">Name</th>
+                                                    <th class="bg-soft-secondary">Description</th>
+                                                    <th class="bg-soft-secondary" width="7%">Pile ID</th>
+                                                    <th class="bg-soft-secondary" width="7%">Active</th>
+                                                    <th class="bg-soft-secondary" width="7%">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- end card body -->
+                            </div>
+                            <!-- end card -->
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+
+
+                </div> <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+            <!-- Footer -->
+            {% include 'layout/footer.html' %}
+
+        </div>
+        <!-- end main content-->
+
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Right Sidebar -->
+    {% include 'layout/right.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout/js.html" %}
+
+
+    <script type="text/javascript">
+        $(function () {
+            /*---- Pass Header Token ---*/
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            /*----  Render DataTable ----*/
+            let url = '{% url "sampling-point-list" %}';
+            var table = $('#example').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'responsive': true,
+                'autoWidth': true,
+                // 'select': true,
+                "ajax": {
+                    "url": url,
+                    "type": "POST",
+                    dataType: 'json',
+                },
+                columns: [
+
+                    {
+                        data: null,
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    }, // Kolom nomor otomatis
+                    {
+                        data: 'sampling_point',
+                        name: 'sampling_point'
+                    },
+                    {
+                        data: 'keterangan',
+                        name: 'keterangan'
+                    },
+                    {
+                        data: 'pile_id',
+                        name: 'pile_id'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        render: function (data, type, row) {
+                            // Ubah nilai status menjadi elemen HTML berdasarkan nilai
+                            return data == 1 ?
+                                '<div class="badge badge-soft-success font-size-12">Yes</div>' :
+                                '<div class="badge badge-soft-warning font-size-12">No</div>';
+                        }
+                    },
+                    {
+                        data: null,
+                        name: 'action',
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            var editBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Edit" class="edit text-success btn-sm editData"><i class="mdi mdi-pencil font-size-18"></i></a>';
+                            var deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Delete" class="text-danger btn-sm deleteData"><i class="mdi mdi-delete font-size-18"></i></a>';
+                            return editBtn + ' ' + deleteBtn;
+                        }
+                    },
+                ]
+            });
+
+            /*----- Click to Add Data ----*/
+            $('#createNew').click(function () {
+                $("#pile_id").select2({
+                    width: '100%',
+                    dropdownParent: "#ajaxModal",
+                    theme: 'bootstrap-5',
+                    placeholder: '--- Select ---',
+                });
+                $('#entryForm').trigger("reset");
+                $('#duplicateError').hide();
+                $('#PileId').hide();
+                $('#ajaxModal').modal('show');
+                $('#saveBtn').html('Save Changes');
+            });
+
+            /*----- Save New Data ------*/
+            $('#saveBtn').click(function (e) {
+                e.preventDefault();
+                if ($('#sampling_point').val().trim() === '') {
+                    $('#duplicateError').text('The filled is required').show();
+                    return;
+                }
+                if ($('#pile_id').val().trim() === '') {
+                    $('#pileId').text('The filled is required').show();
+                    return;
+                }
+                $(this).html('Sending..');
+
+                $.ajax({
+                    data: $('#entryForm').serialize(),
+                    url: "{% url 'insert-sampling-point' %}",
+                    type: "POST",
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.status === 'success') {
+                            $('#duplicateError').hide();
+                            $('#pileId').hide();
+                            $('#ajaxModal').modal('hide');
+                            table.draw();
+                            $('#success-entry').show();
+                            setTimeout(function () {
+                                $('#success-entry').hide();
+                            }, 2500);
+
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        $('#duplicateError').hide();
+                        $('#pileId').hide();
+                        if (xhr.status === 403) {
+                            $('#duplicateError').text(xhr.responseJSON.message).show();
+                        } else {
+                            alert('Error: ' + xhr.status + ', ' + xhr.responseJSON.message);
+                        }
+                    }
+                });
+            });
+
+            /*----- Click to Edit -----*/
+            $('body').on('click', '.editData', function () {
+                var id = $(this).data('id');
+                var url = '/sqms_apps/sampling-point/get_id/' + id + '/';
+                $("#edit_pile_id").select2({
+                    width: '100%',
+                    dropdownParent: "#editModal",
+                    theme: 'bootstrap-5',
+                    placeholder: '--- Select ---',
+                });
+                $.ajax({
+                    type: "GET",
+                    url: url, // Ganti dengan URL yang sesuai
+                    dataType: "json",
+                    success: function (response) {
+                        if (response) {
+                            $('#editModal').modal('show');
+                            $('#id').val(response.id);
+                            $('#edit_sampling_point').val(response.sampling_point);
+                            $('#edit_keterangan').val(response.keterangan);
+                            $('#edit_pile_id').val(response.pile_id.trim()).trigger('change');
+                            $('#edit_duplicateError').hide();
+                            $('#edit_PileId').hide();
+                        } else {
+                            alert(
+                                'Data tidak ditemukan'
+                            );
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Terjadi kesalahan: ' + error); // Handle kesalahan AJAX
+                    }
+                });
+            });
+
+
+            /*--- Update---*/
+            $('#updateBtn').click(function (e) {
+                e.preventDefault();
+                var id = $('#id').val();
+                var url = '/sqms_apps/sampling-point/update_sampling_point/' + id + '/';
+                if ($('#edit_sampling_point').val().trim() === '') {
+                    // alert('Mine block tidak boleh kosong.');
+                    $('#edit_duplicateError').text('The filled is required').show();
+                    return;
+                }
+                if ($('#edit_pile_id').val().trim() === '') {
+                    // alert('Mine block tidak boleh kosong.');
+                    $('#edit_pileId').text('The filled is required').show();
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: "json",
+                    data: {
+                        sampling_point: $('#edit_sampling_point').val(),
+                        keterangan: $('#edit_keterangan').val(),
+                        pile_id: $('#edit_pile_id').val(),
+                        // status: $('#status').val()
+                    },
+                    success: function (data) {
+                        if (data) {
+                            $('#edit_duplicateError').hide();
+                            $('#edit_pileId').hide();
+                            $('#editModal').modal('hide');
+                            table.draw()
+                            // Tampilkan notifikasi sukses
+                            $('#success-entry').show();
+                            // Sembunyikan notifikasi setelah beberapa detik
+                            setTimeout(function () {
+                                $('#success-entry').hide();
+                            }, 2500); // 2500 milidetik = 2.5 detik
+
+                        } else {
+                            alert('Gagal memperbarui data');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#edit_duplicateError').hide();
+                        $('#edit_pileId').hide();
+                        if (xhr.status === 400) {
+                            // alert('Error 400: ' + xhr.responseJSON.message);
+                            $('#edit_duplicateError').text(xhr.responseJSON.message).show();
+                        } else {
+                            alert('Error: ' + xhr.status + ', ' + xhr.responseJSON.message);
+                        }
+                    }
+                });
+            });
+
+            /*----- Delete ----*/
+            $('#example').on('click', '.deleteData', function () {
+                var id = $(this).data('id');
+                var url = '{% url "delete-sampling-point" %}?id=' + id;
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'btn btn-success',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Delete it!',
+                    width: 350,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            type: "DELETE",
+                            dataType: 'json',
+                            data: {
+                                id: id,
+                            },
+                            success: function (data) {
+                                table.draw();
+                            },
+                            error: function (data) {
+                                console.log('Error:', data);
+                            }
+                        });
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Your file has been deleted.',
+                            icon: 'success',
+                            width: 350,
+                        })
+                    }
+                })
+            });
+
+        });
+    </script>
+
+    <!-- modal -->
+
+    <div class="modal fade" id="ajaxModal" tabindex="-1" aria-labelledby="" aria-modal="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <form id="entryForm" name="entryForm" class="form-horizontal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="">Add Data</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="id">
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label class="form-label" for="sampling_point">Sampling Point</label>
+                                <input type="text" class="form-control" id="sampling_point" name="sampling_point"
+                                    placeholder="Sampling Point" required>
+                                <div class="invalid-feedback" id="duplicateError" style="display: none;">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label class="form-label" for="pile_id">Pile ID</label>
+                                <select class="form-select" id="pile_id" name="pile_id">
+                                    <option value="">Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                                <div class="invalid-feedback" id="pileId" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="col-sm-2 control-label">Description</label>
+                                <textarea id="keterangan" name="keterangan" placeholder="Enter Description"
+                                    class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary btn-sm" id="saveBtn" value="create">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="" aria-modal="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <form id="editForm" name="editForm" class="form-horizontal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Data</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="id">
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label class="form-label" for="sampling_point">Sampling Point</label>
+                                <input type="text" class="form-control" id="edit_sampling_point"
+                                    name="edit_sampling_point" placeholder="Sampling Point" required>
+                                <div class="invalid-feedback" id="edit_duplicateError" style="display: none;">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label class="form-label" for="pile_id">Pile ID</label>
+                                <select class="form-select" id="edit_pile_id" name="edit_pile_id">
+                                    <option value="">Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                                <div class="invalid-feedback" id="edit_pileId" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="col-sm-2 control-label">Description</label>
+                                <textarea id="edit_keterangan" name="edit_keterangan" placeholder="Enter Description"
+                                    class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="updateBtn" value="updated">Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>

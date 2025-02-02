@@ -1,0 +1,85 @@
+{% load static %}
+
+<script src="{% static 'assets/js/alpine-collaspe.min.js'%}"></script>
+<script src="{% static 'assets/js/alpine-persist.min.js'%}"></script>
+<script defer="" src="{% static 'assets/js/alpine-ui.min.js'%}"></script>
+<script defer="" src="{% static 'assets/js/alpine-focus.min.js'%}"></script>
+<script defer="" src="{% static 'assets/js/alpine.min.js'%}"></script>
+<script src="{% static 'assets/js/custom.js'%}"></script>
+<script src="{% static 'assets/js/simple-datatables.js'%}"></script>
+<script src="{% static 'assets/js/nice-select2.js'%}"></script>
+<script src="{% static 'assets/js/nouislider.min.js'%}"></script>
+<script src="{% static 'assets/js/flatpickr.js'%}"></script>
+<script src="{% static 'assets/js/popper.min.js'%}"></script>
+<script src="{% static 'assets/bootstrap-5.3.3/js/bootstrap.bundle.min.js'%}"></script>
+
+<!-- plugins -->
+<script src="{% static 'assets/libs/jquery/jquery-3.7.0.js'%}"></script>
+
+<!-- apexcharts -->
+<script src="{% static 'assets/libs/apexcharts/dist/apexcharts.min.js'%}"></script>
+<script src="{% static 'assets/libs/apexcharts/dist/apexcharts.js'%}"></script>
+
+<!-- Datatables.net -->
+<script src="{% static 'assets/libs/datatables/dataTables.min.js'%}"></script>
+<script src="{% static 'assets/libs/datatables/dataTables.bootstrap5.min.js'%}"></script>
+<script src="{% static 'assets/libs/datatables/dataTables.responsive.min.js'%}"></script>
+<script src="{% static 'assets/libs/datatables/responsive.bootstrap5.min.js'%}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+
+
+<script>
+    document.getElementById('logout-btn').addEventListener('click', function () {
+        // Mengirim permintaan logout ke URL /logout/ menggunakan AJAX
+        fetch('/sqms_apps/logout/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',  // Tambahkan token CSRF dari template
+            },
+            // Redirect ke halaman login setelah logout berhasil
+            redirect: 'follow'
+        }).then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    })
+
+    window.notificationUrl = "{% url 'get-notifications' %}";
+</script>
+
+<!-- For Copy Table to Clipboard -->
+<script src="{% static 'js/js_alph.js' %}"></script>
+
+<script type="text/javascript">
+    function selectElementContents(el) {
+        let body = document.body,
+            range, sel;
+        if (document.createRange && window.getSelection) {
+            range = document.createRange();
+            sel = window.getSelection();
+            sel.removeAllRanges();
+            try {
+                range.selectNodeContents(el);
+                sel.addRange(range);
+            } catch (e) {
+                range.selectNode(el);
+                sel.addRange(range);
+            }
+        } else if (body.createTextRange) {
+            range = body.createTextRange();
+            range.moveToElementText(el);
+            range.select();
+        }
+        document.execCommand("Copy");
+    }
+</script>
+
+<!-- Modal show -->
+<script type="text/javascript">
+    function toggleModal(modalID) {
+        document.getElementById(modalID).classList.toggle("hidden");
+    }
+</script>

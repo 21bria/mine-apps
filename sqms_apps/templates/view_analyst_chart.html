@@ -1,0 +1,117 @@
+<div class="mb-6 grid gap-6 xl:grid-cols-2">
+    <div class="panel h-full xl:col-span-1">
+        <!-- <div class="mb-5 flex items-center dark:text-white-light">
+            <h5 class="text-lg font-semibold">Ore Review</h5>
+            
+        </div> -->
+        <div class="relative overflow-hidden">
+            <p class="mt-1.5 block text-lg text-black dark:text-white-light"><span class="ml-2 text-success"
+                    id="total_info">0.00</span></p>
+            <div x-ref="chart_timeline_pds" class="rounded-lg bg-white dark:bg-black">
+                <div>
+                    <ul class="flex flex-wrap mt-3 mb-5 border-b border-white-light dark:border-[#191e3a]">
+                        <li>
+                            <a href="javascript:" id="one_week_pds"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 before:absolute hover:text-secondary before:bottom-0 before:w-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                1W</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="five_weeks_pds"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                5W</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="one_months_pds"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                1M</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="six_months_pds"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                6M</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="one_year_pds"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                1Y</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="five_year_pds"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                5Y</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="all_data_pds"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                ALL</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel h-full">
+        <!-- <div class="mb-5 flex items-center">
+            <h5 class="text-lg font-semibold">Selling Review</h5>
+            
+        </div> -->
+        <div class="overflow-hidden">
+            <p class="mt-1.5 block text-lg text-black dark:text-white-light"><span class="ml-2 text-primary"
+                    id="sale_info">0.00</span></p>
+            <div x-ref="chart_timeline" class="rounded-lg bg-white dark:bg-black">
+                <div>
+                    <ul class="flex flex-wrap mt-3 mb-5 border-b border-white-light dark:border-[#191e3a]">
+                        <li>
+                            <a href="javascript:" id="one_week"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 before:absolute hover:text-secondary before:bottom-0 before:w-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                1W</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="five_weeks"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                5W</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="one_month"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                1M</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="six_months"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                6M</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="one_year"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                1Y</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="five_year"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                5Y</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" id="all_data"
+                                class="p-3 py-3 -mb-[1px] flex items-center relative before:transition-all before:duration-700 hover:text-secondary before:absolute before:w-0 before:bottom-0 before:left-0 before:right-0 before:m-auto before:h-[1px] before:bg-secondary hover:before:w-full">
+                                ALL</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- loader -->
+                <div
+                    class="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                    <span
+                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

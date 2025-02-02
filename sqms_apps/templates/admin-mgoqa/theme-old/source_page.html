@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout/head.html' %}
+</head>
+
+
+<body data-topbar="dark" data-sidebar="dark">
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!-- Herader -->
+        {% include 'layout/header.html' %}
+        <!-- ========== Left Sidebar Start ========== -->
+
+        {% include 'layout/sidebar.html' %}
+        <!-- Left Sidebar End -->
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header justify-content-between d-flex align-items-center">
+                                    <h4 class="card-title">Source Tables</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body">
+                                    <div id="success-entry" class="alert alert-success alert-dismissible fade show"
+                                        role="alert" style="display: none;">
+                                        <i class="uil uil-exclamation-octagon me-2"></i> Data saved successfully.
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div>
+                                            <a class="btn btn-soft-success btn-sm mb-4" href="javascript:void(0)"
+                                                id="createNew"> <i class="mdi mdi-plus me-1"></i>Create New
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="example" class="table table-striped nowrap table-sm m-0"
+                                            style="width: 100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="bg-soft-secondary" width="5%">No</th>
+                                                    <th class="bg-soft-secondary" width="10%">Name</th>
+                                                    <th class="bg-soft-secondary">Description</th>
+                                                    <th class="bg-soft-secondary" width="7%">Active</th>
+                                                    <th class="bg-soft-secondary" width="7%">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- end card body -->
+                            </div>
+                            <!-- end card -->
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+                </div> <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+            <!-- Footer -->
+            {% include 'layout/footer.html' %}
+
+        </div>
+        <!-- end main content-->
+
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Right Sidebar -->
+    {% include 'layout/right.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout/js.html" %}
+
+    <script type="text/javascript">
+        $(function () {
+            /*--- Pass Header Token ---*/
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            /*---- Render DataTable ----*/
+            let data_url = '{% url "source-list" %}';
+            var table = $('#example').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'responsive': true,
+                'autoWidth': true,
+                'select': true,
+                "ajax": {
+                    "url": data_url,
+                    "type": "POST",
+                    dataType: 'json',
+                },
+                columns: [
+
+                    {
+                        data: null,
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'prospect_area',
+                        name: 'prospect_area'
+                    },
+                    {
+                        data: 'keterangan',
+                        name: 'keterangan'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        render: function (data, type, row) {
+                            return data == 1 ?
+                                '<div class="badge badge-soft-success font-size-12">Yes</div>' :
+                                '<div class="badge badge-soft-warning font-size-12">No</div>';
+                        }
+                    },
+                    {
+                        data: null,
+                        name: 'action',
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            var editBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Edit" class="edit text-success btn-sm editData"><i class="mdi mdi-pencil font-size-18"></i></a>';
+                            var deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Delete" class="text-danger btn-sm deleteData"><i class="mdi mdi-delete font-size-18"></i></a>';
+                            // console.log('Row Object:', row);
+                            // console.log('ID:', row.id);
+                            return editBtn + ' ' + deleteBtn;
+                        }
+                    },
+                ]
+            });
+
+            /*--- Click to New Form -----*/
+            $('#createNew').click(function () {
+                $('#saveBtn').val("create-data");
+                $('#entryForm').trigger("reset");
+                $('#duplicateError').hide();
+                $('#modelHeading').html("Add New Data");
+                $('#ajaxModal').modal('show');
+                $('#saveBtn').html('Save');
+            });
+
+
+            /*---- Insert Data ----*/
+            $('#saveBtn').click(function (e) {
+                e.preventDefault();
+                if ($('#prospect_area').val().trim() === '') {
+                    // alert('Mine block tidak boleh kosong.');
+                    $('#duplicateError').text('Source filled is required').show();
+                    return;
+                }
+                $(this).html('Sending..');
+                $.ajax({
+                    data: $('#entryForm').serialize(),
+                    url: "{% url 'insert-source' %}",
+                    type: "POST",
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.status === 'success') {
+                            $('#duplicateError').hide();
+                            $('#ajaxModal').modal('hide');
+                            table.draw();
+                            // Tampilkan notifikasi sukses
+                            $('#success-entry').show();
+                            // Sembunyikan notifikasi setelah beberapa detik
+                            setTimeout(function () {
+                                $('#success-entry').hide();
+                            }, 2500);
+
+                        } else {
+                            alert('Error: ' + data.message);
+
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        if (xhr.status === 403) {
+                            $('#duplicateError').text(xhr.responseJSON.message).show();
+                        } else {
+                            alert('Error: ' + xhr.status + ', ' + xhr.responseJSON.message);
+                        }
+                    }
+                });
+            });
+
+            /*---- Click to Edit Button -----*/
+            $('body').on('click', '.editData', function () {
+                var id = $(this).data('id');
+                var url = '/sqms_apps/source/get_id/' + id + '/';
+                console.log('gtEdit URL:', url);
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response) {
+                            $('#editModal').modal('show');
+                            $('#id').val(response.id);
+                            $('#edit_prospect_area').val(response.prospect_area);
+                            $('#edit_keterangan').val(response.keterangan);
+                            $('#edit_duplicateError').hide();
+                        } else {
+                            alert(
+                                'Data tidak ditemukan'
+                            ); // Atau tindakan lain jika data tidak ditemukan
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Terjadi kesalahan: ' + error); // Handle kesalahan AJAX
+                    }
+                });
+            });
+
+            /*--- Update---*/
+            $('#updateBtn').click(function (e) {
+                e.preventDefault();
+                var id = $('#id').val();
+                var url = '/sqms_apps/source/update_source/' + id + '/';
+                if ($('#edit_prospect_area').val().trim() === '') {
+                    // alert('Mine block tidak boleh kosong.');
+                    $('#edit_duplicateError').text('Source filled is required').show();
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: "json",
+                    // headers: {
+                    //     'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                    // },
+                    data: {
+                        prospect_area: $('#edit_prospect_area').val(),
+                        keterangan: $('#edit_keterangan').val(),
+                        // status: $('#status').val()
+                    },
+                    success: function (data) {
+                        if (data) {
+                            $('#edit_duplicateError').hide();
+                            $('#editModal').modal('hide');
+                            table.draw()
+                            // Tampilkan notifikasi sukses
+                            $('#success-entry').show();
+                            // Sembunyikan notifikasi setelah beberapa detik
+                            setTimeout(function () {
+                                $('#success-entry').hide();
+                            }, 2500); // 2500 milidetik = 2.5 detik
+
+                        } else {
+                            alert('Gagal memperbarui data');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#edit_duplicateError').hide();
+                        if (xhr.status === 400) {
+                            // alert('Error 400: ' + xhr.responseJSON.message);
+                            $('#edit_duplicateError').text(xhr.responseJSON.message).show();
+                        } else {
+                            alert('Error: ' + xhr.status + ', ' + xhr.responseJSON.message);
+                        }
+                    }
+                });
+            });
+
+            /*----  Delete Data ----*/
+            $('#example').on('click', '.deleteData', function () {
+                var id = $(this).data('id');
+                var url = '{% url "delete-source" %}?id=' + id;
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'btn btn-success',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Delete it!',
+                    width: 350,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            type: "DELETE",
+                            dataType: 'json',
+                            data: {
+                                id: id,
+                            },
+                            success: function (data) {
+                                table.draw();
+
+                            },
+                            error: function (data) {
+                                console.log('Error:', data);
+                            }
+                        });
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Your file has been deleted.',
+                            icon: 'success',
+                            width: 350,
+                        })
+                    }
+                })
+            });
+
+        });
+    </script>
+
+    <!-- modal -->
+    <div class="modal fade" id="ajaxModal" tabindex="-1" aria-labelledby="" aria-modal="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <form id="entryForm" name="entryForm" class="form-horizontal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="">Add Data</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label class="form-label" for="prospect_area">Source Area</label>
+                                <input type="text" class="form-control" id="prospect_area" name="prospect_area"
+                                    placeholder="Source" required>
+                                <div class="invalid-feedback" id="duplicateError" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="col-sm-2 control-label">Description</label>
+                                <textarea id="keterangan" name="keterangan" placeholder="Enter Description"
+                                    class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary btn-sm" id="saveBtn" value="create">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="" aria-modal="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <form id="editForm" name="editForm" class="form-horizontal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="">Update Data</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="id">
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label class="form-label" for="prospect_area">Source Area</label>
+                                <input type="text" class="form-control" id="edit_prospect_area"
+                                    name="edit_prospect_area" placeholder="Source" required>
+                                <div class="invalid-feedback" id="edit_duplicateError" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="col-sm-2 control-label">Description</label>
+                                <textarea id="edit_keterangan" name="edit_keterangan" placeholder="Enter Description"
+                                    class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="updateBtn" value="updated">Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>

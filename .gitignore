@@ -1,0 +1,25 @@
+# alpha/
+# Setting
+settings_local.py
+
+# Mengabaikan lingkungan virtual
+.venv/
+
+# File konfigurasi sensitif
+# .env
+
+# Mengabaikan file Python sementara
+*.pyc
+*.pyo
+__pycache__/
+
+# File database lokal (jika menggunakan SQLite)
+db.sqlite3
+
+# File dan folder lain yang tidak perlu diunggah
+media/
+# static/
+staticfiles/
+
+# Mengabaikan file log besar
+debug.log

@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+
+<head>
+    {% include 'layout/head.html' %}
+</head>
+
+
+<body data-topbar="dark" data-sidebar="dark">
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!-- Herader -->
+        {% include 'layout/header.html' %}
+        <!-- ========== Left Sidebar Start ========== -->
+
+        {% include 'layout/sidebar.html' %}
+        <!-- Left Sidebar End -->
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header justify-content-between d-flex align-items-center">
+                                    <h4 class="card-title">Data Waybill</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body">
+                                    <div id="success-entry" class="alert alert-success alert-dismissible fade show"
+                                        role="alert" style="display: none;">
+                                        <i class="uil uil-exclamation-octagon me-2"></i> Data saved
+                                        successfully.
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <div class="mb-3">
+                                                        <label class="form-label font-size-13 text-muted"
+                                                            for="from_date">From
+                                                            Date</label>
+                                                        <input class="form-control" type="date" id='startDate'
+                                                            name='startDate'>
+                                                    </div>
+                                                </div><!-- end col -->
+                                                <div class="col-md-3">
+                                                    <div class="mb-3">
+                                                        <label class="form-label font-size-13 text-muted"
+                                                            for="to_date">End
+                                                            Date</label>
+                                                        <input class="form-control" type="date" id='endDate'
+                                                            name="endDate">
+                                                    </div>
+                                                </div><!-- end col -->
+                                                <div class="col-md-3">
+                                                    <div class="mb-3">
+                                                        <label for="mralOrder"
+                                                            class="form-label font-size-13 text-muted">Mral Oder</label>
+                                                        <select class="form-control choices" id="mralOrder"
+                                                            name="mralOrder">
+                                                            <option value="">-- Select --</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                </div><!-- end col -->
+                                                <div class="col-md-3">
+                                                    <div class="mb-3">
+                                                        <label for="roaOrder"
+                                                            class="form-label font-size-13 text-muted">Roa Oder</label>
+                                                        <select class="form-control choices" id="roaOrder"
+                                                            name="roaOrder">
+                                                            <option value="">-- Select --</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                </div><!-- end row -->
+
+                                            </div><!-- end row -->
+                                            <div class="col-md-6">
+                                                <div class="mb-2">
+                                                    <a class="btn btn-soft-primary btn-sm mb-4"
+                                                        href="javascript:void(0)" name="applyFilterBtn"
+                                                        id="applyFilterBtn">
+                                                        <i class="mdi mdi-filter me-1"></i>Filter Data
+                                                    </a>
+                                                    <a class="btn btn-soft-warning btn-sm mb-4"
+                                                        href="javascript:void(0)" name="reload" id="reload">
+                                                        <i class="mdi mdi-refresh me-1"></i>Reload
+                                                    </a>
+                                                    <a class="btn btn-soft-success btn-sm mb-4"
+                                                        href="javascript:void(0)" id="exportButton"> <i
+                                                            class="mdi mdi-file-export me-1"></i>Export
+                                                        Data
+                                                    </a>
+                                                </div>
+
+                                            </div>
+
+                                        </form><!-- end form -->
+                                    </div>
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                            <table id="data_table" class="table table-striped nowrap table-lg"
+                                                style="width: 100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="bg-soft-secondary" width="4%">No</th>
+                                                        <th class="bg-soft-secondary" width="11%">Delivery Date</th>
+                                                        <th class="bg-soft-secondary" width="10%">Time Delivery</th>
+                                                        <th class="bg-soft-secondary">Waybill Number</th>
+                                                        <th class="bg-soft-secondary">Qty</th>
+                                                        <th class="bg-soft-secondary">SampleID</th>
+                                                        <th class="bg-soft-secondary">Mral Order</th>
+                                                        <th class="bg-soft-secondary">Roa Order</th>
+                                                        <th class="bg-soft-secondary">Remarks</th>
+                                                        <!-- <th class="bg-soft-secondary">Users</th> -->
+                                                        <th class="bg-soft-secondary">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end card body -->
+                            </div>
+                            <!-- end card -->
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+
+                </div> <!-- container-fluid -->
+            </div>
+        </div>
+        <!-- End Page-content -->
+        <!-- Footer -->
+        {% include 'layout/footer.html' %}
+    </div>
+    <!-- end main content-->
+    </div>
+    <!-- END layout-wrapper -->
+    <!-- Right Sidebar -->
+    {% include 'layout/right.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    {% include "layout/js.html" %}
+
+    <script>
+        $(document).ready(function () {
+            // Buat instance Choices untuk dropdown batchStatus
+            $("#mralOrder,#roaOrder").select2({
+                width: '100%',
+                theme: 'bootstrap-5'
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        var table;
+        $(document).ready(function () {
+            /*---- Pass Header Token-------*/
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRFTOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            table = $('#data_table').DataTable().clear().destroy();
+            var table = $('#data_table').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'responsive': true,
+                'autoWidth': true,
+                // 'select': true,
+                "ajax": {
+                    url: "{% url 'waybill-list'%}",
+                    "type": "POST",
+                    dataType: 'json',
+                    "data": function (data) {
+                        data.startDate = $('#startDate').val();
+                        data.endDate = $('#endDate').val();
+                        data.mralOrder = $('#mralOrder').val();
+                        data.roaOrder = $('#roaOrder').val();
+                        return data;
+                    },
+                },
+                columns: [
+                    {
+                        data: null,
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    }, // Kolom nomor otomatis
+                    {
+                        data: 'tgl_deliver',
+                        name: 'tgl_deliver'
+                    },
+
+                    {
+                        data: 'delivery_time',
+                        name: 'delivery_time',
+                        render: function (data, type, row) {
+                            // Pastikan data adalah string yang sesuai dengan format waktu
+                            if (type === 'display' && typeof data === 'string' && data.length >=
+                                8) {
+                                // Ambil bagian pertama (hh:mm:ss) dari data waktu
+                                var shortTime = data.substring(0, 8);
+                                return shortTime;
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'waybill_number',
+                        name: 'waybill_number'
+                    },
+                    {
+                        data: 'numb_sample',
+                        name: 'numb_sample'
+                    },
+                    {
+                        data: 'sample_id',
+                        name: 'sample_id'
+                    },
+                    {
+                        data: 'mral_order',
+                        name: 'mral_order'
+                    },
+                    {
+                        data: 'roa_order',
+                        name: 'roa_order'
+                    },
+                    {
+                        data: 'remarks',
+                        name: 'remarks'
+                    },
+                    // {
+                    //     data: 'name',
+                    //     name: 'users.name'
+
+                    // },
+                    {
+                        data: null,
+                        name: 'action',
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            var editBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Edit" class="edit text-success btn-sm editData"><i class="mdi mdi-pencil font-size-18"></i></a>';
+                            var deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' + row.id + '" data-original-title="Delete" class="text-danger btn-sm deleteData"><i class="mdi mdi-delete font-size-18"></i></a>';
+                            return editBtn + ' ' + deleteBtn;
+                        }
+
+                    },
+                ],
+                order: [
+                    [1, 'desc']
+                ]
+            });
+
+            $('#applyFilterBtn').click(function () {
+                table.ajax.reload();
+            });
+
+            $('#reload').click(function () {
+                $('#startDate').val('');
+                $('#endDate').val('');
+                $('#mralOrder').val('').trigger('change');
+                $('#roaOrder').val('').trigger('change');
+                table.ajax.reload(); //just reload table
+            });
+
+            /*--- Delete ---*/
+            $('#data_table').on('click', '.deleteData', function () {
+                var id = $(this).data('id');
+                var url = '{% url "delete-data-waybill" %}?id=' + id;
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'btn btn-success',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Delete it!',
+                    width: 320,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            type: "DELETE",
+                            dataType: 'json',
+                            data: {
+                                id: id,
+                            },
+                            success: function (data) {
+                                table.draw();
+
+                            },
+                            error: function (data) {
+                                console.log('Error:', data);
+                            }
+                        });
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Your file has been deleted.',
+                            icon: 'success',
+                            width: 320,
+                        })
+                    }
+                })
+            });
+
+            /* Update*/
+            $('#updateButton').click(function (e) {
+                e.preventDefault();
+                var id = $('#id').val();
+                var url = '/sqms_apps/waybill/update/' + id + '/';
+                var tgl_deliver = $('#tgl_deliver').val().trim();
+                var delivery_time = $('#delivery_time').val().trim();
+                var waybill_number = $('#waybill_number').val().trim();
+                var numb_sample = $('#numb_sample').val();
+                var sample_id = $('#sample_id').val().trim();
+                var mral_order = $('#mral_order').val().trim();
+                var roa_order = $('#roa_order').val().trim();
+                var remarks = $('#remarks').val();
+
+                var updatedData = {
+                    tgl_deliver: tgl_deliver,
+                    delivery_time: delivery_time,
+                    waybill_number: waybill_number,
+                    numb_sample: numb_sample,
+                    sample_id: sample_id,
+                    mral_order: mral_order,
+                    roa_order: roa_order,
+                    remarks: remarks
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: "json",
+                    headers: {
+                        'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: updatedData,
+                    success: function (response) {
+                        console.log(response); // 
+                        if (response) {
+                            $('#id').val('');
+                            $('#tgl_deliver').val('');
+                            $('#delivery_time').val('');
+                            $('#waybill_number').val('');
+                            $('#sample_id').val('');
+                            $('#mral_order').val('').trigger('change');
+                            $('#roa_order').val('').trigger('change');;
+                            $('#remarks').val('');
+                            $('#ajaxModal').modal('hide'); // Menutup modal
+
+                            // Tampilkan notifikasi sukses
+                            $('#success-entry').show();
+                            // Sembunyikan notifikasi setelah beberapa detik
+                            setTimeout(function () {
+                                $('#success-entry').hide();
+                            }, 1500); // 1500 milidetik = 2.5 detik
+                            // Kirim permintaan AJAX ke server dengan filter
+                            table.ajax.reload();
+
+                        } else {
+                            // Penanganan kesalahan jika validasi gagal atau kesalahan lainnya
+                            alert('Terjadi kesalahan: ' + response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Terjadi kesalahan saat mengirim permintaan AJAX.');
+                    }
+                });
+            });
+
+        });
+    </script>
+
+    <!-- Export Data -->
+    <script>
+        $(document).ready(function () {
+            $('#exportButton').click(function () {
+                // Dapatkan nilai dari filter tanggal
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+                // Membuat URL untuk permintaan ekspor Excel
+                if ($('#startDate').val().trim() === '') {
+                    $('#startDate').focus();
+                    return;
+                }
+                if ($('#endDate').val().trim() === '') {
+                    $('#endDate').focus();
+                    return;
+                }
+
+                var exportUrl = "{% url 'export-waybill-data' %}?startDate=" + startDate + "&endDate=" +
+                    endDate;
+                // Redirect ke URL eksport dengan filter
+                window.location.href = exportUrl;
+            });
+        });
+    </script>
+
+    <script>
+        /*--- Click to Edit Button ---*/
+        $('body').on('click', '.editData', function () {
+            var id = $(this).data('id');
+            var url = '/sqms_apps/waybill/get-id/' + id + '/';
+            $("#mral_order,#roa_order").select2({
+                width: '100%',
+                dropdownParent: "#ajaxModal",
+                theme: 'bootstrap-5'
+            });
+            /* Hide */
+            $('#batchcodeError').hide();
+            $.ajax({
+                type: "GET",
+                url: url,
+                dataType: "json",
+                success: function (response) {
+                    if (response) {
+                        // Mengisi formulir dengan data yang diterima
+                        $('#titleHeading').html("Edit Waybill");
+                        $('#saveBtn').val("edit-user");
+                        $('#ajaxModal').modal('show');
+                        $('#saveBtn').html('Update Data');
+                        $('#id').val(response.id);
+                        $('#tgl_deliver').val(response.tgl_deliver);
+                        var responseToIts = response.delivery_time;
+                        // Ini akan mengambil bagian jam (00:00:00)
+                        var jam = responseToIts.substring(0, 8);
+                        $('#delivery_time').val(jam);
+                        // $('#delivery_time').val(response.delivery_time);
+                        $('#waybill_number').val(response.waybill_number);
+                        $('#sample_id').val(response.sample_id);
+                        $('#numb_sample').val(response.numb_sample);
+                        $('#mral_order').val(response.mral_order).trigger('change');
+                        $('#roa_order').val(response.roa_order).trigger('change');
+                        $('#remarks').val(response.remarks);
+
+                    } else {
+                        alert(
+                            'Data tidak ditemukan'
+                        ); // Atau tindakan lain jika data tidak ditemukan
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Terjadi kesalahan: ' + error); // Handle kesalahan AJAX
+                }
+            });
+        });
+    </script>
+
+    <!-- Edit -->
+    <div class="modal fade" id="ajaxModal" tabindex="-1" aria-labelledby="" aria-modal="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addInvoiceModalLabel">Edit Waybill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="entryForm" name="entryForm">
+                        <input type="hidden" name="id" id="id">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label>Date Deliver <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control input" name="tgl_deliver" id="tgl_deliver">
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label>Time Deliver <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control input" name="delivery_time"
+                                        id="delivery_time">
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label>Waybill Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control input" name="waybill_number"
+                                        id="waybill_number">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label>Sample Id <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control input" name="sample_id" id="sample_id">
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label>Qty <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control input" name="numb_sample" id="numb_sample">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Mral Order<span class="text-danger">*</span></label>
+                                    <select id="mral_order" name="mral_order" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="mb-3">
+                                    <label>Roa Order<span class="text-danger">*</span></label>
+                                    <select id="roa_order" name="roa_order" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="mb-3">
+                                    <label>Remakrs</label>
+                                    <textarea class="form-control" id="remarks" name="remarks" rows="2"
+                                        style="height: 17px;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="modal-footer mb-0">
+                        <button type="button" class="btn btn-sm btn-primary" id="updateButton" value="edit">Update
+                            Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

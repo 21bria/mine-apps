@@ -1,0 +1,183 @@
+<div class="col-12 col-lg-12  mt-3">
+    <div class="mb-6 grid gap-6 sm:grid-cols-1 xl:grid-cols-2">
+        <div class="h-full">
+            <div class="row">
+                <div class="col-12 col-sm-6 mt-3 text-white">
+                    <!-- Limonite Production PTD -->
+                    <div class="panel bg-gradient-to-r from-cyan-500 to-cyan-400">
+                        <div class="flex justify-between">
+                            <div class="text-md font-semibold ltr:mr-1 rtl:ml-1">Limonite</div>
+                            <div x-data="dropdown" @click.outside="open = false" class="dropdown">
+                                <a href="javascript:;" @click="toggle">
+                                    <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-70 hover:opacity-80">
+                                        <circle cx="5" cy="12" r="2" stroke="currentColor" stroke-width="1.5">
+                                        </circle>
+                                        <circle opacity="0.5" cx="12" cy="12" r="2" stroke="currentColor"
+                                            stroke-width="1.5"></circle>
+                                        <circle cx="19" cy="12" r="2" stroke="currentColor" stroke-width="1.5">
+                                        </circle>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="mt-5 flex items-center">
+                            <div class="text-3xl font-bold ltr:mr-3 rtl:ml-3" id="lim_ptd">0.0</div>
+                            <div class="badge bg-white/30" id="lim_ptd_perc">%</div>
+                        </div>
+                        <div class="mt-5 flex items-center font-semibold">
+                            <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 ltr:mr-2 rtl:ml-2">
+                                <path opacity="0.5"
+                                    d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z"
+                                    stroke="currentColor" stroke-width="1.5"></path>
+                                <path
+                                    d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"
+                                    stroke="currentColor" stroke-width="1.5"></path>
+                            </svg>
+                            Ore Project to date
+                        </div>
+                    </div>
+                </div>
+                <!-- Saprolite Ptd -->
+                <div class="col-12 col-sm-6 mt-3 text-white">
+                    <div class="panel bg-gradient-to-r from-violet-500 to-violet-400">
+                        <div class="flex justify-between">
+                            <div class="text-md font-semibold ltr:mr-1 rtl:ml-1">Saprolite</div>
+                            <div x-data="dropdown" @click.outside="open = false" class="dropdown">
+                                <a href="javascript:;" @click="toggle">
+                                    <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-70 hover:opacity-80">
+                                        <circle cx="5" cy="12" r="2" stroke="currentColor" stroke-width="1.5">
+                                        </circle>
+                                        <circle opacity="0.5" cx="12" cy="12" r="2" stroke="currentColor"
+                                            stroke-width="1.5"></circle>
+                                        <circle cx="19" cy="12" r="2" stroke="currentColor" stroke-width="1.5">
+                                        </circle>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="mt-5 flex items-center">
+                            <div class="text-3xl font-bold ltr:mr-3 rtl:ml-3" id="sap_ptd">0.0</div>
+                            <div class="badge bg-white/30" id="sap_ptd_perc">%</div>
+                        </div>
+                        <div class="mt-5 flex items-center font-semibold">
+                            <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 ltr:mr-2 rtl:ml-2">
+                                <path opacity="0.5"
+                                    d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z"
+                                    stroke="currentColor" stroke-width="1.5"></path>
+                                <path
+                                    d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"
+                                    stroke="currentColor" stroke-width="1.5"></path>
+                            </svg>
+                            Ore Project to date
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selling HPAL PTD -->
+                <div class="col-12 col-sm-6  mt-3 text-white">
+                    <div class="panel bg-gradient-to-r from-blue-500 to-blue-400">
+                        <div class="flex justify-between">
+                            <div class="text-md font-semibold ltr:mr-1 rtl:ml-1">HPAL</div>
+                            <div x-data="dropdown" @click.outside="open = false" class="dropdown">
+                                <a href="javascript:;" @click="toggle">
+                                    <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-70 hover:opacity-80">
+                                        <circle cx="5" cy="12" r="2" stroke="currentColor" stroke-width="1.5">
+                                        </circle>
+                                        <circle opacity="0.5" cx="12" cy="12" r="2" stroke="currentColor"
+                                            stroke-width="1.5"></circle>
+                                        <circle cx="19" cy="12" r="2" stroke="currentColor" stroke-width="1.5">
+                                        </circle>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="mt-5 flex items-center">
+                            <div class="text-3xl font-bold ltr:mr-3 rtl:ml-3" id="hpal_ptd">0.0
+                            </div>
+                            <div class="badge bg-white/30" id="hpal_ptd_perc">%</div>
+                        </div>
+                        <div class="mt-5 flex items-center font-semibold">
+                            <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 ltr:mr-2 rtl:ml-2">
+                                <path opacity="0.5"
+                                    d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z"
+                                    stroke="currentColor" stroke-width="1.5"></path>
+                                <path
+                                    d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"
+                                    stroke="currentColor" stroke-width="1.5"></path>
+                            </svg>
+                            Selling Project to date
+                        </div>
+                    </div>
+                </div>
+                <!-- Sellinh RKEF PTD -->
+                <div class="col-12 col-sm-6 mt-3 text-white">
+                    <div class="panel bg-gradient-to-r from-fuchsia-500 to-fuchsia-400">
+                        <div class="flex justify-between">
+                            <div class="text-md font-semibold ltr:mr-1 rtl:ml-1">RKEF</div>
+                            <div x-data="dropdown" @click.outside="open = false" class="dropdown">
+                                <a href="javascript:;" @click="toggle">
+                                    <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-70 hover:opacity-80">
+                                        <circle cx="5" cy="12" r="2" stroke="currentColor" stroke-width="1.5">
+                                        </circle>
+                                        <circle opacity="0.5" cx="12" cy="12" r="2" stroke="currentColor"
+                                            stroke-width="1.5"></circle>
+                                        <circle cx="19" cy="12" r="2" stroke="currentColor" stroke-width="1.5">
+                                        </circle>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="mt-5 flex items-center">
+                            <div class="text-3xl font-bold ltr:mr-3 rtl:ml-3" id="rkef_ptd">0.0
+                            </div>
+                            <div class="badge bg-white/30" id="rkef_ptd_perc">%</div>
+                        </div>
+                        <div class="mt-5 flex items-center font-semibold">
+                            <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 ltr:mr-2 rtl:ml-2">
+                                <path opacity="0.5"
+                                    d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z"
+                                    stroke="currentColor" stroke-width="1.5"></path>
+                                <path
+                                    d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"
+                                    stroke="currentColor" stroke-width="1.5"></path>
+                            </svg>
+                            Selling Project to date
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="">
+            <div
+                class="mb-2 flex items-start justify-between border-b border-[#e0e6ed] p-2 dark:border-[#1b2e4b] dark:text-white-light">
+                <h3 class="text-lg font-semibold">Ore Production - Ytd</h3>
+                <div>
+                    <select id="filter_year" name="filter_year">
+                        <option>Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="relative overflow-hidden">
+                <div x-ref="oreYear" class="rounded-lg bg-white dark:bg-black">
+                    <!-- loader -->
+                    <div
+                        class="grid min-h-[225px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                        <span
+                            class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

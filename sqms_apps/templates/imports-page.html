@@ -91,7 +91,7 @@
                 <div class="panel mt-6">
                     <h5 class="text-lg font-semibold dark:text-white-light">List Task </h5>
                     <div class="mt-5 table-responsive">
-                        <table id="data_table" class="table table-striped nowrap" style="width: 100%">
+                        <table id="data_table" class="table table-striped" style="width: 100%">
                             <thead>
                                 <tr>
                                     <th class="bg-soft-secondary" width="5%">#</th>
@@ -167,6 +167,7 @@
                 "processing": true,
                 "serverSide": true,
                 "ordering": true,
+                "autoWidth": false,  // Pastikan ini ditambahkan
                 "ajax": {
                     "url": data_url,
                     "type": "POST",
@@ -274,3 +275,17 @@
 </body>
 
 </html>
+
+<style>
+    /* Membuat teks dalam tabel otomatis wrap */
+    #data_table td {
+        white-space: normal !important;
+        word-wrap: break-word;
+        word-break: break-word;
+        max-width: 380px;
+        /* Sesuaikan lebar kolom */
+        overflow: hidden;
+        /* Hindari teks keluar dari kolom */
+
+    }
+</style>

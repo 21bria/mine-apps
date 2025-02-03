@@ -80,5 +80,5 @@ def sampleCrmPage(request):
     context = {
         'permissions' : permissions
     }
-    return render(request, 'admin-mgoqa/report-qa/list-sample-crm.html')
+    return render(request, 'admin-mgoqa/report-qa/list-sample-crm.html',context)
 

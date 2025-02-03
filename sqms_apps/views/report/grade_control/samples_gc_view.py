@@ -195,7 +195,7 @@ def export_gc_sample(request):
         'fe',
         'mgo',
         'sio2',
-        'sm'
+        # 'sm'
     ]
 
     for col_num, column_title in enumerate(header, 1):
@@ -220,7 +220,7 @@ def export_gc_sample(request):
         'fe',
         'mgo',
         'sio2',
-        'sm'
+        # 'sm'
     ]
 
     # Iterator ini mengambil data dalam beberapa bagian, sehingga hemat memori untuk kumpulan data besar.

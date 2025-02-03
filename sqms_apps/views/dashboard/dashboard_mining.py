@@ -1137,7 +1137,7 @@ def get_mine_chart_weeks(request):
                         ROUND(COALESCE(SUM(CASE WHEN nama_material ='Biomass' THEN tonnage ELSE 0 END),0),2) Biomass
                     FROM mine_productions
                     WHERE 
-                    (date_production >= DATEADD(week, - 19, GETDATE())) 
+                    (date_production >= DATEADD(week, - 5, GETDATE())) 
                     GROUP BY 
                     DATEADD(week, DATEDIFF(week, 0, date_production), 0), 
                     category_mine, sources_area, vendors
@@ -1161,7 +1161,7 @@ def get_mine_chart_weeks(request):
                     ROUND(COALESCE(SUM(Biomass),0),2) as Biomass_plan
                 FROM plan_productions
                 WHERE 
-                (date_plan >= DATEADD(week, - 19, GETDATE())) 
+                (date_plan >= DATEADD(week, - 5, GETDATE())) 
                 GROUP BY 
                 DATEADD(week, DATEDIFF(week, 0, date_plan), 0),
                 category, sources, vendors

@@ -70,7 +70,7 @@ class GradeControlSamples(models.Model):
     fe              = models.FloatField(default=None, null=True, blank=True)
     mgo             = models.FloatField(default=None, null=True, blank=True)
     sio2            = models.FloatField(default=None, null=True, blank=True)
-    sm              = models.FloatField(default=None, null=True, blank=True)
+    sm              = models.CharField(max_length=255,default=None, null=True, blank=True)
  
     class Meta:
         managed   = False

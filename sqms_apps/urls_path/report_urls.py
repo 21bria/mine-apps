@@ -87,6 +87,7 @@ urlpatterns = [
     # Grade Conrtrol samples
     path('sample/gc-page',sample_gc_page, name='page-sample-gc'),
     path('sample/grade-control', GcSamples.as_view(), name='list-sample-gc'), 
+    path('export/sample/gc/',export_gc_sample, name='export-samples-gc'),
 
     path('grade-expectations/mral-page', grade_expectations_page, name='page-grade-expectations-mral'), 
     path('grade-expectations/get-data-mral', GradeExpectations_mral.as_view(), name='list-grade-expectations-mral'),

@@ -415,11 +415,6 @@
                 modal.classList.remove('hidden');
                 $('#exportButton').hide();
                 $('#applyFilterBtn').show();
-                $('#no-sample').show();
-                $('#factory').show();
-                $('#product').show();
-                $('#area').show();
-                $('#point').show();
             });
             // Ambil data material dari server dan tambahkan sebagai opsi Select2
             $.ajax({
@@ -431,16 +426,13 @@
 
                     // Loop melalui data dan tambahkan sebagai opsi Select2
                     $.each(data.details_materials, function (key, value) {
-                        options += '<option value="' + value.nama_material + '">' + value
-                            .nama_material +
-                            '</option>';
+                        options += '<option value="' + value.nama_material + '">' + value.nama_material + '</option>';
                     });
 
                     $('#materialFilter').append(options);
-                    // NiceSelect.bind(document.getElementById("materialFilter"), { searchable: true });
-
                 }
             });
+
             $('#sourceFilter').select2({
                 ajax: {
                     url: "{% url 'get-mine-dumping-point' %}",
@@ -472,6 +464,7 @@
                 placeholder: 'Select data',  // Placeholder di dropdown
                 allowClear: true,  // Memungkinkan untuk menghapus pilihan
             });
+
             $.ajax({
                 url: "{% url 'method-dropdown' %}",
                 method: "GET",
@@ -499,7 +492,6 @@
                 modal.classList.remove('hidden');
                 $('#exportButton').show();
                 $('#applyFilterBtn').hide();
-                $('#no-sample').hide();
                 $('#area').hide();
             });
 
@@ -510,7 +502,7 @@
                 var method_filter = $('#method_filter').val();
                 var materialFilter = $('#materialFilter').val();
                 // Buat URL dengan filter
-                var exportUrl = "{% url 'export-samples-data' %}?from_date=" + from_date + "&to_date=" +
+                var exportUrl = "{% url 'export-samples-gc' %}?from_date=" + from_date + "&to_date=" +
                     to_date + "&method_filter=" + method_filter + "&materialFilter=" + materialFilter
                 // Redirect ke URL eksport dengan filter
                 window.location.href = exportUrl;

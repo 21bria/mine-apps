@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.http import HttpResponse
 from ...models.source_model import SourceMinesDumping
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -8,7 +9,9 @@ from django.shortcuts import render
 from django.db.models import Q
 from django.views.generic import View
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import JsonResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
 from ...utils.utils import clean_string
 from ...utils.permissions import get_dynamic_permissions
 
@@ -219,3 +222,75 @@ def delete_minesDumping(request):
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
+
+@csrf_exempt
+def export_dumping_point(request):
+    sourceFilter   = request.POST.get('sourceFilter')
+
+    # workbook = openpyxl.Workbook()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Dumping Point'
+
+    # Write header row
+    header = [
+        'No', 
+        'Name', 
+        'Remarks', 
+    ]
+
+    for col_num, column_title in enumerate(header, 1):
+        cell = worksheet.cell(row=1, column=col_num)
+        cell.value = column_title
+        cell.font = Font(bold=True)  # Mengatur teks menjadi bold
+
+    # List kolom yang ingin diambil
+    columns = [
+        'dumping_point', 
+        'remarks'
+    ]
+
+    # Iterator ini mengambil data dalam beberapa bagian, sehingga hemat memori untuk kumpulan data besar.
+    queryset = SourceMinesDumping.objects.all().values_list(*columns)
+
+    # Membersihkan setiap nilai string dalam hasil queryset
+    cleaned_data = [
+        [clean_string(value) for value in row]  # Terapkan clean_string ke setiap nilai dalam baris
+        for row in queryset
+    ]
+    
+    # if sourceFilter:
+    #     queryset = queryset.filter(sampling_area=sourceFilter)
+
+    for row_num, (row_count, row) in enumerate(enumerate(cleaned_data, 1), 1):
+        worksheet.cell(row=row_num + 1, column=1, value=row_count)
+        for col_num, cell_value in enumerate(row, 2):
+            cell = worksheet.cell(row=row_num + 1, column=col_num)
+            
+            if isinstance(cell_value, str):  
+                try:
+                    cell_value = float(cell_value.replace(',', '').replace(' ', '').replace('.', '', 1))
+                except ValueError:
+                    pass  # Biarkan tetap string jika bukan angka
+
+            cell.value = cell_value
+
+    # Sesuaikan lebar kolom berdasarkan panjang teks di header
+    for col_num, column_title in enumerate(header, 1):
+        col_letter = get_column_letter(col_num)
+        max_length = len(column_title)  # Panjang teks di header
+        for row in worksheet.iter_rows(min_col=col_num, max_col=col_num):
+            for cell in row:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+        adjusted_width = (max_length + 2)
+        worksheet.column_dimensions[col_letter].width = adjusted_width
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="dumping_point.xlsx"'
+    workbook.save(response)
+
+    return response

@@ -13,11 +13,7 @@ from django.db.models import Max
 from datetime import datetime
 
 def clean_string(value):
-    """
-    Utility function to strip spaces from strings.
-    Returns the stripped string if the value is a string.
-    Returns the value unchanged otherwise.
-    """
+    """Menghapus spasi berlebih dari string, jika bukan string, biarkan apa adanya."""
     return value.strip() if isinstance(value, str) else value
 
 def validate_year(value):

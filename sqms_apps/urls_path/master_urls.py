@@ -57,6 +57,7 @@ urlpatterns = [
     path('mine-source/loading-point/delete/', delete_minesLoading, name='delete-source-loading-point'),
     path('mine-source/loading-point/get/<int:id>/', get_minesLoading, name='get-source-loading-point'),
     path('mine-source/loading-point/update/<int:id>/', update_minesLoading, name='update-source-loading-point'),
+    path('export/loading-point',export_loading_point, name='export-loading-point'),
 
     # Table Mine Dumping Point
     path('mine-source/dumping-point/', minesDumping_page, name='source-dumping-point-page'), 
@@ -65,6 +66,7 @@ urlpatterns = [
     path('mine-source/dumping-point/delete/', delete_minesDumping, name='delete-source-dumping-point'),
     path('mine-source/dumping-point/get/<int:id>/', get_minesDumping, name='get-source-dumping-point'),
     path('mine-source/dumping-point/update/<int:id>/', update_minesDumping, name='update-source-dumping-point'),
+    path('export/dumping-point',export_dumping_point, name='export-dumping-point'),
 
     # Table Mine source Dome Point
     path('mine-source/dome-point/', sourceDomePoint_page, name='source-dome-point-page'), 
@@ -73,6 +75,7 @@ urlpatterns = [
     path('mine-source/dome-point/delete/', delete_sourceDomePoint, name='delete-source-dome-point'),
     path('mine-source/dome-point/get/<int:id>/', get_sourceDomePoint, name='get-source-dome-point'),
     path('mine-source/dome-point/update/<int:id>/', update_sourceDomePoint, name='update-source-dome-point'),
+    path('export/dome-point',export_dome_point, name='export-dome-point'),
 
     # Table Sample type
     path('sample-type/', sampleType_page, name='sample-type-page'), 

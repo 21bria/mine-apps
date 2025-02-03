@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import connections
+from .....utils.permissions import get_dynamic_permissions
 
 #List Data Tables:
 class SamplesCrm(View):
@@ -72,5 +73,12 @@ def sampleCrmPage(request):
             'error_message': 'You do not have permission to access this page.',
         }
         return render(request, '403.html', context, status=403)
+    
+    permissions = get_dynamic_permissions(request.user)
+
+    # Menambahkan tanggal awal dan akhir minggu ke konteks
+    context = {
+        'permissions' : permissions
+    }
     return render(request, 'admin-mgoqa/report-qa/list-sample-crm.html')
 

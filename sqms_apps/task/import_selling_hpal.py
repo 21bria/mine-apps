@@ -199,7 +199,7 @@ def import_selling_hpal(file_path, original_file_name):
                     continue
             
             # Menggunakan bulk_create untuk menyimpan objek dalam batch
-            SellingProductions.objects.bulk_create(list_objects, batch_size=200)
+            SellingProductions.objects.bulk_create(list_objects, batch_size=300)
     
     except Exception as e:
         errors.append(f"Transaction failed: {str(e)}")

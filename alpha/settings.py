@@ -271,6 +271,12 @@ CELERY_TASK_SERIALIZER   = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE          = 'Asia/Makassar'
 
+CELERY_TASK_SOFT_TIME_LIMIT = 300  # Task timeout dalam 5 menit
+CELERY_TASK_TIME_LIMIT = 600       # Paksa terminate task setelah 10 menit
+CELERY_TASK_RESULT_EXPIRES = 3600  # Hapus hasil task setelah 1 jam
+
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}  # 12 jam
+
 # Konfigurasi SMTP untuk Gmail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Sesuaikan dengan SMTP server yang digunakan

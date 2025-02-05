@@ -81,8 +81,8 @@
                                 <label class="form-label">Type </label>
                                 <select name="materialFilter" class="form-select" id="materialFilter">
                                     <option value="">-- Type -- </option>
-                                    <option value="HOS">HPAL</option>
-                                    <option value="ROS">RKEF</option>
+                                    <option value="HPAL">HPAL</option>
+                                    <option value="RKEF">RKEF</option>
                                 </select>
                             </div>
                             <div class="mb-0" id="form-tanggal">
@@ -159,11 +159,11 @@
 
                     </div>
 
-                    <div class="grid grid-cols-1 gap-6 xl:grid-cols-1">
+                    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
                         <!-- stripped table -->
                         <div class="panel">
                             <div class="mb-5 flex items-center justify-between">
-                                <h5 class="text-lg font-semibold dark:text-white-light">Split Samples</h5>
+                                <h5 class="text-lg font-semibold dark:text-white-light">Split Sample Anindya</h5>
                                 <a class="font-semibold hover:text-gray-400 dark:text-gray-400 dark:hover:text-gray-600"
                                     href="javascript:;"
                                     onclick="selectElementContents( document.getElementById('list-awk') );">
@@ -188,28 +188,9 @@
                                     <table id="list-awk" class="table-striped">
                                         <thead>
                                             <tr>
-                                                <th colspan="2" class="center-align">Code</th>
-                                                <th colspan="5" class="center-align">Internal</th>
-                                                <th colspan="5" class="center-align">Pulp (AWK)</th>
-                                                <th colspan="5" class="center-align">COA</th>
-                                                <!-- <th colspan="2" class="center-align">Grade Control</th>
-                                                <th colspan="2" class="center-align">Mining</th>
-                                                <th colspan="2" class="center-align">Difference</th> -->
-                                            </tr>
-                                            <tr>
                                                 <th>No</th>
                                                 <th>Product</th>
-                                                <th>Internal (ton)</th>
-                                                <th>Ni</th>
-                                                <th>Fe</th>
-                                                <th>MgO</th>
-                                                <th>SiO2</th>
-                                                <th>Pulp (Ton)</th>
-                                                <th>Ni</th>
-                                                <th>Fe</th>
-                                                <th>MgO</th>
-                                                <th>SiO2</th>
-                                                <th>COA (Ton)</th>
+                                                <th>Tonnage</th>
                                                 <th>Ni</th>
                                                 <th>Fe</th>
                                                 <th>MgO</th>
@@ -225,12 +206,127 @@
                                                 <td>0.00</td>
                                                 <td>0.00</td>
                                                 <td>0.00</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="2">Grand Total</th>
+                                                <th id="awk-total-ore">-</th>
+                                                <th id="awk-sum-ni">-</th>
+                                                <th id="awk-sum-fe">-</th>
+                                                <th id="awk-sum-mgo">-</th>
+                                                <th id="awk-sum-sio2">-</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel">
+                            <div class="mb-5 flex items-center justify-between">
+                                <h5 class="text-lg font-semibold dark:text-white-light">Split Sample Anindya (Pulp)</h5>
+                                <a class="font-semibold hover:text-gray-400 dark:text-gray-400 dark:hover:text-gray-600"
+                                    href="javascript:;"
+                                    onclick="selectElementContents( document.getElementById('list-awk-pulp') );">
+                                    <span class="flex items-center">
+                                        <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
+                                            <path
+                                                d="M17 7.82959L18.6965 9.35641C20.239 10.7447 21.0103 11.4389 21.0103 12.3296C21.0103 13.2203 20.239 13.9145 18.6965 15.3028L17 16.8296"
+                                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                            <path opacity="0.5" d="M13.9868 5L10.0132 19.8297" stroke="currentColor"
+                                                stroke-width="1.5" stroke-linecap="round"></path>
+                                            <path
+                                                d="M7.00005 7.82959L5.30358 9.35641C3.76102 10.7447 2.98975 11.4389 2.98975 12.3296C2.98975 13.2203 3.76102 13.9145 5.30358 15.3028L7.00005 16.8296"
+                                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                        </svg>
+                                        Copy
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="mb-5">
+                                <div class="table-responsive table-scrollable">
+                                    <table id="list-awk-pulp" class="table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Product</th>
+                                                <th>Tonnage</th>
+                                                <th>Ni</th>
+                                                <th>Fe</th>
+                                                <th>MgO</th>
+                                                <th>SiO2</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>-</td>
+                                                <td>-</td>
                                                 <td>-</td>
                                                 <td>0.00</td>
                                                 <td>0.00</td>
                                                 <td>0.00</td>
                                                 <td>0.00</td>
+
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="2">Grand Total</th>
+                                                <th id="awk-pulp-total-ore">-</th>
+                                                <th id="awk-pulp-sum-ni">-</th>
+                                                <th id="awk-pulp-sum-fe">-</th>
+                                                <th id="awk-pulp-sum-mgo">-</th>
+                                                <th id="awk-pulp-sum-sio2">-</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel">
+                            <div class="mb-5 flex items-center justify-between">
+                                <h5 class="text-lg font-semibold dark:text-white-light">Official Anindya</h5>
+                                <a class="font-semibold hover:text-gray-400 dark:text-gray-400 dark:hover:text-gray-600"
+                                    href="javascript:;"
+                                    onclick="selectElementContents( document.getElementById('list-fix-awk') );">
+                                    <span class="flex items-center">
+                                        <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
+                                            <path
+                                                d="M17 7.82959L18.6965 9.35641C20.239 10.7447 21.0103 11.4389 21.0103 12.3296C21.0103 13.2203 20.239 13.9145 18.6965 15.3028L17 16.8296"
+                                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                            <path opacity="0.5" d="M13.9868 5L10.0132 19.8297" stroke="currentColor"
+                                                stroke-width="1.5" stroke-linecap="round"></path>
+                                            <path
+                                                d="M7.00005 7.82959L5.30358 9.35641C3.76102 10.7447 2.98975 11.4389 2.98975 12.3296C2.98975 13.2203 3.76102 13.9145 5.30358 15.3028L7.00005 16.8296"
+                                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                        </svg>
+                                        Copy
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="mb-5">
+                                <div class="table-responsive table-scrollable">
+                                    <table id="list-fix-awk" class="table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Product</th>
+                                                <th>Job Number</th>
+                                                <th>Tonnage</th>
+                                                <th>Ni</th>
+                                                <th>Fe</th>
+                                                <th>MgO</th>
+                                                <th>SiO2</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
                                                 <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>0.00</td>
                                                 <td>0.00</td>
                                                 <td>0.00</td>
                                                 <td>0.00</td>
@@ -239,30 +335,37 @@
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <th colspan="2">Grand Total</th>
-                                                <th id="total-ore">-</th>
-                                                <th id="sum-ni">-</th>
-                                                <th id="sum-fe">-</th>
-                                                <th id="sum-mgo">-</th>
-                                                <th id="sum-sio2">-</th>
-                                                <th id="pulp-total-ore">-</th>
-                                                <th id="pulp-sum-ni">-</th>
-                                                <th id="pulp-sum-fe">-</th>
-                                                <th id="pulp-sum-mgo">-</th>
-                                                <th id="pulp-sum-sio2">-</th>
-                                                <th id="coa-total-ore">-</th>
-                                                <th id="coa-sum-ni">-</th>
-                                                <th id="coa-sum-fe">-</th>
-                                                <th id="coa-sum-mgo">-</th>
-                                                <th id="coa-sum-sio2">-</th>
+                                                <th colspan="3">Grand Total</th>
+                                                <th id="awk-fix-total-ore">-</th>
+                                                <th id="awk-fix-sum-ni">-</th>
+                                                <th id="awk-fix-sum-fe">-</th>
+                                                <th id="awk-fix-sum-mgo">-</th>
+                                                <th id="awk-fix-sum-sio2">-</th>
                                             </tr>
+                                            <!-- for Deviation  -->
+                                            <tr>
+                                                <th colspan="3">Wet Sample Awk</th>
+                                                <th>-</th>
+                                                <th id='dev-fix-awk-ni'></th>
+                                                <th>-</th>
+                                                <th>-</th>
+                                                <th>-</th>
+                                            </tr>
+                                            <tr>
+                                                <th colspan="3">Split Pulp Anindya</th>
+                                                <th>-</th>
+                                                <th id='dev-fix-awk-ni-pulp'></th>
+                                                <th>-</th>
+                                                <th>-</th>
+                                                <th>-</th>
+                                            </tr>
+
                                         </tfoot>
+
                                     </table>
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
 
@@ -382,8 +485,8 @@
                     // $(this).attr("disabled", "disabled");
                     // Panggil function Group,Awk,Scci
                     loadAWK();
-                    // loadAWK_Pulp();
-                    // loadAwk_fix();
+                    loadAWK_Pulp();
+                    loadAwk_fix();
                 }
 
             });
@@ -397,7 +500,7 @@
                 } else {
                     // Panggil function Group,Awk,Scci
                     devSplitAwk();
-                    // devOfficialAwk();
+                    devOfficialAwk();
                 }
 
             });
@@ -409,102 +512,56 @@
         function loadAWK() {
             var rowCount = 0; // Jumlah baris
             var table = $("#list-awk").find("tbody");
-            var grandTotalOre = 0;
-            var grandTotalPulp = 0;
-            var grandTotalCoa = 0;
-            var internalNi = [];
-            var internalFe = [];
-            var internalMgo = [];
-            var internalSiO2 = [];
-            var pulpNi = [];
-            var pulpFe = [];
-            var pulpMgo = [];
-            var pulpSiO2 = [];
-            var coaNi = [];
-            var coaFe = [];
-            var coaMgo = [];
-            var coaSiO2 = [];
-
             // Bersihkan isi tabel sebelum menambahkan data baru
             table.empty();
             // Fungsi untuk menambahkan data ke tabel
             function appendDataAWK(data) {
                 grandTotalOre = 0;
-                grandTotalPulp = 0;
-                grandTotalCoa = 0;
+                sumNi = 0;
+                sumFe = 0;
+                sumMgo = 0;
+                sumSiO2 = 0;
+                var data_Ni = [];
+                var data_Fe = [];
+                var data_Mgo = [];
+                var data_SiO2 = [];
                 // Loop melalui data dan tambahkan ke tabel
                 $.each(data, function (index, row) {
                     var newRow = $("<tr>");
                     newRow.append("<td>" + (index + 1) + "</td>"); // Menambahkan nomor urut
                     newRow.append("<td>" + row.delivery_order + "</td>");
-                    newRow.append("<td>" + parseFloat(row.tonnage_split).toLocaleString('en-US', {
+                    newRow.append("<td>" + parseFloat(row.tonnage).toLocaleString('en-US', {
                         maximumFractionDigits: 2
                     }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.ni_split).toLocaleString('en-US', {
+                    newRow.append("<td>" + parseFloat(row.Ni).toLocaleString('en-US', {
                         maximumFractionDigits: 2
                     }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.fe_split).toLocaleString('en-US', {
+                    newRow.append("<td>" + parseFloat(row.Fe).toLocaleString('en-US', {
                         maximumFractionDigits: 2
                     }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.mgo_split).toLocaleString('en-US', {
+                    newRow.append("<td>" + parseFloat(row.MgO).toLocaleString('en-US', {
                         maximumFractionDigits: 2
                     }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.sio2_split).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-
-                    newRow.append("<td>" + parseFloat(row.tonnage_pulp).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.ni_pulp).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.fe_pulp).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.mgo_pulp).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.sio2_pulp).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-
-                    newRow.append("<td>" + parseFloat(row.tonnage_official).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.ni_official).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.fe_official).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.mgo_official).toLocaleString('en-US', {
-                        maximumFractionDigits: 2
-                    }) + "</td>");
-                    newRow.append("<td>" + parseFloat(row.sio2_official).toLocaleString('en-US', {
+                    newRow.append("<td>" + parseFloat(row.SiO2).toLocaleString('en-US', {
                         maximumFractionDigits: 2
                     }) + "</td>");
 
 
-                    grandTotalOre += parseFloat(row.tonnage_split);
-                    grandTotalPulp += parseFloat(row.tonnage_pulp);
-                    grandTotalCoa += parseFloat(row.tonnage_official);
+                    // Akumulasi ke grand total
+                    grandTotalOre += parseFloat(row.tonnage);
 
                     /* Hitung SUM Product */
-                    internalNi.push(row.tonnage_split * row.ni_split);
-                    internalFe.push(row.tonnage_split * row.fe_split);
-                    internalMgo.push(row.tonnage_split * row.mgo_split);
-                    internalSiO2.push(row.tonnage_split * row.sio2_split);
+                    var productNi = row.tonnage * row.Ni;
+                    data_Ni.push(productNi);
 
-                    pulpNi.push(row.tonnage_pulp * row.ni_pulp);
-                    pulpFe.push(row.tonnage_pulp * row.fe_pulp);
-                    pulpMgo.push(row.tonnage_pulp * row.mgo_pulp);
-                    pulpSiO2.push(row.tonnage_pulp * row.sio2_pulp);
+                    var productFe = row.tonnage * row.Fe;
+                    data_Fe.push(productFe);
 
-                    coaNi.push(row.tonnage_official * row.ni_official);
-                    coaFe.push(row.tonnage_official * row.fe_official);
-                    coaMgo.push(row.tonnage_official * row.mgo_official);
-                    coaSiO2.push(row.tonnage_official * row.sio2_official);
+                    var productMgo = row.tonnage * row.MgO;
+                    data_Mgo.push(productMgo);
+
+                    var productSiO2 = row.tonnage * row.SiO2;
+                    data_SiO2.push(productSiO2);
 
                     // Tambahkan baris ke tabel
                     table.append(newRow);
@@ -512,37 +569,49 @@
                 });
 
                 // Set grand total di bawah footer tabel
-                $("#total-ore").text(grandTotalOre.toLocaleString('en-US', { maximumFractionDigits: 2 }));
-                $("#pulp-total-ore").text(grandTotalPulp.toLocaleString('en-US', { maximumFractionDigits: 2 }));
-                $("#coa-total-ore").text(grandTotalCoa.toLocaleString('en-US', { maximumFractionDigits: 2 }));
+                $("#awk-total-ore").text(grandTotalOre.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
 
-                // Proses SUM Product Grade
-                var sumProduct = function (dataArray) {
-                    return dataArray.reduce((sum, value) => sum + value, 0);
-                };
+                // Sum Product Grade
+                for (var i = 0; i < data_Ni.length; i++) {
+                    sumNi += data_Ni[i];
+                }
+
+                for (var i = 0; i < data_Fe.length; i++) {
+                    sumFe += data_Fe[i];
+                }
+
+                for (var i = 0; i < data_Mgo.length; i++) {
+                    sumMgo += data_Mgo[i];
+                }
+
+                for (var i = 0; i < data_SiO2.length; i++) {
+                    sumSiO2 += data_SiO2[i];
+                }
 
 
-                // Bagi dengan total released
-                var sumResults = [
-                    { id: "sum-ni", value: (sumProduct(internalNi) / grandTotalOre) || 0 },
-                    { id: "sum-fe", value: (sumProduct(internalFe) / grandTotalOre) || 0 },
-                    { id: "sum-mgo", value: (sumProduct(internalMgo) / grandTotalOre) || 0 },
-                    { id: "sum-sio2", value: (sumProduct(internalSiO2) / grandTotalOre) || 0 },
+                // Bagi dengan total 
+                var sumNiResult = (grandTotalOre != 0) ? (sumNi / grandTotalOre) : 0;
+                var sumFeResult = (grandTotalOre != 0) ? (sumFe / grandTotalOre) : 0;
+                var sumMgoResult = (grandTotalOre != 0) ? (sumMgo / grandTotalOre) : 0;
+                var sumSiO2Result = (grandTotalOre != 0) ? (sumSiO2 / grandTotalOre) : 0;
 
-                    { id: "pulp-sum-ni", value: (sumProduct(pulpNi) / grandTotalPulp) || 0 },
-                    { id: "pulp-sum-fe", value: (sumProduct(pulpFe) / grandTotalPulp) || 0 },
-                    { id: "pulp-sum-mgo", value: (sumProduct(pulpMgo) / grandTotalPulp) || 0 },
-                    { id: "pulp-sum-sio2", value: (sumProduct(pulpSiO2) / grandTotalPulp) || 0 },
+                // Tampilkan hasil di elemen sum product Grade (footer)
+                $("#awk-sum-ni").text(sumNiResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
 
-                    { id: "coa-sum-ni", value: (sumProduct(coaNi) / grandTotalCoa) || 0 },
-                    { id: "coa-sum-fe", value: (sumProduct(coaFe) / grandTotalCoa) || 0 },
-                    { id: "coa-sum-mgo", value: (sumProduct(coaMgo) / grandTotalCoa) || 0 },
-                    { id: "coa-sum-sio2", value: (sumProduct(coaSiO2) / grandTotalCoa) || 0 },
-                ];
+                $("#awk-sum-fe").text(sumFeResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#awk-sum-mgo").text(sumMgoResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#awk-sum-sio2").text(sumSiO2Result.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
 
-                sumResults.forEach(result => {
-                    $("#" + result.id).text(result.value.toLocaleString('en-US', { maximumFractionDigits: 2 }));
-                });
             }
 
             // Lakukan permintaan Ajax ke endpoint controller Anda
@@ -555,7 +624,7 @@
             var tahunFilter = $('#tahunFilter').val();
             $.ajax({
                 type: "GET",
-                url: "{% url 'get-awk-range-all'%}",
+                url: "{% url 'get-split-sale-range'%}",
                 data: {
                     materialFilter: materialFilter,
                     tahunFilter: tahunFilter,
@@ -574,6 +643,7 @@
                     console.log("Gagal mengambil data dari server.");
                 },
             });
+
             devSplitAwk();
         }
         function devSplitAwk() {
@@ -593,103 +663,347 @@
             }
         }
     </script>
+    <!-- For AWK PULP -->
+    <script type="text/javascript">
+        function loadAWK_Pulp() {
+            var rowCount = 0; // Jumlah baris
+            var table = $("#list-awk-pulp").find("tbody");
+            // Bersihkan isi tabel sebelum menambahkan data baru
+            table.empty();
+            // Fungsi untuk menambahkan data ke tabel
+            function appendDataAWK_Puplp(data) {
+                grandTotalOre = 0;
+                sumNi = 0;
+                sumFe = 0;
+                sumMgo = 0;
+                sumSiO2 = 0;
+                var data_Ni = [];
+                var data_Fe = [];
+                var data_Mgo = [];
+                var data_SiO2 = [];
 
+                // Loop melalui data dan tambahkan ke tabel
+                $.each(data, function (index, row) {
+                    var newRow = $("<tr>");
+                    newRow.append("<td>" + (index + 1) + "</td>"); // Menambahkan nomor urut
+                    newRow.append("<td>" + row.delivery_order + "</td>");
+
+                    newRow.append("<td>" + parseFloat(row.tonnage).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.Ni).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.Fe).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.MgO).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.SiO2).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+
+                    // Akumulasi ke grand total
+                    grandTotalOre += parseFloat(row.tonnage);
+
+                    /* Hitung SUM Product */
+                    var productNi = row.tonnage * row.Ni;
+                    data_Ni.push(productNi);
+
+                    var productFe = row.tonnage * row.Fe;
+                    data_Fe.push(productFe);
+
+                    var productMgo = row.tonnage * row.MgO;
+                    data_Mgo.push(productMgo);
+
+                    var productSiO2 = row.tonnage * row.SiO2;
+                    data_SiO2.push(productSiO2);
+
+                    // Tambahkan baris ke tabel
+                    table.append(newRow);
+
+                });
+
+                // Set grand total di bawah footer tabel
+                $("#awk-pulp-total-ore").text(grandTotalOre.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+
+                // Sum Product Grade
+                for (var i = 0; i < data_Ni.length; i++) {
+                    sumNi += data_Ni[i];
+                }
+
+                for (var i = 0; i < data_Fe.length; i++) {
+                    sumFe += data_Fe[i];
+                }
+
+                for (var i = 0; i < data_Mgo.length; i++) {
+                    sumMgo += data_Mgo[i];
+                }
+
+                for (var i = 0; i < data_SiO2.length; i++) {
+                    sumSiO2 += data_SiO2[i];
+                }
+
+
+                // Bagi dengan total 
+                var sumNiResult = (grandTotalOre != 0) ? (sumNi / grandTotalOre) : 0;
+                var sumFeResult = (grandTotalOre != 0) ? (sumFe / grandTotalOre) : 0;
+                var sumMgoResult = (grandTotalOre != 0) ? (sumMgo / grandTotalOre) : 0;
+                var sumSiO2Result = (grandTotalOre != 0) ? (sumSiO2 / grandTotalOre) : 0;
+
+                // Tampilkan hasil di elemen sum product Grade (footer)
+                $("#awk-pulp-sum-ni").text(sumNiResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+
+                $("#awk-pulp-sum-fe").text(sumFeResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#awk-pulp-sum-mgo").text(sumMgoResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#awk-pulp-sum-sio2").text(sumSiO2Result.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+
+            }
+
+            // Lakukan permintaan Ajax ke endpoint controller Anda
+            // Bersihkan tabel sebelum memuat data baru
+            var table = $("#list-awk-pulp").find("tbody");
+            table.empty();
+            var materialFilter = $('#materialFilter').val();
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+            var bulanFilter = $('#bulanFilter').val();
+            var tahunFilter = $('#tahunFilter').val();
+            $.ajax({
+                type: "GET",
+                url: "{% url 'get-split-sale-pulp-range'%}",
+                data: {
+                    materialFilter: materialFilter,
+                    tahunFilter: tahunFilter,
+                    bulanFilter: bulanFilter,
+                    startDate: startDate,
+                    endDate: endDate
+                },
+                success: function (response) {
+                    // Data berhasil diterima dari server
+                    var sqlData = response.data;
+                    table.empty();
+                    appendDataAWK_Puplp(sqlData);
+                },
+                error: function () {
+                    // Penanganan kesalahan jika diperlukan
+                    console.log("Gagal mengambil data dari server.");
+                },
+            });
+        }
+    </script>
+    <!-- For AWK Official-->
+    <script type="text/javascript">
+        function loadAwk_fix() {
+            var rowCount = 0; // Jumlah baris
+            var table = $("#list-fix-awk").find("tbody");
+            // Bersihkan isi tabel sebelum menambahkan data baru
+            table.empty();
+            // Fungsi untuk menambahkan data ke tabel
+            function appendDataAwkFix(data) {
+                grandTotalOre = 0;
+                sumNi = 0;
+                sumFe = 0;
+                sumMgo = 0;
+                sumSiO2 = 0;
+                sumMc = 0;
+                var data_Ni = [];
+                var data_Fe = [];
+                var data_Mgo = [];
+                var data_SiO2 = [];
+                var data_Mc = [];
+
+                // Loop melalui data dan tambahkan ke tabel
+                $.each(data, function (index, row) {
+                    var newRow = $("<tr>");
+                    newRow.append("<td>" + (index + 1) + "</td>"); // Menambahkan nomor urut
+                    newRow.append("<td>" + row.product_code + "</td>");
+                    newRow.append("<td>" + row.so_number + "</td>");
+                    newRow.append("<td>" + parseFloat(row.tonnage).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.ni).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.fe).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.mgo).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+                    newRow.append("<td>" + parseFloat(row.sio2).toLocaleString('en-US', {
+                        maximumFractionDigits: 2
+                    }) + "</td>");
+
+
+                    // Akumulasi ke grand total
+                    grandTotalOre += parseFloat(row.tonnage);
+
+                    /* Hitung SUM Product */
+                    var productNi = row.tonnage * row.ni;
+                    data_Ni.push(productNi);
+
+                    var productFe = row.tonnage * row.fe;
+                    data_Fe.push(productFe);
+
+                    var productMgo = row.tonnage * row.mgo;
+                    data_Mgo.push(productMgo);
+
+                    var productSiO2 = row.tonnage * row.sio2;
+                    data_SiO2.push(productSiO2);
+
+                    // Tambahkan baris ke tabel
+                    table.append(newRow);
+
+                });
+
+                // Set grand total di bawah footer tabel
+                $("#awk-fix-total-ore").text(grandTotalOre.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+
+                // Sum Product Grade
+                for (var i = 0; i < data_Ni.length; i++) {
+                    sumNi += data_Ni[i];
+                }
+
+                for (var i = 0; i < data_Fe.length; i++) {
+                    sumFe += data_Fe[i];
+                }
+
+                for (var i = 0; i < data_Mgo.length; i++) {
+                    sumMgo += data_Mgo[i];
+                }
+
+                for (var i = 0; i < data_SiO2.length; i++) {
+                    sumSiO2 += data_SiO2[i];
+                }
+
+                // Bagi dengan total released
+                var sumNiResult = (grandTotalOre != 0) ? (sumNi / grandTotalOre) : 0;
+                var sumFeResult = (grandTotalOre != 0) ? (sumFe / grandTotalOre) : 0;
+                var sumMgoResult = (grandTotalOre != 0) ? (sumMgo / grandTotalOre) : 0;
+                var sumSiO2Result = (grandTotalOre != 0) ? (sumSiO2 / grandTotalOre) : 0;
+                var sumMcResult = (grandTotalOre != 0) ? (sumMc / grandTotalOre) : 0;
+
+                // Tampilkan hasil di elemen sum product Grade (footer)
+                $("#awk-fix-sum-ni").text(sumNiResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+
+                $("#awk-fix-sum-fe").text(sumFeResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#awk-fix-sum-mgo").text(sumMgoResult.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+                $("#awk-fix-sum-sio2").text(sumSiO2Result.toLocaleString('en-US', {
+                    maximumFractionDigits: 2
+                }));
+
+            }
+
+            // Lakukan permintaan Ajax ke endpoint controller Anda
+            var table = $("#list-fix-awk").find("tbody");
+            table.empty();
+            var materialFilter = $('#materialFilter').val();
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+            var bulanFilter = $('#bulanFilter').val();
+            var tahunFilter = $('#tahunFilter').val();
+            $.ajax({
+                type: "GET",
+                url: "{% url 'get-awk-official-range'%}",
+                data: {
+                    materialFilter: materialFilter,
+                    tahunFilter: tahunFilter,
+                    bulanFilter: bulanFilter,
+                    startDate: startDate,
+                    endDate: endDate
+                },
+                success: function (response) {
+                    var sqlData = response.data;
+                    table.empty();
+                    appendDataAwkFix(sqlData);
+
+                },
+                error: function () {
+                    // Penanganan kesalahan jika diperlukan
+                    console.log("Gagal mengambil data dari server.");
+                },
+            });
+            devOfficialAwk();
+        }
+
+        function devOfficialAwk() {
+            var groupNi = 0
+            var awkPulpNi = 0
+            var awkNi = 0
+            var scciNi_fix = 0
+            var scciMc_fix = 0
+            var awkNi_fix = 0
+            var DevAwkNi_fix = 0
+            var DevAwkNi_g = 0
+            var DevAwkNi_pulp = 0
+
+            groupNi = $('#group-sum-ni').text();
+            awkPulpNi = $('#awk-pulp-sum-ni').text();
+            awkNi = $('#awk-sum-ni').text();
+            scciNi_fix = $('#scci-fix-sum-ni').text();
+            awkNi_fix = $('#awk-fix-sum-ni').text();
+            $('#dev-fix-awk-ni-scci').text(0);
+            $('#dev-fix-awk-ni-g').text(0);
+            $('#dev-fix-awk-ni-g').text(0);
+            $('#dev-fix-awk-ni-pulp').text(0);
+
+            // Deviation Official Anindya with official SCCI
+            if (!isNaN(scciNi_fix) && !isNaN(scciNi_fix) && awkNi_fix !== 0) {
+                DevAwkNi_fix = (awkNi_fix - scciNi_fix) / scciNi_fix * 100;
+                DevAwkNi_fix = DevAwkNi_fix.toFixed(2);
+                // Tampilkan  "Deviation Ni"
+                $("#dev-fix-awk-ni-scci").text(+DevAwkNi_fix + "%");
+            }
+
+            // Deviation Official Anindya with Chek Sample
+            if (!isNaN(groupNi) && !isNaN(groupNi) && awkNi_fix !== 0) {
+                DevAwkNi_g = (awkNi_fix - groupNi) / groupNi * 100;
+                DevAwkNi_g = DevAwkNi_g.toFixed(2);
+                // Tampilkan  "Deviation Ni"
+                $("#dev-fix-awk-ni-g").text(+DevAwkNi_g + "%");
+            }
+
+            //Deviation Official Anindya with Split Wet Sample anindya
+            if (!isNaN(awkNi) && !isNaN(awkNi) && awkNi_fix !== 0) {
+                DevAwkNi = (awkNi_fix - awkNi) / awkNi * 100;
+                DevAwkNi = DevAwkNi.toFixed(2);
+                // Tampilkan  "Deviation Ni"
+                $("#dev-fix-awk-ni").text(+DevAwkNi_g + "%");
+            }
+
+
+            // Deviation Official Anindya with Split Pulp  anindya
+            if (!isNaN(awkPulpNi) && !isNaN(awkPulpNi) && awkNi_fix !== 0) {
+                DevAwkNi_pulp = (awkNi_fix - awkPulpNi) / awkPulpNi * 100;
+                DevAwkNi_pulp = DevAwkNi_pulp.toFixed(2);
+                // Tampilkan  "Deviation Ni"
+                $("#dev-fix-awk-ni-pulp").text(+DevAwkNi_pulp + "%");
+                console.log('Ni Pulp : ' + DevAwkNi_pulp + "%")
+            }
+
+        }
+    </script>
 
 </body>
 
 </html>
-
-
-<Style>
-    #data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-
-    #data-table th {
-        padding: 8px;
-        text-align: left;
-    }
-
-    #data-table th.left-align {
-        padding: 12px;
-        text-align: left;
-        /* Hanya untuk header 'Sources' */
-    }
-
-    #data-table th.center-align {
-        text-align: center;
-        /* Hanya untuk header yang perlu di tengah */
-    }
-
-    #data-table td {
-        padding: 8px;
-        text-align: center;
-        /* Rata tengah untuk sel data */
-    }
-
-    .shift-header,
-    .area-header {
-        text-align: left;
-        /* Rata kiri untuk header shift dan area */
-        padding: 8px;
-        /* Tambahkan padding jika diperlukan */
-    }
-
-    .shift-header {
-        background-color: #fef5e6;
-        /* Warna header untuk shift D */
-        font-weight: bold;
-    }
-
-    .shift-header.shift-n {
-        background-color: #eceffd;
-        /* Warna header untuk shift N */
-    }
-
-    .area-header {
-        text-align: left;
-        /* Rata kiri untuk header area */
-        background-color: #f2f2f2;
-        /* Light grey untuk area headers */
-        font-weight: bold;
-    }
-
-
-    .negative-difference {
-        background-color: #ffcccc;
-        /* Contoh: warna latar belakang merah muda */
-        color: #ff0000;
-        /* Contoh: warna teks merah */
-    }
-
-
-
-    strong {
-        font-weight: bold;
-        /* color: #007bff; */
-        /* Contoh warna biru */
-        background-color: #f0f8ff;
-        /* Contoh latar belakang */
-        padding: 2px;
-        border-radius: 3px;
-    }
-
-
-    thead>tr:nth-child(1)>th:nth-child(1) {
-        background-color: #ecf5fc;
-    }
-
-    thead>tr:nth-child(1)>th:nth-child(2) {
-        background-color: #fbebf0;
-    }
-
-    thead>tr:nth-child(1)>th:nth-child(3) {
-        background-color: #fef0e6;
-    }
-
-    thead>tr:nth-child(1)>th:nth-child(4) {
-        background-color: #e7f6f2;
-    }
-</Style>

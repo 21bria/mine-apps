@@ -178,3 +178,108 @@ def rangeOfficialAwk(request):
     
     return JsonResponse({'data': sql_data})
 
+def rangeOfficiaSplit(request):
+    typeFilter   = request.GET.get('materialFilter')
+    startDate    = request.GET.get('startDate')
+    endDate      = request.GET.get('endDate')
+    bulanFilter  = request.GET.get('bulanFilter')
+    tahunFilter  = request.GET.get('tahunFilter')
+
+    sql_query = """
+        SELECT 
+            TRIM(t1.delivery_order)delivery_order,
+            COALESCE(SUM(t1.netto_ton), 0) AS tonnage_split,              
+            COALESCE(SUM(t1.netto_ton * t1.ni) / SUM(CASE WHEN t1.sample_number IS NOT NULL AND t1.ni IS NOT NULL THEN t1.netto_ton ELSE 0 END), 0) AS ni_split,
+            COALESCE(SUM(t1.netto_ton * t1.co) / SUM(CASE WHEN t1.sample_number IS NOT NULL AND t1.co IS NOT NULL THEN t1.netto_ton ELSE 0 END), 0) AS co_split,
+            COALESCE(SUM(t1.netto_ton * t1.fe) / SUM(CASE WHEN t1.sample_number IS NOT NULL AND t1.fe IS NOT NULL THEN t1.netto_ton ELSE 0 END), 0) AS fe_split,
+            COALESCE(SUM(t1.netto_ton * t1.al2o3) / SUM(CASE WHEN t1.sample_number IS NOT NULL AND t1.al2o3 IS NOT NULL THEN t1.netto_ton ELSE 0 END), 0) AS al2o3_split,
+            COALESCE(SUM(t1.netto_ton * t1.mgo) / SUM(CASE WHEN t1.sample_number IS NOT NULL AND t1.mgo IS NOT NULL THEN t1.netto_ton ELSE 0 END), 0) AS mgo_split,
+            COALESCE(SUM(t1.netto_ton * t1.sio2) / SUM(CASE WHEN t1.sample_number IS NOT NULL AND t1.sio2 IS NOT NULL THEN t1.netto_ton ELSE 0 END), 0) AS sio2_split,
+            COALESCE(t3.tonnage_pulp, 0) AS tonnage_pulp,
+            COALESCE(t3.ni, 0) AS ni_pulp,
+            COALESCE(t3.co, 0) AS co_pulp,
+            COALESCE(t3.fe, 0) AS fe_pulp,
+            COALESCE(t3.al2o3, 0) AS al2o3_pulp,
+            COALESCE(t3.mgo, 0) AS mgo_pulp,
+            COALESCE(t3.sio2, 0) AS sio2_pulp,
+            COALESCE(t2.tonnage_official, 0) AS tonnage_official,
+            COALESCE(t2.ni, 0) AS ni_official,
+            COALESCE(t2.co, 0) AS co_official, 
+            COALESCE(t2.fe, 0) AS fe_official, 
+            COALESCE(t2.al2o3, 0) AS al2o3_official,
+            COALESCE(t2.mgo, 0) AS mgo_official,
+            COALESCE(t2.sio2, 0) AS sio2_official
+        FROM details_selling_awk AS t1
+        LEFT JOIN (
+            SELECT 
+                product_code,
+                COALESCE(SUM(tonnage), 0) AS tonnage_official,
+                COALESCE(SUM(ni), 0) AS ni,
+                COALESCE(SUM(co), 0) AS co,
+                COALESCE(SUM(fe), 0) AS fe,
+                COALESCE(SUM(al2o3), 0) AS al2o3,
+                COALESCE(SUM(mgo), 0) AS mgo,
+                COALESCE(SUM(sio2), 0) AS sio2,
+                type_selling
+            FROM selling_official_surveyor_awk
+            GROUP BY product_code, type_selling
+        ) AS t2 ON t1.delivery_order = t2.product_code
+        LEFT JOIN (
+            SELECT 
+                delivery_order,
+                COALESCE(SUM(netto_ton), 0) AS tonnage_pulp,
+                COALESCE(SUM(netto_ton * ni) / SUM(CASE WHEN sample_number IS NOT NULL AND ni IS NOT NULL THEN netto_ton ELSE 0 END), 0) AS ni,
+                COALESCE(SUM(netto_ton * co) / SUM(CASE WHEN sample_number IS NOT NULL AND co IS NOT NULL THEN netto_ton ELSE 0 END), 0) AS co,
+                COALESCE(SUM(netto_ton * fe) / SUM(CASE WHEN sample_number IS NOT NULL AND fe IS NOT NULL THEN netto_ton ELSE 0 END), 0) AS fe,
+                COALESCE(SUM(netto_ton * al2o3) / SUM(CASE WHEN sample_number IS NOT NULL AND al2o3 IS NOT NULL THEN netto_ton ELSE 0 END), 0) AS al2o3,
+                COALESCE(SUM(netto_ton * mgo) / SUM(CASE WHEN sample_number IS NOT NULL AND mgo IS NOT NULL THEN netto_ton ELSE 0 END), 0) AS mgo,
+                COALESCE(SUM(netto_ton * sio2) / SUM(CASE WHEN sample_number IS NOT NULL AND sio2 IS NOT NULL THEN netto_ton ELSE 0 END), 0) AS sio2
+            FROM details_selling_awk_pulp
+            WHERE 1=1
+    """
+
+    # **Filter pada subquery t3**
+    filters = []
+    if startDate and endDate:
+        filters.append(f"date_wb BETWEEN '{startDate}' AND '{endDate}'")
+    if bulanFilter and tahunFilter:
+        filters.append(f"MONTH(date_wb) = {bulanFilter} AND YEAR(date_wb) = {tahunFilter}")
+    elif tahunFilter:
+        filters.append(f"YEAR(date_wb) = {tahunFilter}")
+
+    if filters:
+        sql_query += " AND " + " AND ".join(filters)
+
+    sql_query += " GROUP BY delivery_order ) AS t3 ON t1.delivery_order = t3.delivery_order WHERE 1=1"
+
+    # **Filter pada query utama t1**
+    filters = []
+    if startDate and endDate:
+        filters.append(f"t1.date_wb BETWEEN '{startDate}' AND '{endDate}'")
+    if typeFilter:
+        filters.append(f"t2.type_selling = '{typeFilter}'")
+    if bulanFilter and tahunFilter:
+        filters.append(f"MONTH(t1.date_wb) = {bulanFilter} AND YEAR(t1.date_wb) = {tahunFilter}")
+    elif tahunFilter:
+        filters.append(f"YEAR(t1.date_wb) = {tahunFilter}")
+
+    if filters:
+        sql_query += " AND " + " AND ".join(filters)
+
+    sql_query += """
+        GROUP BY t1.delivery_order, t3.tonnage_pulp, t2.tonnage_official,
+         t3.ni, t2.ni,t3.co, t2.co,t3.fe, t2.fe,t3.al2o3, t2.al2o3,t3.mgo, t2.mgo,t3.sio2, t2.sio2
+        ORDER BY t1.delivery_order ASC
+    """
+
+    with connections['sqms_db'].cursor() as cursor:
+        cursor.execute(sql_query)
+        columns = [col[0] for col in cursor.description]
+        sql_data = [
+            dict(zip(columns, row))
+            for row in cursor.fetchall()
+        ]
+        
+    # print(sql_data)  # Cetak hasil query
+    
+    return JsonResponse({'data': sql_data})

@@ -134,7 +134,7 @@ def import_selling_rkef(file_path, original_file_name):
                 else:
                     left_date = None
 
-                    # Cek duplikat berdasarkan kriteria
+                # Cek duplikat berdasarkan kriteria
                 if SellingProductions.objects.filter(haulage_code=haulage_code).exists():
                     duplicates.append(f"Duplicate at row {index}: {nota}")
                     duplicate_imports += 1

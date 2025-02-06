@@ -116,10 +116,10 @@ def upload_file(request):
             original_file_name = file.name  # Dapatkan nama asli file
 
             # Simpan log upload sebagai pending
-            upload_log = UploadLog.objects.create(
-                file_name=original_file_name,
-                status='pending'
-            )
+            # upload_log = UploadLog.objects.create(
+            #     file_name=original_file_name,
+            #     status='pending'
+            # )
 
             # Simpan file ke disk sementara
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
@@ -149,9 +149,9 @@ def upload_file(request):
                 return JsonResponse({'message': 'Invalid import type'}, status=400)
             
             # Perbarui log dengan task_id dan status "processing"
-            upload_log.task_id = task.id
-            upload_log.status  = 'processing'
-            upload_log.save()
+            # upload_log.task_id = task.id
+            # upload_log.status  = 'processing'
+            # upload_log.save()
 
             return JsonResponse({'message': 'Import started', 'task_id': task.id})
 

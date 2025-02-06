@@ -143,7 +143,7 @@ DATABASES = {
         'ENGINE': 'mssql',
         'HOST': '10.50.2.20',
         'PORT': '1433',
-        'NAME': 'DB_SQMS',
+        'NAME': 'sqms_new',
         'USER': 'sa',
         'PASSWORD': 'konawe@2023',
         'OPTIONS': {

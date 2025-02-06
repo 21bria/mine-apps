@@ -78,14 +78,15 @@ class SourceMinesDome(models.Model):
     plan_ni_max = models.FloatField(default=None, null=True, blank=True)
     status      = models.IntegerField(default=None, null=True, blank=True)
     direct_sale = models.CharField(max_length=10,default=None, null=True, blank=True)
-    id_dumping  = models.ForeignKey(
-        SourceMinesDumping, 
-        related_name='mine_sources_point_dumping_FK', 
-        on_delete=models.SET_NULL,    
-        null=True,                      
-        blank=True,
-        db_column='id_dumping' 
-    )
+    id_dumping  = models.BigIntegerField(default=None, null=True, blank=True)
+    # id_dumping  = models.ForeignKey(
+    #     SourceMinesDumping, 
+    #     related_name='mine_sources_point_dumping_FK', 
+    #     on_delete=models.SET_NULL,    
+    #     null=True,                      
+    #     blank=True,
+    #     db_column='id_dumping' 
+    # )
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now_add=True)
 

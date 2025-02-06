@@ -86,7 +86,7 @@
                                         <th width="10%">Expt.*Grade</th>
                                         <th width="10%">Mine Geology*</th>
                                         <th width="10%">Type Truck</th>
-                                        <th width="10%">Stockpile</th>
+                                        <!-- <th width="10%">Stockpile</th> -->
                                         <th width="10%">DomeId</th>
                                         <th width="10%">Batch Code</th>
                                         <th width="10%">Increments</th>
@@ -281,12 +281,12 @@
                                         <option value="">--- Select ---</option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
+                                <!-- <div class="mb-3">
                                     <label>Stockpile<span class="text-danger">*</span></label>
                                     <select id="id_stockpile" name="id_stockpile" class="form-select">
                                         <option value="">-- Select --</option>
                                     </select>
-                                </div>
+                                </div> -->
                                 <div class="mb-3">
                                     <label>DomeId<span class="text-danger"></span></label>
                                     <select id="id_pile" name="id_pile" class="form-select">
@@ -370,6 +370,12 @@
                                 <div class="mb-3">
                                     <label><span class="text-danger">-</span></label>
                                     <input type="text" id="sale_adjust" name="sale_adjust"
+                                        class="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed"
+                                        disabled />
+                                </div>
+                                <div class="mb-3">
+                                    <label>-<span class="text-danger"></span></label>
+                                    <input type="text" id="id_stockpile" name="id_stockpile"
                                         class="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed"
                                         disabled />
                                 </div>
@@ -518,7 +524,7 @@
                     '<td><input type="text" class="form-input" name="grade_expect[]"></td>' +
                     '<td><select class="form-select mine_geos" name="grade_control[]"><option value="">-- Select --</option></select></td>' +
                     '<td><input type="text" class="form-input" readonly name="unit_truck[]"></td>' +
-                    '<td><select class="form-select stockpile" name="id_stockpile[]"><option value="">-- Select --</option></select></td>' +
+                    // '<td><select class="form-select stockpile" name="id_stockpile[]"><option value="">-- Select --</option></select></td>' +
                     '<td><select class="form-select dome" name="id_pile[]"><option value="">-- Select --</option></select></td>' +
                     '<td><input type="text" class="form-input" name="batch_code[]"></td>' +
                     '<td><input type="text" class="form-input" name="increment[]"></td>' +
@@ -1449,32 +1455,32 @@
                 allowClear: true
             });
 
-            $('#id_stockpile').select2({
-                ajax: {
-                    url: "{% url 'get-mine-dumping-point' %}",
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {
-                            q: params.term,
-                            page: params.page || 1
-                        };
-                    },
-                    processResults: function (data, params) {
-                        params.page = params.page || 1;
-                        return {
-                            results: data.results,
-                            pagination: {
-                                more: data.pagination.more
-                            }
-                        };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 2,
-                placeholder: 'Select data',
-                allowClear: true
-            });
+            // $('#id_stockpile').select2({
+            //     ajax: {
+            //         url: "{% url 'get-mine-dumping-point' %}",
+            //         dataType: 'json',
+            //         delay: 250,
+            //         data: function (params) {
+            //             return {
+            //                 q: params.term,
+            //                 page: params.page || 1
+            //             };
+            //         },
+            //         processResults: function (data, params) {
+            //             params.page = params.page || 1;
+            //             return {
+            //                 results: data.results,
+            //                 pagination: {
+            //                     more: data.pagination.more
+            //                 }
+            //             };
+            //         },
+            //         cache: true
+            //     },
+            //     minimumInputLength: 2,
+            //     placeholder: 'Select data',
+            //     allowClear: true
+            // });
 
             $('#id_pile').select2({
                 ajax: {
@@ -1542,6 +1548,7 @@
                         $('#truck_factor').val(response.truck_factor);
                         $('#calculate').val(response.ore_class).trigger('change');
                         $('#remarks').val(response.remarks);
+                        $('#id_stockpile').val(response.id_stockpile);
                         // Memuat class ore setelah material dipilih
                         loadClassOre(response.id_material, response.ore_class);
 
@@ -1555,11 +1562,6 @@
                         // Tambahkan opsi baru ke Select2
                         var newSource = new Option(response.loading_point, response.id_prospect_area, true, true);
                         $('#id_prospect_area').append(newSource).trigger('change');
-
-                        $('#id_stockpile').val(response.id_stockpile).trigger('change');
-                        // Tambahkan opsi baru ke Select2
-                        var newStokpile = new Option(response.dumping_point, response.id_stockpile, true, true);
-                        $('#id_stockpile').append(newStokpile).trigger('change');
 
                         $('#id_pile').val(response.id_pile).trigger('change');
                         // Tambahkan opsi baru ke Select2
@@ -1670,18 +1672,15 @@
                 var selectedVal = $(this).val();
                 var ritase = $('#ritase').val();
                 var material = $('#id_material').val();
-
-                console.log('ini calculate ' + selectedVal + ' Mat ' + material);
                 // Mendapatkan nilai 
                 var selectedText = (selectedVal + material).trim().replace(/\s+/g, '');
-                var selectedTruck = (selectedVal).trim().replace(/\s+/g, '');
+                // var selectedTruck = (selectedVal).trim().replace(/\s+/g, '');
 
                 if (selectedVal) {
                     // Menghapus nilai di belakang tanda minus (-)
                     var trimmedText = selectedVal.replace(/-\w+(\s.*)?$/, '');
                 } else {
-                    // console.error("selectedVal is null or undefined");
-                    var trimmedText = ""; // Atau nilai default lainnya yang sesuai
+                    var trimmedText = "";
                 }
 
                 // Debug log

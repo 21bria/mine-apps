@@ -432,7 +432,7 @@ def getIdOre(request, id):
 
             block_name    = None
             loading_point = None
-            dumping_point = None
+            id_dumping    = None
             dome_point    = None
 
             if items.id_block:
@@ -446,15 +446,11 @@ def getIdOre(request, id):
                 if loading:
                     loading_point = loading.loading_point
 
-            if items.id_stockpile:
-                dumping = SourceMinesDumping.objects.filter(id=items.id_stockpile).first()
-                if dumping:
-                    dumping_point = dumping.dumping_point
-
             if items.id_pile:
                 dome = SourceMinesDome.objects.filter(id=items.id_pile).first()
                 if dome:
-                    dome_point = dome.pile_id
+                    dome_point = dome.pile_id 
+                    id_dumping = dome.id_dumping 
 
             data = {
                 'id'              : items.id,
@@ -462,19 +458,18 @@ def getIdOre(request, id):
                 'category'        : clean_string(items.category),
                 'shift'           : clean_string(items.shift),
                 'id_prospect_area': items.id_prospect_area,
-                'loading_point'   : loading_point,
+                'loading_point'   : clean_string(loading_point),
                 'id_block'        : items.id_block,
-                'block_name'      : block_name,  # Tambahkan nama blok ke response
+                'block_name'      : clean_string(block_name),  # Tambahkan nama blok ke response
                 'from_rl'         : clean_string(items.from_rl),
                 'to_rl'           : clean_string(items.to_rl),
                 'id_material'     : items.id_material,
                 'grade_expect'    : items.grade_expect,
                 'grade_control'   : clean_string(items.grade_control),
                 'unit_truck'      : clean_string(items.unit_truck),
-                'id_stockpile'    : items.id_stockpile,
-                'dumping_point'   : dumping_point,
+                'id_stockpile'    : id_dumping,
                 'id_pile'         : items.id_pile,
-                'dome_point'      : dome_point,
+                'dome_point'      : clean_string(dome_point),
                 'batch_code'      : clean_string(items.batch_code),
                 'increment'       : items.increment,
                 'batch_status'    : clean_string(items.batch_status),

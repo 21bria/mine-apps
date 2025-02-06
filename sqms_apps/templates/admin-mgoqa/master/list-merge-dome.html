@@ -92,7 +92,7 @@
                                         <th class="bg-soft-secondary" width="10%">Dome</th>
                                         <th class="bg-soft-secondary" width="7%">Tonnage</th>
                                         <th class="bg-soft-secondary" width="10%">Dome New</th>
-                                        <th class="bg-soft-secondary" width="10%">Stockpile</th>
+                                        <!-- <th class="bg-soft-secondary" width="10%">Stockpile</th> -->
                                         <th class="bg-soft-secondary" width="7%">Tonnage</th>
                                         <th class="bg-soft-secondary" width="7%">Totals</th>
                                         <th class="bg-soft-secondary" width="7%">Keys</th>
@@ -144,20 +144,6 @@
                                     </div>
                                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 mb-3">
                                         <div class="mb-1">
-                                            <label class="form-label">Stockpile New</label>
-                                            <input type="text" id="stockpile_new_e" name="stockpile_new_e"
-                                                class="form-input disabled:pointer-events-none" readonly />
-                                        </div>
-                                        <div class="mb-1">
-                                            <label class="form-label">Keys</label>
-                                            <input type="text" id="ref_id_e" name="ref_id_e"
-                                                class="form-input disabled:pointer-events-none" readonly />
-                                        </div>
-                                        <input type="hidden" id="stockpile_second_e" name="stockpile_second_e"
-                                            class="form-input disabled:pointer-events-none" readonly />
-                                    </div>
-                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 mb-3">
-                                        <div class="mb-1">
                                             <label class="form-label">Dome Original</label>
                                             <input type="text" id="dome_primary_e" name="dome_primary_e"
                                                 class="form-input disabled:pointer-events-none" readonly />
@@ -170,18 +156,10 @@
                                         <input type="hidden" id="original_dome_e" name="original_dome_e"
                                             class="form-input" readonly />
                                     </div>
-
-                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 mt-3">
-                                        <div class="mb-1">
-                                            <label class="form-label">Stockpile</label>
-                                            <input type="text" id="stockpile_e" name="stockpile_e"
-                                                class="form-input disabled:pointer-events-none" readonly />
-                                        </div>
-                                        <div class="mb-1">
-                                            <label class="form-label">*</label>
-                                            <input type="text" id="stockpile_ori_e" name="stockpile_ori_e"
-                                                class="form-input disabled:pointer-events-none" readonly />
-                                        </div>
+                                    <div class="mb-1">
+                                        <label class="form-label">Keys</label>
+                                        <input type="text" id="ref_id_e" name="ref_id_e"
+                                            class="form-input disabled:pointer-events-none" readonly />
                                     </div>
                                     <div class="mb-3">
                                         <label>Description</label>
@@ -223,9 +201,9 @@
                                         class="rounded-tr-md rounded-br-md border border-l-2 border-white-light !border-l-primary bg-white p-2 text-black shadow-md ltr:pl-1.5 rtl:pr-1.5 dark:border-[#060818] dark:bg-[#060818]">
                                         <div class="flex items-start">
                                             <p class="m-0 text-sm not-italic text-[#515365] dark:text-white-light">
-                                                Pilih dome original* [dome yang akan digabungkan], next pilih dome new*
-                                                [dome tujuan composting],
-                                                pilih stockpile* [stockpile dari dome composting].
+                                                Pilih dome original* [dome yang akan digabungkan],
+                                                next pilih dome new*
+                                                [dome tujuan composting].
                                             </p>
                                         </div>
                                         <small
@@ -247,7 +225,7 @@
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
                                     </div>
-                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <!-- <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                         <div class="mb-1">
                                             <label class="form-label">Stockpile</label>
                                             <input type="text" id="stockpile" name="stockpile"
@@ -258,8 +236,8 @@
                                             <input type="text" id="stockpile_ori" name="stockpile_ori"
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
-                                    </div>
-                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 mt-3">
+                                    </div> -->
+                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 mb-3">
                                         <div class="mb-1">
                                             <label class="form-label">Dome New</label>
                                             <select class="form-select" id="dome_second" name="dome_second">
@@ -272,15 +250,15 @@
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
                                     </div>
-                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 mt-3">
-                                        <div class="mb-1">
+                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-1 mb-3">
+                                        <!-- <div class="mb-1">
                                             <label class="form-label">Stockpile New</label>
                                             <select class="form-select" id="stockpile_second" name="stockpile_second">
                                                 <option value="">Select</option>
                                             </select>
-                                        </div>
+                                        </div> -->
                                         <div class="mb-1">
-                                            <label class="form-label">-</label>
+                                            <!-- <label class="form-label">-</label> -->
                                             <input type="text" id="ref_id" name="ref_id" value="{{ dome_merger }}"
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
@@ -401,8 +379,8 @@
                             // Ambil data dari item pertama dalam list
                             var item = data.list[0];
                             $('#tonnage_primary').val(item.tonnage);
-                            $('#stockpile').val(item.sampling_area);
-                            $('#stockpile_ori').val(item.id_stockpile);
+                            // $('#stockpile').val(item.sampling_area);
+                            // $('#stockpile_ori').val(item.id_stockpile);
                         } else {
                             console.warn("No data found in the response");
                             // Handle the case where there's no data
@@ -483,10 +461,10 @@
                         data: 'dome_new',
                         name: 'dome_new'
                     },
-                    {
-                        data: 'stockpile_new',
-                        name: 'stockpile_new'
-                    },
+                    // {
+                    //     data: 'stockpile_new',
+                    //     name: 'stockpile_new'
+                    // },
                     {
                         data: 'tonnage_new',
                         name: 'tonnage_new'
@@ -643,9 +621,7 @@
                     },
                     data: {
                         dome_second: $('#dome_second_e').val(),
-                        stockpile_second: $('#stockpile_second_e').val(),
                         original_dome: $('#original_dome_e').val(),
-                        stockpile_ori: $('#stockpile_ori_e').val(),
                         ref_id: $('#ref_id_e').val(),
                         remarks: $('#remarks_e').val(),
                     },
@@ -670,14 +646,10 @@
                             $('#dome_new_e').val('');
                             $('#tonnage_second_e').val('');
                             $('#dome_second_e').val('');
-                            $('#stockpile_new_e').val('');
                             $('#ref_id_e').val('');
-                            $('#stockpile_second_e').val('');
                             $('#dome_primary_e').val('');
                             $('#tonnage_primary_e').val('');
                             $('#original_dome_e').val('');
-                            $('#stockpile_e').val('');
-                            $('#stockpile_ori_e').val('');
                             $('#remarks_e').val('');
                             toggleModal('editModal');
                             // Reload Table
@@ -798,16 +770,11 @@
                         $('#dome_new_e').val(response.dome_new).trigger('change');
                         $('#dome_second_e').val(response.dome_second).trigger('change');
                         $('#tonnage_second_e').val(response.tonnage_second).trigger('change');
-                        $('#stockpile_new_e').val(response.stockpile_new).trigger('change');
-                        $('#stockpile_second_e').val(response.stockpile_second).trigger('change');
                         $('#ref_id_e').val(response.ref_id);
                         $('#dome_primary_e').val(response.dome_primary).trigger('change');
                         $('#original_dome_e').val(response.original_dome);
                         $('#tonnage_primary_e').val(response.tonnage_primary);
-                        $('#stockpile_e').val(response.stockpile).trigger('change');
-                        $('#stockpile_ori_e').val(response.stockpile_ori);
                         $('#remarks_e').val(response.remarks);
-
                     } else {
                         alert(
                             'Data tidak ditemukan'

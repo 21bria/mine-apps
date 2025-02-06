@@ -236,8 +236,6 @@ def update_dome_close(request, id):
             description  = request.POST['description']
             status_dome  ='Continue'
 
-
-
             # Dapatkan objek yang akan diupdate
             data = get_object_or_404(domeStatusClose, id=id)
 
@@ -294,17 +292,11 @@ def get_oreDomeStock(request, id):
             # Create SQL raw query 
             query = """
                 SELECT 
-                    t1.id_stockpile,
-                    t2.dumping_point,
                     ROUND(SUM(t1.tonnage), 0) AS tonnage
                 FROM 
                     ore_productions as t1
-                LEFT JOIN 
-                    mine_sources_point_dumping AS t2 ON t2.id=t1.id_stockpile
                 WHERE 
                     t1.id_pile = %s
-                GROUP BY 
-                    t1.id_stockpile, t2.dumping_point
             """
 
             # Execute query
@@ -315,9 +307,7 @@ def get_oreDomeStock(request, id):
             # Convert query results into list of dictionaries
             data_list = [
                 {
-                    'id_stockpile' : row[0], 
-                    'sampling_area': row[1],
-                    'tonnage'      : row[2]
+                    'tonnage'      : row[0]
                 } for row in result
             ]
 

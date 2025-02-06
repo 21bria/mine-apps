@@ -6,7 +6,7 @@ from ....models.ore_truck_factor_model import OreTruckFactor
 from ....models.ore_production_model import OreProductionsView
 from ....models.materials_model import Material
 from ....models.ore_class_model import OreClass
-from ....models.ore_truck_factor_model import OreTruckFactor
+from ....models.source_model import SourceMinesDome
 from django.shortcuts import render
 from django.db.models import Q
 from django.views.generic import View
@@ -165,7 +165,7 @@ def create_ore(request):
                 'id_prospect_area[]' : ['required'],
                 'id_block[]'         : ['required'],
                 'id_material[]'      : ['required'],
-                'id_stockpile[]'     : ['required'],
+                # 'id_stockpile[]'     : ['required'],
                 'id_pile[]'          : ['required'],
                 'batch_code[]'       : ['required'],
                 'increment[]'        : ['required'],
@@ -183,7 +183,7 @@ def create_ore(request):
                 'id_prospect_area[].required': 'Source harus diisi.',
                 'id_block[].required'        : 'Block harus diisi.',
                 'id_material[].required'     : 'Material harus diisi.',
-                'id_stockpile[].required'    : 'Stockpile harus diisi.',
+                # 'id_stockpile[].required'    : 'Stockpile harus diisi.',
                 'id_pile[].required'         : 'Dome harus diisi.',
                 'batch_code[].required'      : 'Batch harus diisi.',
                 'increment[].required'       : 'Increment harus diisi.',
@@ -213,7 +213,22 @@ def create_ore(request):
                         if not pattern.match(request.POST.get(field, '')):
                             return JsonResponse({'error': custom_messages[f'{field}.regex']}, status=400)
 
-           
+           # Dapatkan id_stockpile berdasarkan id_pile
+            id_stockpile = {}
+            pile_id_list = request.POST.getlist('id_pile[]')
+
+            for pile_id in pile_id_list:
+                try:
+                    # Menemukan objek berdasarkan id (primary key)
+                    dome = SourceMinesDome.objects.get(id=pile_id)
+                    # Pastikan id_dumping tidak None
+                    if dome.id_dumping is not None:
+                        id_stockpile[pile_id] = dome.id_dumping
+                    else:
+                        print(f"Pile ID {pile_id} tidak memiliki id_dumping.")
+                except SourceMinesDome.DoesNotExist:
+                    print(f"Tidak ditemukan data untuk pile_id: {pile_id}")
+
             # Gunakan transaksi database untuk memastikan integritas data
             with transaction.atomic():
                 # Dapatkan data dari request
@@ -227,7 +242,7 @@ def create_ore(request):
                 id_material         = request.POST.getlist('id_material[]')
                 grade_expect        = request.POST.getlist('grade_expect[]')
                 grade_control       = request.POST.getlist('grade_control[]')
-                id_stockpile        = request.POST.getlist('id_stockpile[]')
+                # id_stockpile        = request.POST.getlist('id_stockpile[]')
                 id_pile             = request.POST.getlist('id_pile[]')
                 batch_code          = request.POST.getlist('batch_code[]')
                 increment           = request.POST.getlist('increment[]')
@@ -245,7 +260,8 @@ def create_ore(request):
                 # Loop untuk menyimpan setiap data sample
                 for idx in range(len(tgl_production)):
                     # Gabungkan nilai-nilai kolom menjadi kode batch
-                    kodeBatch = 'PDS' + id_material[idx] + unit_truck[idx] + id_stockpile[idx] + id_pile[idx] + batch_code[idx]
+                    # kodeBatch = 'PDS' + id_material[idx] + unit_truck[idx] + id_stockpile[idx] + id_pile[idx] + batch_code[idx]
+                    kodeBatch = 'PDS' + id_material[idx] + unit_truck[idx] + str(id_stockpile.get(id_pile[idx], '')) + id_pile[idx] + batch_code[idx]
                     kodeBatch = kodeBatch.replace(" ", "")  # Menghapus spasi
 
                     if tgl_production[idx]:  # Akses elemen list menggunakan indeks `idx`
@@ -266,7 +282,7 @@ def create_ore(request):
                         id_material      = id_material[idx],
                         grade_expect     = grade_expect[idx],
                         grade_control    = grade_control[idx],
-                        id_stockpile     = id_stockpile[idx],
+                        # id_stockpile     = id_stockpile[idx],
                         id_pile          = id_pile[idx],
                         batch_code       = batch_code[idx],
                         increment        = increment[idx],
@@ -289,7 +305,7 @@ def create_ore(request):
                     # Jika batch_status adalah 'Complete', lakukan pembaruan
                     if batch_status[idx].strip() == 'Complete':
                         OreProductions.objects.filter(
-                            id_stockpile=id_stockpile[idx],
+                            # id_stockpile=id_stockpile[idx],
                             id_pile=id_pile[idx],
                             batch_code=batch_code[idx]
                         ).update(batch_status=batch_status[idx].strip())
@@ -417,7 +433,7 @@ def update_ore(request, id):
         data.id_material      = id_material 
         data.grade_control    = request.POST.get('grade_control').strip()
         data.grade_expect     = request.POST.get('grade_expect')
-        data.id_stockpile     = id_stockpile
+        # data.id_stockpile     = id_stockpile
         data.id_pile          = id_pile
         data.batch_code       = batch_code
         data.increments       = request.POST.get('increments')
@@ -439,7 +455,7 @@ def update_ore(request, id):
         # Lakukan pembaruan jika batch_status adalah 'Complete'
         if data.batch_status == 'Complete':
             OreProductions.objects.filter(
-                id_stockpile=id_stockpile,
+                # id_stockpile=id_stockpile,
                 id_pile=id_pile,
                 batch_code=batch_code
             ).update(batch_status='Complete')
@@ -482,6 +498,7 @@ def delete_ore_temp(request):
             return JsonResponse({'status': 'error', 'message': 'No ID provided'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
 @login_required
 def getOreTonnage(request, id):
     if request.method == 'GET':

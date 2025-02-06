@@ -59,9 +59,7 @@ class domeMergeList(View):
         if search:
             data = data.filter(
                 Q(dome_primary__icontains=search) |
-                Q(stockpile__icontains=search) |
-                Q(dome_new__icontains=search) |
-                Q(stockpile_new__icontains=search) 
+                Q(dome_new__icontains=search) 
             )
             
             records_total = data.count()
@@ -89,10 +87,8 @@ class domeMergeList(View):
             {
                 "id"            :item.id,
                 "dome"          :item.dome_primary,
-                "stockpile"     :item.stockpile,
                 "tonnage"       :item.tonnage_primary,
                 "dome_new"      :item.dome_new,
-                "stockpile_new" :item.stockpile_new,
                 "tonnage_new"   :item.tonnage_second,
                 "totals"        :item.sum_tonnage,
                 "status"        :item.status,
@@ -123,13 +119,9 @@ def get_dome_merge(request, id):
                 'id':item.id,
                 'dome_primary'    :clean_string(item.dome_primary),
                 'original_dome'   :item.original_dome,
-                'stockpile'       :clean_string(item.stockpile), 
-                'stockpile_ori'   :item.stockpile_ori, 
                 'tonnage_primary' :item.tonnage_primary,
                 'dome_new'        :clean_string(item.dome_new),
                 'dome_second'     :item.dome_second,
-                'stockpile_new'   :clean_string(item.stockpile_new),
-                'stockpile_second':item.stockpile_second,
                 'tonnage_second'  :item.tonnage_second,
                 'sum_tonnage'     :item.sum_tonnage,
                 'ref_id'          :clean_string(item.ref_id),
@@ -155,17 +147,17 @@ def insert_dome_merge(request):
             # Aturan validasi
             rules = {
                 'original_dome'    : ['required'],
-                'stockpile_ori'    : ['required'],
+                # 'stockpile_ori'    : ['required'],
                 'dome_second'      : ['required'],
-                'stockpile_second' : ['required']
+                # 'stockpile_second' : ['required']
             }
 
             # Pesan kesalahan validasi yang disesuaikan
             custom_messages = {
                 'original_dome.required'    : 'Dome Originial is required.',
-                'stockpile_ori.required'    : 'Stockpile is required.',
+                # 'stockpile_ori.required'    : 'Stockpile is required.',
                 'dome_second.required'      : 'Dome New is required.',
-                'stockpile_second.required' : 'Stockpile New is required.',
+                # 'stockpile_second.required' : 'Stockpile New is required.',
             }
 
             # Validasi request
@@ -177,16 +169,16 @@ def insert_dome_merge(request):
 
             # Dapatkan data dari request dengan default nilai
             original_dome    = request.POST.get('original_dome')
-            stockpile_ori    = request.POST.get('stockpile_ori')
+            # stockpile_ori    = request.POST.get('stockpile_ori')
             tonnage_primary  = request.POST.get('tonnage_primary')
             dome_second      = request.POST.get('dome_second')
-            stockpile_second = request.POST.get('stockpile_second')
+            # stockpile_second = request.POST.get('stockpile_second')
             tonnage_second   = request.POST.get('tonnage_second')
             ref_id           = request.POST.get('ref_id')
             remarks          = request.POST.get('remarks')
 
             # Pastikan semua nilai yang diperlukan ada sebelum diubah
-            if any(v is None for v in [original_dome, stockpile_ori, tonnage_primary, dome_second, stockpile_second, tonnage_second]):
+            if any(v is None for v in [original_dome,  tonnage_primary, dome_second, tonnage_second]):
                 return JsonResponse({'error': 'Semua field harus diisi.'}, status=400)
 
             # Gunakan transaksi database untuk memastikan integritas data
@@ -195,10 +187,8 @@ def insert_dome_merge(request):
                 # Simpan data baru
                 domeMerge.objects.create(
                     original_dome    = int(original_dome),
-                    stockpile_ori    = int(stockpile_ori),
                     tonnage_primary  = float(tonnage_primary),
                     dome_second      = int(dome_second),
-                    stockpile_second = int(stockpile_second),
                     tonnage_second   = float(tonnage_second),
                     status           = 'Merger',
                     ref_id           = ref_id,
@@ -208,13 +198,10 @@ def insert_dome_merge(request):
 
                 # Update OreProduction
                 OreProductions.objects.filter(
-                    id_pile      = original_dome,
-                    id_stockpile = stockpile_ori
+                    id_pile = original_dome
                 ).update(
                     id_pile          = dome_second,
-                    id_stockpile     = stockpile_second,
                     pile_original    = original_dome,
-                    stockpile_ori    = stockpile_ori,
                     dome_compositing = ref_id
                 )
 
@@ -247,16 +234,12 @@ def update_dome_merge(request, id):
         try:
             rules = {
                 'dome_second'     : ['required'],
-                'stockpile_second': ['required'],
                 'original_dome'   : ['required'],
-                'stockpile_ori'   : ['required']
             }
             # Pesan kesalahan validasi yang disesuaikan
             custom_messages = {
                 'dome_second.required'      : 'Dome New is required.',
-                'stockpile_second.required' : 'Stockpile New is required.',
                 'original_dome.required'    : 'Dome Originial is required.',
-                'stockpile_ori.required'    : 'Stockpile is required.'
             }
 
             # Validasi request
@@ -279,13 +262,10 @@ def update_dome_merge(request, id):
                         if not pattern.match(request.POST.get(field, '')):
                             return JsonResponse({'error': custom_messages[f'{field}.regex']}, status=400)
     
-
             # Ambil data dari request
             dome_second      = int(request.POST['dome_second'])
-            stockpile_second = int(request.POST['stockpile_second'])
             ref_id           = request.POST['ref_id']
             original_dome    = int(request.POST['original_dome'])
-            stockpile_ori    = int(request.POST['stockpile_ori'])
             remarks          = request.POST['remarks']
 
             if domeMerge.objects.filter(ref_id=ref_id,status='Restore').exists():
@@ -301,12 +281,10 @@ def update_dome_merge(request, id):
 
             # Update OreProductions
             OreProductions.objects.filter(
-                    id_pile=dome_second,
-                    id_stockpile=stockpile_second,
-                    dome_compositing=ref_id
+                    id_pile=dome_second
+                    ,dome_compositing=ref_id
                 ).update(
-                    id_pile=original_dome,
-                    id_stockpile=stockpile_ori
+                    id_pile=original_dome
                 )
             
             # Update SourceMinesDome

@@ -51,6 +51,26 @@ def import_selling_hpal(file_path, original_file_name):
     dome_dict       = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
     factory_dict    = dict(StockFactories.objects.annotate(trimmed_fact=Trim('factory_stock')).values_list('trimmed_fact', 'id'))
 
+    # Menentukan kolom yang perlu dibersihkan
+    numeric_columns = [
+            'berat_kotor', 'berat_kosong', 'berat_bersih',
+        ]
+            
+        # Kolom yang diinginkan tetap kosong jika kosong
+    empty_columns = [
+                'no_seri', 'no_unit','nama_material','lokasi_pembongkaran','discharge','shift',
+                'code_hync','type','sale_type','batch','adjust_sale'
+        ]
+
+    for col in numeric_columns:
+            if col in df.columns:
+                df[col] = df[col].apply(clean_numeric)
+
+        # Untuk kolom yang perlu tetap kosong jika kosong
+    for col in empty_columns:
+            if col in df.columns:
+                df[col] = df[col].apply(lambda x: None if pd.isna(x) or x == '' else x)
+
     # Mulai transaksi untuk memastikan rollback jika terjadi error
     try:
         with transaction.atomic():
@@ -90,7 +110,6 @@ def import_selling_hpal(file_path, original_file_name):
                 batch_g      = '' 
                 new_scci     = '' 
                 new_awk      = '' 
-               
 
                 if tanggal:  # Pastikan tanggal bukan None
                     date_str  = tanggal.strftime('%Y-%m-%d')
@@ -104,7 +123,6 @@ def import_selling_hpal(file_path, original_file_name):
                     duplicates.append(f"Duplicate at row {index}: {nota}")
                     duplicate_imports += 1
                     continue
-
                 try:
                     data = SellingProductions(
                         nota=nota,
@@ -145,15 +163,10 @@ def import_selling_hpal(file_path, original_file_name):
                 except Exception as e:
                     errors.append(f"Error at row {index}: {str(e)}")
                     continue
-            
+
             # Menggunakan bulk_create untuk menyimpan objek dalam batch
-            # SellingProductions.objects.bulk_create(list_objects, batch_size=1000)
-            try:
-                # Simpan objek dalam batch
-                SellingProductions.objects.bulk_create(list_objects, batch_size=250)
-            except Exception as e:
-                errors.append(f"Bulk insert failed: {str(e)}")
-    
+            SellingProductions.objects.bulk_create(list_objects, batch_size=1000)
+
     except Exception as e:
         errors.append(f"Transaction failed: {str(e)}")
 

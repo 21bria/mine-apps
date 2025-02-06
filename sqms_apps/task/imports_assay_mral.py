@@ -38,10 +38,14 @@ def import_assay_mral(file_path, original_file_name, log_id):
 
     try:
         # Ambil log dan ubah status menjadi 'processing'
-        upload_log = UploadLog.objects.get(id=log_id)
-        upload_log.status = 'processing'
-        upload_log.save()
-
+        try:
+            upload_log = UploadLog.objects.get(id=log_id)
+            upload_log.status = 'processing'
+            upload_log.save()
+        except UploadLog.DoesNotExist:
+            errors.append(f"Log with id {log_id} not found.")
+            return {'message': 'Log not found', 'errors': errors}
+        
         # Baca file excel
         df = pd.read_excel(file_path)
 
@@ -113,16 +117,19 @@ def import_assay_mral(file_path, original_file_name, log_id):
         errors.append(f"Transaction failed: {str(e)}")
 
     # Buat laporan import menggunakan task ID dari request Celery
-    taskImports.objects.create(
-        task_id=import_assay_mral.request.id,  # Menggunakan request.id dari task
-        successful_imports=successful_imports,
-        failed_imports=len(errors),
-        duplicate_imports=duplicate_imports,
-        errors="\n".join(errors) if errors else None,
-        duplicates="\n".join(duplicates) if duplicates else None,
-        file_name=original_file_name,
-        destination='Assay mral'
-    )
+    try:
+        taskImports.objects.create(
+            task_id=import_assay_mral.request.id,  # Menggunakan request.id dari task
+            successful_imports=successful_imports,
+            failed_imports=len(errors),
+            duplicate_imports=duplicate_imports,
+            errors="\n".join(errors) if errors else None,
+            duplicates="\n".join(duplicates) if duplicates else None,
+            file_name=original_file_name,
+            destination='Assay mral'
+        )
+    except Exception as e:
+        errors.append(f"Error while logging import task: {str(e)}")
 
     # Return hasil
     if errors or duplicates:

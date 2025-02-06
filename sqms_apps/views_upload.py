@@ -153,7 +153,6 @@ def upload_file(request):
             upload_log.status  = 'processing'
             upload_log.save()
 
-
             return JsonResponse({'message': 'Import started', 'task_id': task.id})
 
     return JsonResponse({'message': 'Invalid request method'}, status=405)

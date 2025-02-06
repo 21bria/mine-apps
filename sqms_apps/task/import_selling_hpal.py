@@ -42,37 +42,18 @@ def import_selling_hpal(file_path, original_file_name):
     successful_imports = 0
     duplicate_imports = 0
 
+    df['timbang_isi']    = df['waktu_timbang_kosong'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    df['timbang_kosong'] = df['waktu_timbang_isi'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    df['tanggal']        = pd.to_datetime(df['tanggal']).dt.date
+
+
+    # Buat dictionary dari Tabel untuk pencarian ID berdasarkan nama
+    material_dict   = dict(Material.objects.annotate(trimmed_material=Trim('nama_material')).values_list('trimmed_material', 'id'))
+    dome_dict       = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
+    factory_dict    = dict(StockFactories.objects.annotate(trimmed_fact=Trim('factory_stock')).values_list('trimmed_fact', 'id'))
+
+    # Mulai transaksi untuk memastikan rollback jika terjadi error
     try:
-        df['timbang_isi']    = df['waktu_timbang_kosong'].dt.strftime('%Y-%m-%d %H:%M:%S')
-        df['timbang_kosong'] = df['waktu_timbang_isi'].dt.strftime('%Y-%m-%d %H:%M:%S')
-        df['tanggal']        = pd.to_datetime(df['tanggal']).dt.date
-
-        material_dict   = dict(Material.objects.annotate(trimmed_material=Trim('nama_material')).values_list('trimmed_material', 'id'))
-        # stockpile_dict  = dict(SourceMinesDumping.objects.annotate(trimmed_dumping=Trim('dumping_point')).values_list('trimmed_dumping', 'id'))
-        dome_dict       = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
-        factory_dict    = dict(StockFactories.objects.annotate(trimmed_fact=Trim('factory_stock')).values_list('trimmed_fact', 'id'))
-
-        # Menentukan kolom yang perlu dibersihkan
-        numeric_columns = [
-            'berat_kotor', 'berat_kosong', 'berat_bersih',
-        ]
-            
-        # Kolom yang diinginkan tetap kosong jika kosong
-        empty_columns = [
-                'no_seri', 'no_unit','nama_material','lokasi_pembongkaran','discharge','shift',
-                'code_hync','type','sale_type','batch','adjust_sale'
-        ]
-
-        for col in numeric_columns:
-            if col in df.columns:
-                df[col] = df[col].apply(clean_numeric)
-
-        # Untuk kolom yang perlu tetap kosong jika kosong
-        for col in empty_columns:
-            if col in df.columns:
-                df[col] = df[col].apply(lambda x: None if pd.isna(x) or x == '' else x)
-
-        # Mulai transaksi untuk memastikan rollback jika terjadi error
         with transaction.atomic():
             for index, row in df.iterrows():
                 nota            = row['no_seri']
@@ -110,7 +91,8 @@ def import_selling_hpal(file_path, original_file_name):
                 batch_g      = '' 
                 new_scci     = '' 
                 new_awk      = '' 
-                
+               
+
                 if tanggal:  # Pastikan tanggal bukan None
                     date_str  = tanggal.strftime('%Y-%m-%d')
                     date_obj  = datetime.strptime(date_str, '%Y-%m-%d')
@@ -131,12 +113,11 @@ def import_selling_hpal(file_path, original_file_name):
                         timbang_kosong=timbang_kosong,
                         id_material=id_material,
                         remarks=tujuan,
-                        unit_code=truck,
+                        id_truck=truck,
                         empety_weigth_f=empety_weigth_f,
                         fill_weigth_f=fill_weigth_f,
                         netto_weigth_f=netto_weigth_f,
                         id_factory=id_factory,
-                        # id_stockpile=None,
                         id_pile=id_pile,
                         batch=batch,
                         delivery_order =delivery_order,
@@ -159,16 +140,16 @@ def import_selling_hpal(file_path, original_file_name):
                         date_wb=tanggal,
                         sale_adjust='HPAL',
                         sale_dome=sale_dome,
-                        )
+                    )
                     list_objects.append(data)
                     successful_imports += 1
                 except Exception as e:
                     errors.append(f"Error at row {index}: {str(e)}")
                     continue
-                
+            
             # Menggunakan bulk_create untuk menyimpan objek dalam batch
-            SellingProductions.objects.bulk_create(list_objects, batch_size=300)
-
+            SellingProductions.objects.bulk_create(list_objects, batch_size=1000)
+    
     except Exception as e:
         errors.append(f"Transaction failed: {str(e)}")
 

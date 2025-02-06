@@ -3,7 +3,6 @@ import pandas as pd
 from datetime import datetime, timedelta,time
 from django.db import transaction
 from ..models.task_model import taskImports
-from ..models.task_model import UploadLog
 from ..models.mine_productions_model import mineProductions
 from ..models.materials_model import Material
 from ..models.source_model import SourceMines,SourceMinesLoading,SourceMinesDumping,SourceMinesDome
@@ -17,39 +16,37 @@ logger = logging.getLogger('celery')
 
 
 @shared_task
-def import_mine_productions(file_path, original_file_name,log_id):
+def import_mine_productions(file_path, original_file_name):
     df = pd.read_excel(file_path)
     errors = []
     error_rows = []  # Untuk menyimpan baris yang bermasalah
     duplicates = []
     list_objects = []
     successful_imports = 0
+
+    # Konversi kolom ke datetime dengan format yang sesuai
+    df['Date Production'] = pd.to_datetime(df['Date Production'], format='%Y-%m-%d', errors='coerce')
+
+    # Buat dictionary dari Tabel untuk pencarian ID berdasarkan nama
+    source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Trim('sources_area')).values_list('trimmed_sources', 'id'))
+    loading_dict  = dict(SourceMinesLoading.objects.annotate(trimmed_loading=Trim('loading_point')).values_list('trimmed_loading', 'id'))
+    dumping_dict  = dict(SourceMinesDumping.objects.annotate(trimmed_dumping=Trim('dumping_point')).values_list('trimmed_dumping', 'id'))
+    dome_dict     = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
+    material_dict = dict(Material.objects.annotate(trimmed_material=Trim('nama_material')).values_list('trimmed_material', 'id'))
+    addition_bcm  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_bcm'))
+    addition_ton  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_ton'))
+
+
+    # Kolom non-waktu (kolom tetap yang tidak perlu ditranspose)
+    non_time_columns = ['Date Production', 'Vendors', 'Shift', 'Loader', 'Hauler', 'Hauler Class', 
+                        'Sources', 'Loading Point', 'Dumping Point', 'Pile Id', 'Material', 
+                        'Category', 'Distance', 'Block Id', 'From Rl', 'To Rl', 'Remarks']
+
+    # Kolom waktu dimulai dari kolom yang mengandung jam (contoh: 07:00, 08:00, dst.)
+    time_columns = df.columns[len(non_time_columns):]  # Mulai dari kolom waktu
+    
+    # Mulai transaksi untuk memastikan rollback jika terjadi error
     try:
-        # Ambil log dan ubah status menjadi 'processing'
-        upload_log = UploadLog.objects.get(id=log_id)
-        upload_log.status = 'processing'
-        upload_log.save()
-        # Konversi kolom ke datetime dengan format yang sesuai
-        df['Date Production'] = pd.to_datetime(df['Date Production'], format='%Y-%m-%d', errors='coerce')
-
-        # Buat dictionary dari Tabel untuk pencarian ID berdasarkan nama
-        source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Trim('sources_area')).values_list('trimmed_sources', 'id'))
-        loading_dict  = dict(SourceMinesLoading.objects.annotate(trimmed_loading=Trim('loading_point')).values_list('trimmed_loading', 'id'))
-        dumping_dict  = dict(SourceMinesDumping.objects.annotate(trimmed_dumping=Trim('dumping_point')).values_list('trimmed_dumping', 'id'))
-        dome_dict     = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
-        material_dict = dict(Material.objects.annotate(trimmed_material=Trim('nama_material')).values_list('trimmed_material', 'id'))
-        addition_bcm  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_bcm'))
-        addition_ton  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_ton'))
-
-        # Kolom non-waktu (kolom tetap yang tidak perlu ditranspose)
-        non_time_columns = ['Date Production', 'Vendors', 'Shift', 'Loader', 'Hauler', 'Hauler Class', 
-                            'Sources', 'Loading Point', 'Dumping Point', 'Pile Id', 'Material', 
-                            'Category', 'Distance', 'Block Id', 'From Rl', 'To Rl', 'Remarks']
-
-        # Kolom waktu dimulai dari kolom yang mengandung jam (contoh: 07:00, 08:00, dst.)
-        time_columns = df.columns[len(non_time_columns):]  # Mulai dari kolom waktu
-        
-        # Mulai transaksi untuk memastikan rollback jika terjadi error
         with transaction.atomic():
             # Loop untuk setiap baris di DataFrame
             for index, row in df.iterrows():
@@ -74,6 +71,8 @@ def import_mine_productions(file_path, original_file_name,log_id):
                         block           = row['Block Id']
                         rl_from         = row['From Rl']
                         rl_to           = row['To Rl']
+                        # bcm           = row['Bcm']
+                        # tonnage       = row['Tonnage']
                         remarks       = row['Remarks']
                         rl_from       = None if pd.isna(rl_from) else rl_from
                         rl_to         = None if pd.isna(rl_to) else rl_to
@@ -85,7 +84,7 @@ def import_mine_productions(file_path, original_file_name,log_id):
                         id_dumping    = dumping_dict.get(dumping_point, 1)  
                         id_dome       = dome_dict.get(dome_id, 1)  
                         id_material   = material_dict.get(nama_material, None)
-                            
+                        
                         hauler_class  = str(hauler_class) if hauler_class is not None else ""
                         nama_material = str(nama_material) if nama_material is not None else ""
 
@@ -122,8 +121,9 @@ def import_mine_productions(file_path, original_file_name,log_id):
                         ref_plan = f"{date_pds}{category_mine}{source}{vendors}".replace(" ", "")  
 
                         try:
-                            # Hapus desimal jika ada (contoh: '07:00:00.1' menjadi '07:00:00')
+                           # Hapus desimal jika ada (contoh: '07:00:00.1' menjadi '07:00:00')
                             clean_time_str = str(time_columns[i]).strip().split('.')[0]  # Hapus spasi di awal/akhir dan desimal
+
 
                             # Parsing waktu dengan format 24 jam (H:M:S)
                             parsed_time = pd.to_datetime(clean_time_str, format='%H:%M:%S')
@@ -136,7 +136,7 @@ def import_mine_productions(file_path, original_file_name,log_id):
                             if pd.notna(time_value) and str(time_value).strip():  # Validasi nilai menit
                                 # minute_value = int(time_value)  # Ambil menit dari kolom data
                                 minute_value = int(float(time_value))  # Konversi dari float ke int secara eksplisit
-                                    
+                                
                             else:
                                 raise ValueError(f"Invalid minute value for time column: {time_value}")
 
@@ -180,20 +180,11 @@ def import_mine_productions(file_path, original_file_name,log_id):
                         except Exception as e:
                             errors.append(f"Error parsing time column: {clean_time_str} -> {str(e)}")
                             continue
-           
+            
             # Menggunakan bulk_create untuk menyimpan objek dalam batch
             mineProductions.objects.bulk_create(list_objects, batch_size=200)
-
-        # Update log status menjadi 'completed' jika sukses
-        upload_log.status = 'completed'
-        upload_log.save()
-
+    
     except Exception as e:
-        # Jika terjadi error di seluruh proses, update log menjadi 'failed'
-        if 'upload_log' in locals():
-            upload_log.status = 'failed'
-            upload_log.error_message = str(e)
-            upload_log.save()
         errors.append(f"Transaction failed: {str(e)}")
 
     # Buat laporan import

@@ -36,32 +36,22 @@ def import_assay_mral(file_path, original_file_name, log_id):
     successful_imports = 0
     duplicate_imports = 0
 
+    # Baca file excel
+    df = pd.read_excel(file_path)
+
+    # Pastikan format 'Release Date' dan 'Release Time'
+    df['Release Date'] = pd.to_datetime(df['Release Date']).dt.date
+    df['Release Time'] = pd.to_datetime(df['Release Time'], format='%H:%M:%S').dt.time
+
+    # Gabungkan kolom Release Date dan Release Time menjadi datetime tanpa timezone
+    df['release_mral'] = df.apply(lambda row: datetime.combine(row['Release Date'], row['Release Time']), axis=1)
+    df['release_mral'] = df['release_mral'].apply(lambda x: x.replace(tzinfo=None))
+
+    # Bersihkan semua kolom numerik di DataFrame
+    numeric_columns = ['Ni-mral', 'Co-mral', 'Fe2O3-mral', 'Fe-mral', 'Mgo-mral', 'SiO2-mral']
+    for col in numeric_columns:
+        df[col] = df[col].apply(clean_numeric)
     try:
-        # Ambil log dan ubah status menjadi 'processing'
-        try:
-            upload_log = UploadLog.objects.get(id=log_id)
-            upload_log.status = 'processing'
-            upload_log.save()
-        except UploadLog.DoesNotExist:
-            errors.append(f"Log with id {log_id} not found.")
-            return {'message': 'Log not found', 'errors': errors}
-        
-        # Baca file excel
-        df = pd.read_excel(file_path)
-
-        # Pastikan format 'Release Date' dan 'Release Time'
-        df['Release Date'] = pd.to_datetime(df['Release Date']).dt.date
-        df['Release Time'] = pd.to_datetime(df['Release Time'], format='%H:%M:%S').dt.time
-
-        # Gabungkan kolom Release Date dan Release Time menjadi datetime tanpa timezone
-        df['release_mral'] = df.apply(lambda row: datetime.combine(row['Release Date'], row['Release Time']), axis=1)
-        df['release_mral'] = df['release_mral'].apply(lambda x: x.replace(tzinfo=None))
-
-        # Bersihkan semua kolom numerik di DataFrame
-        numeric_columns = ['Ni-mral', 'Co-mral', 'Fe2O3-mral', 'Fe-mral', 'Mgo-mral', 'SiO2-mral']
-        for col in numeric_columns:
-            df[col] = df[col].apply(clean_numeric)
-
         # Mulai transaksi untuk memastikan rollback jika terjadi error
         with transaction.atomic():
             for index, row in df.iterrows():
@@ -104,32 +94,20 @@ def import_assay_mral(file_path, original_file_name, log_id):
             if list_objects:
                 AssayMral.objects.bulk_create(list_objects, batch_size=200)
 
-        # Update log status menjadi 'completed' jika sukses
-        upload_log.status = 'completed'
-        upload_log.save()
-
     except Exception as e:
-        # Jika terjadi error di seluruh proses, update log menjadi 'failed'
-        if 'upload_log' in locals():
-            upload_log.status = 'failed'
-            upload_log.error_message = str(e)
-            upload_log.save()
         errors.append(f"Transaction failed: {str(e)}")
 
     # Buat laporan import menggunakan task ID dari request Celery
-    try:
-        taskImports.objects.create(
-            task_id=import_assay_mral.request.id,  # Menggunakan request.id dari task
-            successful_imports=successful_imports,
-            failed_imports=len(errors),
-            duplicate_imports=duplicate_imports,
-            errors="\n".join(errors) if errors else None,
-            duplicates="\n".join(duplicates) if duplicates else None,
-            file_name=original_file_name,
-            destination='Assay mral'
-        )
-    except Exception as e:
-        errors.append(f"Error while logging import task: {str(e)}")
+    taskImports.objects.create(
+        task_id=import_assay_mral.request.id,  # Menggunakan request.id dari task
+        successful_imports=successful_imports,
+        failed_imports=len(errors),
+        duplicate_imports=duplicate_imports,
+        errors="\n".join(errors) if errors else None,
+        duplicates="\n".join(duplicates) if duplicates else None,
+        file_name=original_file_name,
+        destination='Assay mral'
+    )
 
     # Return hasil
     if errors or duplicates:

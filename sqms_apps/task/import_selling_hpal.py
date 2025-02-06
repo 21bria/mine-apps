@@ -1,14 +1,14 @@
 from celery import shared_task
 import pandas as pd
 import re
-from django.db.models.functions import Trim
+from django.db.models import F, Func
 from datetime import datetime
 from django.db import transaction
 from ..models.task_model import taskImports
-from ..models.task_model import UploadLog
 from ..models.selling_data_model import SellingProductions
 from ..models.materials_model import Material
 from ..models.stock_factories_model import StockFactories
+from ..models.mine_units_model import MineUnits
 from ..models.source_model import SourceMinesDumping,SourceMinesDome
 
 # Fungsi untuk membersihkan data numerik
@@ -34,7 +34,7 @@ def clean_numeric(value):
 
 
 @shared_task
-def import_selling_hpal(file_path, original_file_name,log_id):
+def import_selling_hpal(file_path, original_file_name):
     df = pd.read_excel(file_path)
     errors = []
     duplicates = []
@@ -42,148 +42,147 @@ def import_selling_hpal(file_path, original_file_name,log_id):
     successful_imports = 0
     duplicate_imports = 0
 
-    try:
-        # Ambil log dan ubah status menjadi 'processing'
-        upload_log = UploadLog.objects.get(id=log_id)
-        upload_log.status = 'processing'
-        upload_log.save()
+    
+    # df['timbang_isi']  = pd.to_datetime(df['timbang_isi'], format='%H:%M:%S').dt.time
+
+    df['timbang_isi']    = df['waktu_timbang_kosong'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    df['timbang_kosong'] = df['waktu_timbang_isi'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    df['tanggal']        = pd.to_datetime(df['tanggal']).dt.date
+
+
+    material_dict = dict((material.strip(), id) for material, id in Material.objects.values_list('nama_material', 'id'))
+
+    stockpile_dict = dict((stockpile.strip(), id) for stockpile, id in SourceMinesDumping.objects.values_list('dumping_point', 'id'))
+
+    dome_dict = dict((dome.strip(), id) for dome, id in SourceMinesDome.objects.values_list('pile_id', 'id'))
+
+    factory_dict = dict((factory.strip(), id) for factory, id in StockFactories.objects.values_list('factory_stock', 'id'))
+
+
+
+    # Menentukan kolom yang perlu dibersihkan
+    numeric_columns = [
+        'berat_kotor', 'berat_kosong', 'berat_bersih',
+       ]
         
-        df['timbang_isi']    = df['waktu_timbang_kosong'].dt.strftime('%Y-%m-%d %H:%M:%S')
-        df['timbang_kosong'] = df['waktu_timbang_isi'].dt.strftime('%Y-%m-%d %H:%M:%S')
-        df['tanggal']        = pd.to_datetime(df['tanggal']).dt.date
+    # Kolom yang diinginkan tetap kosong jika kosong
+    empty_columns = [
+            'no_seri', 'no_unit','nama_material','lokasi_pembongkaran','discharge','shift',
+            'code_hync','type','sale_type','batch','adjust_sale'
+    ]
 
-        material_dict   = dict(Material.objects.annotate(trimmed_material=Trim('nama_material')).values_list('trimmed_material', 'id'))
-        # stockpile_dict  = dict(SourceMinesDumping.objects.annotate(trimmed_dumping=Trim('dumping_point')).values_list('trimmed_dumping', 'id'))
-        dome_dict       = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
-        factory_dict    = dict(StockFactories.objects.annotate(trimmed_fact=Trim('factory_stock')).values_list('trimmed_fact', 'id'))
+    for col in numeric_columns:
+        if col in df.columns:
+            df[col] = df[col].apply(clean_numeric)
 
-        # Menentukan kolom yang perlu dibersihkan
-        numeric_columns = [
-            'berat_kotor', 'berat_kosong', 'berat_bersih',
-        ]
+     # Untuk kolom yang perlu tetap kosong jika kosong
+    for col in empty_columns:
+        if col in df.columns:
+            df[col] = df[col].apply(lambda x: None if pd.isna(x) or x == '' else x)
+
+
+    # Mulai transaksi untuk memastikan rollback jika terjadi error
+    try:
+        with transaction.atomic():
+            for index, row in df.iterrows():
+                nota            = row['no_seri']
+                truck           = row['no_unit']  
+                nama_material   = row['adjust_sale']  
+                empety_weigth_f = row['berat_kosong']          
+                fill_weigth_f   = row['berat_kotor']  
+                netto_weigth_f  = row['berat_bersih']    
+                timbang_isi     = row['timbang_isi']
+                timbang_kosong  = row['timbang_kosong']
+                tujuan          = row['lokasi_pembongkaran']
+                tanggal         = row['tanggal']
+                dome            = row['dome']
+                stockpile       = row['stockpile']
+                discharge       = row['discharge']
+                shift           = row['shift']
+                delivery_order  = row['code_hync']   
+                type            = row['type']   
+                sale_type       = row['sale_type']   
+                batch           = row['batch']  
+
+                # Cari ID dari Product berdasarkan nama
+                id_material  = material_dict.get(nama_material, None) 
+                id_pile      = dome_dict.get(dome, None) 
+                id_stockpile = stockpile_dict.get(stockpile, None)  
+                id_factory   = factory_dict.get(discharge, None)  
+
+                # Gabungkan Kode
+                kode_batch_g        = type + str(id_material) + delivery_order + batch
+                new_kode_batch_scci = type + 'Split_SCCI' + str(id_material) + delivery_order + batch
+                new_kode_batch_awk  = type + 'Split_AWK' + str(id_material) + delivery_order + batch
+                new_batch_awk_pulp  = type + 'Split_AWK' + delivery_order + batch
+                scci_order   = 'No'
+                awk_order    = 'Yes'
+                sale_dome    = 'Continue'
+                time_hauling = '00:00:00'
+                batch_g      = '' 
+                new_scci     = '' 
+                new_awk      = '' 
+               
+
+                if tanggal:  # Pastikan tanggal bukan None
+                    date_str  = tanggal.strftime('%Y-%m-%d')
+                    date_obj  = datetime.strptime(date_str, '%Y-%m-%d')
+                    left_date = date_obj.day
+                else:
+                    left_date = None
+
+                # Cek duplikat berdasarkan kriteria
+                if SellingProductions.objects.filter(nota=nota).exists():
+                    duplicates.append(f"Duplicate at row {index}: {nota}")
+                    duplicate_imports += 1
+                    continue
+
+                try:
+                    data = SellingProductions(
+                        nota=nota,
+                        timbang_isi=timbang_isi,
+                        timbang_kosong=timbang_kosong,
+                        id_material=id_material,
+                        remarks=tujuan,
+                        unit_code=truck,
+                        empety_weigth_f=empety_weigth_f,
+                        fill_weigth_f=fill_weigth_f,
+                        netto_weigth_f=netto_weigth_f,
+                        id_factory=id_factory,
+                        id_stockpile=id_stockpile,
+                        id_pile=id_pile,
+                        batch=batch,
+                        delivery_order =delivery_order,
+                        tgl_hauling=tanggal,
+                        time_hauling=time_hauling,
+                        shift=shift,
+                        batch_g=batch_g,
+                        kode_batch_g=kode_batch_g,
+                        left_date=left_date,
+                        new_scci=new_scci,
+                        new_scci_sub=batch,
+                        new_kode_batch_scci=new_kode_batch_scci,
+                        scci_order=scci_order,
+                        new_awk=new_awk,
+                        new_awk_sub=batch,
+                        new_kode_batch_awk=new_kode_batch_awk,
+                        new_batch_awk_pulp=new_batch_awk_pulp,
+                        awk_order=awk_order,
+                        type_selling=sale_type,
+                        date_wb=tanggal,
+                        sale_adjust='HPAL',
+                        sale_dome=sale_dome,
+                    )
+                    list_objects.append(data)
+                    successful_imports += 1
+                except Exception as e:
+                    errors.append(f"Error at row {index}: {str(e)}")
+                    continue
             
-        # Kolom yang diinginkan tetap kosong jika kosong
-        empty_columns = [
-                'no_seri', 'no_unit','nama_material','lokasi_pembongkaran','discharge','shift',
-                'code_hync','type','sale_type','batch','adjust_sale'
-        ]
-
-        for col in numeric_columns:
-            if col in df.columns:
-                df[col] = df[col].apply(clean_numeric)
-
-        # Untuk kolom yang perlu tetap kosong jika kosong
-        for col in empty_columns:
-            if col in df.columns:
-                df[col] = df[col].apply(lambda x: None if pd.isna(x) or x == '' else x)
-
-            # Mulai transaksi untuk memastikan rollback jika terjadi error
-            with transaction.atomic():
-                for index, row in df.iterrows():
-                    nota            = row['no_seri']
-                    truck           = row['no_unit']  
-                    nama_material   = row['adjust_sale']  
-                    empety_weigth_f = row['berat_kosong']          
-                    fill_weigth_f   = row['berat_kotor']  
-                    netto_weigth_f  = row['berat_bersih']    
-                    timbang_isi     = row['timbang_isi']
-                    timbang_kosong  = row['timbang_kosong']
-                    tujuan          = row['lokasi_pembongkaran']
-                    tanggal         = row['tanggal']
-                    dome            = row['dome']
-                    discharge       = row['discharge']
-                    shift           = row['shift']
-                    delivery_order  = row['code_hync']   
-                    type            = row['type']   
-                    sale_type       = row['sale_type']   
-                    batch           = row['batch']  
-
-                    # Cari ID dari Product berdasarkan nama
-                    id_material  = material_dict.get(nama_material, None) 
-                    id_pile      = dome_dict.get(dome, None) 
-                    id_factory   = factory_dict.get(discharge, None)  
-
-                    # Gabungkan Kode
-                    kode_batch_g        = type + str(id_material) + delivery_order + batch
-                    new_kode_batch_scci = type + 'Split_SCCI' + str(id_material) + delivery_order + batch
-                    new_kode_batch_awk  = type + 'Split_AWK' + str(id_material) + delivery_order + batch
-                    new_batch_awk_pulp  = type + 'Split_AWK' + delivery_order + batch
-                    scci_order   = 'No'
-                    awk_order    = 'Yes'
-                    sale_dome    = 'Continue'
-                    time_hauling = '00:00:00'
-                    batch_g      = '' 
-                    new_scci     = '' 
-                    new_awk      = '' 
-                
-                    if tanggal:  # Pastikan tanggal bukan None
-                        date_str  = tanggal.strftime('%Y-%m-%d')
-                        date_obj  = datetime.strptime(date_str, '%Y-%m-%d')
-                        left_date = date_obj.day
-                    else:
-                        left_date = None
-
-                    # Cek duplikat berdasarkan kriteria
-                    if SellingProductions.objects.filter(nota=nota).exists():
-                        duplicates.append(f"Duplicate at row {index}: {nota}")
-                        duplicate_imports += 1
-                        continue
-                    try:
-                        data = SellingProductions(
-                            nota=nota,
-                            timbang_isi=timbang_isi,
-                            timbang_kosong=timbang_kosong,
-                            id_material=id_material,
-                            remarks=tujuan,
-                            unit_code=truck,
-                            empety_weigth_f=empety_weigth_f,
-                            fill_weigth_f=fill_weigth_f,
-                            netto_weigth_f=netto_weigth_f,
-                            id_factory=id_factory,
-                            # id_stockpile=None,
-                            id_pile=id_pile,
-                            batch=batch,
-                            delivery_order =delivery_order,
-                            tgl_hauling=tanggal,
-                            time_hauling=time_hauling,
-                            shift=shift,
-                            batch_g=batch_g,
-                            kode_batch_g=kode_batch_g,
-                            left_date=left_date,
-                            new_scci=new_scci,
-                            new_scci_sub=batch,
-                            new_kode_batch_scci=new_kode_batch_scci,
-                            scci_order=scci_order,
-                            new_awk=new_awk,
-                            new_awk_sub=batch,
-                            new_kode_batch_awk=new_kode_batch_awk,
-                            new_batch_awk_pulp=new_batch_awk_pulp,
-                            awk_order=awk_order,
-                            type_selling=sale_type,
-                            date_wb=tanggal,
-                            sale_adjust='HPAL',
-                            sale_dome=sale_dome,
-                        )
-                        list_objects.append(data)
-                        successful_imports += 1
-                    except Exception as e:
-                        errors.append(f"Error at row {index}: {str(e)}")
-                        continue
-                
-                # Menggunakan bulk_create untuk menyimpan objek dalam batch
-                if list_objects:
-                    SellingProductions.objects.bulk_create(list_objects, batch_size=300)
-
-        # Update log status menjadi 'completed' jika sukses
-        upload_log.status = 'completed'
-        upload_log.save()
-
+            # Menggunakan bulk_create untuk menyimpan objek dalam batch
+            SellingProductions.objects.bulk_create(list_objects, batch_size=300)
+    
     except Exception as e:
-        # Jika terjadi error di seluruh proses, update log menjadi 'failed'
-        if 'upload_log' in locals():
-            upload_log.status = 'failed'
-            upload_log.error_message = str(e)
-            upload_log.save()
         errors.append(f"Transaction failed: {str(e)}")
 
     # Buat laporan import

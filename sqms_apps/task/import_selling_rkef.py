@@ -139,6 +139,7 @@ def import_selling_rkef(file_path, original_file_name):
                     duplicates.append(f"Duplicate at row {index}: {nota}")
                     duplicate_imports += 1
                     continue
+                
 
                 try:
                     data = SellingProductions(

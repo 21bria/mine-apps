@@ -5,7 +5,6 @@ from django.db.models.functions import Trim
 from datetime import datetime
 from django.db import transaction
 from ..models.task_model import taskImports
-from ..models.task_model import UploadLog
 from ..models.selling_data_model import SellingProductions
 from ..models.materials_model import Material
 from ..models.stock_factories_model import StockFactories
@@ -148,7 +147,12 @@ def import_selling_hpal(file_path, original_file_name):
                     continue
             
             # Menggunakan bulk_create untuk menyimpan objek dalam batch
-            SellingProductions.objects.bulk_create(list_objects, batch_size=1000)
+            # SellingProductions.objects.bulk_create(list_objects, batch_size=1000)
+            try:
+                # Simpan objek dalam batch
+                SellingProductions.objects.bulk_create(list_objects, batch_size=250)
+            except Exception as e:
+                errors.append(f"Bulk insert failed: {str(e)}")
     
     except Exception as e:
         errors.append(f"Transaction failed: {str(e)}")

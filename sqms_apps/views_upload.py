@@ -115,12 +115,6 @@ def upload_file(request):
         if file:
             original_file_name = file.name  # Dapatkan nama asli file
 
-            # Simpan log upload sebagai pending
-            upload_log = UploadLog.objects.create(
-                file_name=original_file_name,
-                status='pending'
-            )
-
             # Simpan file ke disk sementara
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
                 for chunk in file.chunks():
@@ -128,13 +122,13 @@ def upload_file(request):
                 file_path = temp_file.name
 
             if import_type == 'assay_mral':
-                task = import_assay_mral.delay(file_path,original_file_name, upload_log.id)
+                task = import_assay_mral.delay(file_path,original_file_name)
             elif import_type == 'assay_roa':
-                task = import_assay_roa.delay(file_path,original_file_name, upload_log.id)
+                task = import_assay_roa.delay(file_path,original_file_name)
             elif import_type == 'selling_hpal':
-                task = import_selling_hpal.delay(file_path,original_file_name, upload_log.id)
+                task = import_selling_hpal.delay(file_path,original_file_name)
             elif import_type == 'selling_rkef':
-                task = import_selling_rkef.delay(file_path,original_file_name, upload_log.id)
+                task = import_selling_rkef.delay(file_path,original_file_name)
             elif import_type == 'ore_productions':
                 task = import_ore_productions.delay(file_path,original_file_name)
             elif import_type == 'samples_productions':
@@ -148,15 +142,9 @@ def upload_file(request):
             else:
                 return JsonResponse({'message': 'Invalid import type'}, status=400)
             
-            # Perbarui log dengan task_id dan status "processing"
-            upload_log.task_id = task.id
-            upload_log.status  = 'processing'
-            upload_log.save()
-
             return JsonResponse({'message': 'Import started', 'task_id': task.id})
 
     return JsonResponse({'message': 'Invalid request method'}, status=405)
-
 
 
 

@@ -29,7 +29,7 @@ def clean_numeric(value):
         return 0  # Kembalikan 0 jika terjadi error
     
 @shared_task
-def import_assay_mral(file_path, original_file_name, log_id):
+def import_assay_mral(file_path, original_file_name):
     errors = []
     duplicates = []
     list_objects = []
@@ -37,15 +37,6 @@ def import_assay_mral(file_path, original_file_name, log_id):
     duplicate_imports = 0
 
     try:
-        # Ambil log dan ubah status menjadi 'processing'
-        try:
-            upload_log = UploadLog.objects.get(id=log_id)
-            upload_log.status = 'processing'
-            upload_log.save()
-        except UploadLog.DoesNotExist:
-            errors.append(f"Log with id {log_id} not found.")
-            return {'message': 'Log not found', 'errors': errors}
-        
         # Baca file excel
         df = pd.read_excel(file_path)
 
@@ -104,16 +95,7 @@ def import_assay_mral(file_path, original_file_name, log_id):
             if list_objects:
                 AssayMral.objects.bulk_create(list_objects, batch_size=200)
 
-        # Update log status menjadi 'completed' jika sukses
-        upload_log.status = 'completed'
-        upload_log.save()
-
     except Exception as e:
-        # Jika terjadi error di seluruh proses, update log menjadi 'failed'
-        if 'upload_log' in locals():
-            upload_log.status = 'failed'
-            upload_log.error_message = str(e)
-            upload_log.save()
         errors.append(f"Transaction failed: {str(e)}")
 
     # Buat laporan import menggunakan task ID dari request Celery

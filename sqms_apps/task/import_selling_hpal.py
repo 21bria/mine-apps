@@ -43,11 +43,6 @@ def import_selling_hpal(file_path, original_file_name,log_id):
     duplicate_imports = 0
 
     try:
-        # Ambil log dan ubah status menjadi 'processing'
-        upload_log = UploadLog.objects.get(id=log_id)
-        upload_log.status = 'processing'
-        upload_log.save()
-        
         df['timbang_isi']    = df['waktu_timbang_kosong'].dt.strftime('%Y-%m-%d %H:%M:%S')
         df['timbang_kosong'] = df['waktu_timbang_isi'].dt.strftime('%Y-%m-%d %H:%M:%S')
         df['tanggal']        = pd.to_datetime(df['tanggal']).dt.date
@@ -174,16 +169,7 @@ def import_selling_hpal(file_path, original_file_name,log_id):
                 if list_objects:
                     SellingProductions.objects.bulk_create(list_objects, batch_size=300)
 
-        # Update log status menjadi 'completed' jika sukses
-        upload_log.status = 'completed'
-        upload_log.save()
-
     except Exception as e:
-        # Jika terjadi error di seluruh proses, update log menjadi 'failed'
-        if 'upload_log' in locals():
-            upload_log.status = 'failed'
-            upload_log.error_message = str(e)
-            upload_log.save()
         errors.append(f"Transaction failed: {str(e)}")
 
     # Buat laporan import

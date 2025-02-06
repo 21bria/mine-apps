@@ -3,6 +3,7 @@ import pandas as pd
 import re
 from ..models.assay_roa_model import AssayRoa
 from ..models.task_model import taskImports
+from ..models.task_model import UploadLog
 from datetime import datetime
 from django.db import transaction
 
@@ -28,7 +29,7 @@ def clean_numeric(value):
         return 0  # Kembalikan 0 jika terjadi error
     
 @shared_task
-def import_assay_roa(file_path, original_file_name):
+def import_assay_roa(file_path, original_file_name,log_id):
     df = pd.read_excel(file_path)
     errors = []
     duplicates = []
@@ -36,25 +37,29 @@ def import_assay_roa(file_path, original_file_name):
     successful_imports = 0
     duplicate_imports = 0
 
-    # Format 'Release Date' dan 'Release Time'
-    df['release_date'] = pd.to_datetime(df['release_date']).dt.date
-    df['release_time'] = pd.to_datetime(df['release_time'], format='%H:%M:%S').dt.time
-
-    # Gabungkan kolom Release Date dan Release Time menjadi datetime tanpa timezone
-    df['release_roa'] = df.apply(lambda row: datetime.combine(row['release_date'], row['release_time']), axis=1)
-
-    # Bersihkan semua kolom numerik di DataFrame
-    numeric_columns = [
-        'ni', 'co', 'al2o3', 'cao', 'cr2o3', 'fe2o3', 'fe', 'k2o', 'mgo', 'mno', 'na2o',
-        'p2o5', 'p', 'sio2', 'tio2', 's', 'cu', 'zn', 'ci', 'so3', 'loi','total',
-        'wt_wet', 'wt_dry', 'mc', 'p75um', '5mm','problem'
-    ]
-
-
-    for col in numeric_columns:
-        df[col] = df[col].apply(clean_numeric)
-
     try:
+        # Ambil log dan ubah status menjadi 'processing'
+        upload_log = UploadLog.objects.get(id=log_id)
+        upload_log.status = 'processing'
+        upload_log.save()
+        # Format 'Release Date' dan 'Release Time'
+        df['release_date'] = pd.to_datetime(df['release_date']).dt.date
+        df['release_time'] = pd.to_datetime(df['release_time'], format='%H:%M:%S').dt.time
+
+        # Gabungkan kolom Release Date dan Release Time menjadi datetime tanpa timezone
+        df['release_roa'] = df.apply(lambda row: datetime.combine(row['release_date'], row['release_time']), axis=1)
+
+        # Bersihkan semua kolom numerik di DataFrame
+        numeric_columns = [
+            'ni', 'co', 'al2o3', 'cao', 'cr2o3', 'fe2o3', 'fe', 'k2o', 'mgo', 'mno', 'na2o',
+            'p2o5', 'p', 'sio2', 'tio2', 's', 'cu', 'zn', 'ci', 'so3', 'loi','total',
+            'wt_wet', 'wt_dry', 'mc', 'p75um', '5mm','problem'
+        ]
+
+
+        for col in numeric_columns:
+            df[col] = df[col].apply(clean_numeric)
+
         with transaction.atomic():
             for index, row in df.iterrows():
                 release_date = row['release_date']
@@ -100,9 +105,9 @@ def import_assay_roa(file_path, original_file_name):
 
                 # Cek duplikat berdasarkan sample_id
                 if AssayRoa.objects.filter(sample_id=sample_id).exists():
-                    duplicates.append(f"Duplicate at row {index}: {sample_id}")
-                    duplicate_imports += 1
-                    continue
+                        duplicates.append(f"Duplicate at row {index}: {sample_id}")
+                        duplicate_imports += 1
+                        continue
 
                 try:
                     data = AssayRoa(
@@ -139,30 +144,38 @@ def import_assay_roa(file_path, original_file_name):
                         p75um=p75um,
                         _5mm=_5mm,
                         problem=problem,
-                    )
+                        )
                     list_objects.append(data)
                     successful_imports += 1
                 except Exception as e:
                     errors.append(f"Error at row {index}: {str(e)}")
                     continue
-
         # Simpan batch data
         AssayRoa.objects.bulk_create(list_objects, batch_size=200)
 
-    except Exception as e:
-        errors.append(f"Transaction failed: {str(e)}")
+        # Update log status menjadi 'completed' jika sukses
+        upload_log.status = 'completed'
+        upload_log.save()
 
-    # Buat laporan impor
-    taskImports.objects.create(
-        task_id=import_assay_roa.request.id,
-        successful_imports=successful_imports,
-        failed_imports=len(errors),
-        duplicate_imports=duplicate_imports,
-        errors="\n".join(errors) if errors else None,
-        duplicates="\n".join(duplicates) if duplicates else None,
-        file_name=original_file_name,
-        destination='Assay roa'
-    )
+    except Exception as e:
+            # Jika terjadi error di seluruh proses, update log menjadi 'failed'
+            if 'upload_log' in locals():
+                upload_log.status = 'failed'
+                upload_log.error_message = str(e)
+                upload_log.save()
+            errors.append(f"Transaction failed: {str(e)}")
+        
+            # Buat laporan impor
+            taskImports.objects.create(
+                task_id=import_assay_roa.request.id,
+                successful_imports=successful_imports,
+                failed_imports=len(errors),
+                duplicate_imports=duplicate_imports,
+                errors="\n".join(errors) if errors else None,
+                duplicates="\n".join(duplicates) if duplicates else None,
+                file_name=original_file_name,
+                destination='Assay roa'
+            )
 
     if errors or duplicates:
         return {'message': 'Import completed with some errors or duplicates', 'errors': errors, 'duplicates': duplicates}

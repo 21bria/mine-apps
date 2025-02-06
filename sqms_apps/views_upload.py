@@ -9,7 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.views.generic import View
 from django.db.models import Q
-from .models.task_model import taskImports
+from .models.task_model import taskImports,UploadLog
 from .task.imports_assay_mral import import_assay_mral
 from .task.imports_assay_roa import import_assay_roa
 from .task.import_selling_hpal import import_selling_hpal
@@ -114,6 +114,13 @@ def upload_file(request):
 
         if file:
             original_file_name = file.name  # Dapatkan nama asli file
+
+            # Simpan log upload sebagai pending
+            upload_log = UploadLog.objects.create(
+                file_name=original_file_name,
+                status='pending'
+            )
+
             # Simpan file ke disk sementara
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
                 for chunk in file.chunks():
@@ -140,6 +147,12 @@ def upload_file(request):
                 task = import_mine_productions_quick.delay(file_path,original_file_name)
             else:
                 return JsonResponse({'message': 'Invalid import type'}, status=400)
+            
+            # Perbarui log dengan task_id dan status "processing"
+            upload_log.task_id = task.id
+            upload_log.status  = 'processing'
+            upload_log.save()
+
 
             return JsonResponse({'message': 'Import started', 'task_id': task.id})
 

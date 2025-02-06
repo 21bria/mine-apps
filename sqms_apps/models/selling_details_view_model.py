@@ -1,7 +1,6 @@
 from django.db import models
 
 class SellingDetailsView(models.Model):
-    # id             = models.BigIntegerField(default=None, null=True, blank=True)
     tgl_hauling    = models.DateField(default=None, null=True, blank=True)
     minggu         = models.IntegerField(default=None, null=True, blank=True)
     bulan          = models.IntegerField(default=None, null=True, blank=True)
@@ -22,12 +21,10 @@ class SellingDetailsView(models.Model):
     netto_ton      = models.FloatField(default=None, null=True, blank=True)
     tonnage        = models.FloatField(default=None, null=True, blank=True)
     remarks        = models.CharField(max_length=255, default=None, null=True, blank=True)
-    # status_selling = models.CharField(max_length=15, default=None, null=True, blank=True)
-    # kode_batch     = models.CharField(max_length=150, default=None, null=True, blank=True)
     id_user        = models.IntegerField(default=None, null=True, blank=True)
     factory_stock  = models.CharField(max_length=150, default=None, null=True, blank=True)
-    # trip           = models.IntegerField(default=None, null=True, blank=True)
     timbang_isi    = models.DateField(default=None, null=True, blank=True)
+    timbang_kosong = models.DateField(default=None, null=True, blank=True)
     no_input       = models.CharField(max_length=15, default=None, null=True, blank=True)
     delivery_order = models.CharField(max_length=25, default=None, null=True, blank=True)
     haulage_code   = models.CharField(max_length=150, default=None, null=True, blank=True)

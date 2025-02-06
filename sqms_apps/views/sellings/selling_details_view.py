@@ -296,7 +296,7 @@ def getIdSale(request, id):
                 'id_pile'           : items.id_pile,
                 'dumping_point'     : dumping_point,
                 'dome_point'        : dome_point,
-                'id_truck'          : items.id_truck,
+                'id_truck'          : items.unit_code,
                 'delivery_order'    : items.delivery_order,
                 'nota'              : items.nota,
                 'id_factory'        : items.id_factory,

@@ -2,6 +2,7 @@ from celery import shared_task
 import pandas as pd
 import re
 from ..models.assay_mral_model import AssayMral
+from ..models.task_model import UploadLog
 from ..models.task_model import taskImports
 from datetime import datetime
 from django.db import transaction
@@ -28,50 +29,47 @@ def clean_numeric(value):
         return 0  # Kembalikan 0 jika terjadi error
     
 @shared_task
-def import_assay_mral(file_path,original_file_name):
-
-    df = pd.read_excel(file_path)
-    errors       = []
-    duplicates   = []
+def import_assay_mral(file_path, original_file_name, log_id):
+    errors = []
+    duplicates = []
     list_objects = []
     successful_imports = 0
-    duplicate_imports  = 0
+    duplicate_imports = 0
 
-    # Pastikan format 'Release Date' dan 'Release Time'
-    df['Release Date'] = pd.to_datetime(df['Release Date']).dt.date
-    df['Release Time'] = pd.to_datetime(df['Release Time'], format='%H:%M:%S').dt.time
-
-    # Gabungkan kolom Release Date dan Release Time menjadi datetime tanpa timezone
-    df['release_mral'] = df.apply(lambda row: datetime.combine(row['Release Date'], row['Release Time']), axis=1)
-
-    # Konversi datetime menjadi naive (tanpa timezone)
-    df['release_mral'] = df['release_mral'].apply(lambda x: x.replace(tzinfo=None))
-    # print(df)
-
-     # Bersihkan semua kolom numerik di DataFrame
-    numeric_columns = [
-        'Ni-mral', 'Co-mral', 'Fe2O3-mral', 'Fe-mral', 'Mgo-mral', 'SiO2-mral'
-    ]
-
-    for col in numeric_columns:
-        df[col] = df[col].apply(clean_numeric)
-
-
-    # Mulai transaksi untuk memastikan rollback jika terjadi error
     try:
+        # Ambil log dan ubah status menjadi 'processing'
+        upload_log = UploadLog.objects.get(id=log_id)
+        upload_log.status = 'processing'
+        upload_log.save()
+
+        # Baca file excel
+        df = pd.read_excel(file_path)
+
+        # Pastikan format 'Release Date' dan 'Release Time'
+        df['Release Date'] = pd.to_datetime(df['Release Date']).dt.date
+        df['Release Time'] = pd.to_datetime(df['Release Time'], format='%H:%M:%S').dt.time
+
+        # Gabungkan kolom Release Date dan Release Time menjadi datetime tanpa timezone
+        df['release_mral'] = df.apply(lambda row: datetime.combine(row['Release Date'], row['Release Time']), axis=1)
+        df['release_mral'] = df['release_mral'].apply(lambda x: x.replace(tzinfo=None))
+
+        # Bersihkan semua kolom numerik di DataFrame
+        numeric_columns = ['Ni-mral', 'Co-mral', 'Fe2O3-mral', 'Fe-mral', 'Mgo-mral', 'SiO2-mral']
+        for col in numeric_columns:
+            df[col] = df[col].apply(clean_numeric)
+
+        # Mulai transaksi untuk memastikan rollback jika terjadi error
         with transaction.atomic():
             for index, row in df.iterrows():
-                release_date = row['Release Date']
-                release_time = row['Release Time']
-                release_mral = row['release_mral'] 
-                job_number   = row['Job Number']
-                sample_id    = row['Samples Id']
-                ni           = row['Ni-mral']
-                co           = row['Co-mral']
-                fe2o3        = row['Fe2O3-mral']
-                fe           = row['Fe-mral']
-                mgo          = row['Mgo-mral']
-                sio2         = row['SiO2-mral']
+                release_mral = row['release_mral']
+                job_number = row['Job Number']
+                sample_id = row['Samples Id']
+                ni = row['Ni-mral']
+                co = row['Co-mral']
+                fe2o3 = row['Fe2O3-mral']
+                fe = row['Fe-mral']
+                mgo = row['Mgo-mral']
+                sio2 = row['SiO2-mral']
 
                 # Cek duplikat berdasarkan kriteria
                 if AssayMral.objects.filter(sample_id=sample_id).exists():
@@ -80,43 +78,53 @@ def import_assay_mral(file_path,original_file_name):
                     continue
 
                 try:
+                    # Siapkan data untuk disimpan
                     data = AssayMral(
-                        release_date = release_date,
-                        release_time = release_time,
-                        release_mral = release_mral,
-                        job_number   = job_number,
-                        sample_id    = sample_id,
-                        ni           = ni,
-                        co           = co,
-                        fe2o3        = fe2o3,
-                        fe           = fe,
-                        mgo          = mgo,
-                        sio2         = sio2
+                        release_mral=release_mral,
+                        job_number=job_number,
+                        sample_id=sample_id,
+                        ni=ni,
+                        co=co,
+                        fe2o3=fe2o3,
+                        fe=fe,
+                        mgo=mgo,
+                        sio2=sio2
                     )
                     list_objects.append(data)
                     successful_imports += 1
                 except Exception as e:
                     errors.append(f"Error at row {index}: {str(e)}")
                     continue
-            
-            # Menggunakan bulk_create untuk menyimpan objek dalam batch
-            AssayMral.objects.bulk_create(list_objects, batch_size=200)
-    
+
+            # Simpan semua data dengan bulk_create untuk efisiensi
+            if list_objects:
+                AssayMral.objects.bulk_create(list_objects, batch_size=200)
+
+        # Update log status menjadi 'completed' jika sukses
+        upload_log.status = 'completed'
+        upload_log.save()
+
     except Exception as e:
+        # Jika terjadi error di seluruh proses, update log menjadi 'failed'
+        if 'upload_log' in locals():
+            upload_log.status = 'failed'
+            upload_log.error_message = str(e)
+            upload_log.save()
         errors.append(f"Transaction failed: {str(e)}")
 
-    # Buat laporan import
+    # Buat laporan import menggunakan task ID dari request Celery
     taskImports.objects.create(
-        task_id             =import_assay_mral.request.id,  # Menggunakan request.id dari task
-        successful_imports  =successful_imports,
-        failed_imports      =len(errors),
-        duplicate_imports   =duplicate_imports,
-        errors              ="\n".join(errors) if errors else None,
-        duplicates          ="\n".join(duplicates) if duplicates else None,
-        file_name           =original_file_name,
-        destination         ='Assay mral'
+        task_id=import_assay_mral.request.id,  # Menggunakan request.id dari task
+        successful_imports=successful_imports,
+        failed_imports=len(errors),
+        duplicate_imports=duplicate_imports,
+        errors="\n".join(errors) if errors else None,
+        duplicates="\n".join(duplicates) if duplicates else None,
+        file_name=original_file_name,
+        destination='Assay mral'
     )
 
+    # Return hasil
     if errors or duplicates:
         return {'message': 'Import completed with some errors or duplicates', 'errors': errors, 'duplicates': duplicates}
     else:

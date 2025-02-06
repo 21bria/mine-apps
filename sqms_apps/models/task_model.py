@@ -20,6 +20,22 @@ class taskImports(models.Model):
         db_table  = 'task_imports'
         app_label = 'sqms_apps'
 
+
+class UploadLog(models.Model):
+    file_name = models.CharField(max_length=255)
+    upload_time = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('processing', 'Processing'), ('completed', 'Completed'), ('failed', 'Failed')])
+    task_id = models.CharField(max_length=255, null=True, blank=True)
+    error_message = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.file_name} - {self.status}"
+    
+    class Meta:
+        db_table  = 'task_imports_log'
+        app_label = 'sqms_apps'
+
+    
 class taskList(models.Model):
     # order_slug   = models.CharField(max_length=50, null=True,default=None)
     order_slug   = models.SlugField(max_length=255, unique=True)

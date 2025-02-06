@@ -24,15 +24,13 @@ class SourceMinesLoading(models.Model):
     loading_point = models.CharField(max_length=50, unique=True)
     remarks       = models.CharField(max_length=255, default=None, null=True, blank=True)
     category      = models.CharField(max_length=25, default=None, null=True, blank=True)
-    # id_sources    = models.BigIntegerField(default=None, null=True, blank=True)
-    # Define the foreign key relationship
     id_sources    = models.ForeignKey(
         SourceMines, 
-        related_name='mine_sources_point_loading_sources_FK',  # Name of the reverse relation from SourceMines to SourceMinesLoading
-        on_delete=models.SET_NULL,      # If the related SourceMines instance is deleted, set this to null
+        related_name='mine_sources_point_loading_sources_FK', 
+        on_delete=models.SET_NULL,    
         null=True,                      
         blank=True,
-        db_column='id_sources'  # Nama kolom yang lebih pendek di database
+        db_column='id_sources' 
     )
     status        = models.IntegerField(default=None, null=True, blank=True)
     created_at    = models.DateTimeField(auto_now_add=True)
@@ -80,6 +78,14 @@ class SourceMinesDome(models.Model):
     plan_ni_max = models.FloatField(default=None, null=True, blank=True)
     status      = models.IntegerField(default=None, null=True, blank=True)
     direct_sale = models.CharField(max_length=10,default=None, null=True, blank=True)
+    id_dumping  = models.ForeignKey(
+        SourceMinesDumping, 
+        related_name='mine_sources_point_dumping_FK', 
+        on_delete=models.SET_NULL,    
+        null=True,                      
+        blank=True,
+        db_column='id_dumping' 
+    )
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now_add=True)
 

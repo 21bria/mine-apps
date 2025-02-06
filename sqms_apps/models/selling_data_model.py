@@ -7,7 +7,7 @@ class SellingProductions(models.Model):
     id_material         = models.IntegerField(default=None, null=True, blank=True)
     id_stockpile        = models.IntegerField(default=None, null=True, blank=True)
     id_pile             = models.IntegerField(default=None, null=True, blank=True)
-    id_truck	        = models.IntegerField(default=None, null=True, blank=True)
+    unit_code	        = models.CharField(max_length=50,default=None, null=True, blank=True)
     empety_weigth       = models.FloatField( default=None, null=True, blank=True)
     fill_weigth         = models.FloatField( default=None, null=True, blank=True)
     netto_weigth        = models.FloatField( default=None, null=True, blank=True)

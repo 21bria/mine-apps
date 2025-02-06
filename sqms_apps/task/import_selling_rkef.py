@@ -37,7 +37,7 @@ def clean_numeric(value):
         return 0  # Kembalikan 0 jika terjadi error
 
 @shared_task
-def import_selling_rkef(file_path, original_file_name,log_id):
+def import_selling_rkef(file_path, original_file_name):
     df = pd.read_excel(file_path)
     errors = []
     duplicates = []

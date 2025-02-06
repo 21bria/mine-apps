@@ -34,7 +34,7 @@ def clean_numeric(value):
 
 
 @shared_task
-def import_selling_hpal(file_path, original_file_name,log_id):
+def import_selling_hpal(file_path, original_file_name):
     df = pd.read_excel(file_path)
     errors = []
     duplicates = []

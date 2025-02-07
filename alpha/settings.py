@@ -31,7 +31,7 @@ ENCRYPTION_KEY = config('DJANGO_ENCRYPTION_KEY')
 cipher_suite = Fernet(ENCRYPTION_KEY.encode())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # ALLOWED_HOSTS = []
 ALLOWED_HOSTS = ['10.50.2.145', 'localhost', '127.0.0.1']

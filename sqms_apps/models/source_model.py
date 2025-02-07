@@ -100,3 +100,24 @@ class SourceMinesDome(models.Model):
     indexes = [
         models.Index(fields=['pile_id'])
     ]
+
+class detailsDome(models.Model):
+    pile_id       = models.CharField(max_length=50,default=None, null=True, blank=True)
+    dumping_point = models.CharField(max_length=50,default=None, null=True, blank=True)
+    remarks       = models.CharField(max_length=255, default=None, null=True, blank=True)
+    category      = models.CharField(max_length=25, default=None, null=True, blank=True)
+    compositing   = models.CharField(max_length=15, default=None, null=True, blank=True)
+    dome_finish   = models.CharField(max_length=25, default=None, null=True, blank=True)
+    status_dome   = models.CharField(max_length=15, default=None, null=True, blank=True)
+    plan_ni_min   = models.FloatField(default=None, null=True, blank=True)
+    plan_ni_max   = models.FloatField(default=None, null=True, blank=True)
+    status        = models.IntegerField(default=None, null=True, blank=True)
+    direct_sale   = models.CharField(max_length=10,default=None, null=True, blank=True)
+    id_dumping    = models.BigIntegerField(default=None, null=True, blank=True)
+
+    class Meta:
+        managed   = False
+        db_table  = 'dome_point_details'
+        app_label = 'sqms_apps'
+    
+

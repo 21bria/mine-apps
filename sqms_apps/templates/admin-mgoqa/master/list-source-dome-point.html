@@ -100,7 +100,8 @@
                                 <thead>
                                     <tr>
                                         <th class="bg-soft-secondary" width="5%">No</th>
-                                        <th class="bg-soft-secondary" width="10%">Name</th>
+                                        <th class="bg-soft-secondary" width="10%">Dome</th>
+                                        <th class="bg-soft-secondary" width="10%">Stockpile</th>
                                         <th class="bg-soft-secondary">Description</th>
                                         <th class="bg-soft-secondary" width="7%">Pile ID</th>
                                         <th class="bg-soft-secondary" width="7%">Direct</th>
@@ -139,10 +140,18 @@
                             <div class="p-5">
                                 <form>
                                     <input type="hidden" name="id" id="id">
-                                    <div class="mb-3">
-                                        <label class="form-label" for="pile_id">Dome Point</label>
-                                        <input type="text" class="form-input" id="edit_pile_id" name="edit_pile_id"
-                                            placeholder="Dome Point" required>
+                                    <div class="grid grid-cols-2 gap-2 sm:grid-cols-2" data-select2-id="19">
+                                        <div class="mb-0">
+                                            <label class="form-label" for="pile_id">Dome Point</label>
+                                            <input type="text" class="form-input" id="edit_pile_id" name="edit_pile_id"
+                                                placeholder="Dome Point" required>
+                                        </div>
+                                        <div class="mb-0" data-select2-id="18">
+                                            <label class="form-label">Stockpile</label>
+                                            <select class="form-select" id="edit_stockpile" name="edit_stockpile">
+                                                <option value="">Select</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="grid grid-cols-2 gap-2 sm:grid-cols-2" data-select2-id="19">
                                         <div class="mb-0">
@@ -214,12 +223,19 @@
                             </div>
                             <div class="p-5">
                                 <form id="entryForm" name="entryForm">
-                                    <div class="mb-3">
-                                        <label class="form-label" for="pile_id">Dome Point</label>
-                                        <input type="text" class="form-input" id="pile_id" name="pile_id"
-                                            placeholder="Dome Point" required>
+                                    <div class="grid grid-cols-2 gap-2 sm:grid-cols-2" data-select2-id="19">
+                                        <div class="mb-0">
+                                            <label class="form-label" for="pile_id">Dome Point</label>
+                                            <input type="text" class="form-input" id="pile_id" name="pile_id"
+                                                placeholder="Dome Point" required>
+                                        </div>
+                                        <div class="mb-0" data-select2-id="18">
+                                            <label class="form-label">Stockpile</label>
+                                            <select class="form-select" id="id_stockpile" name="id_stockpile">
+                                                <option value="">Select</option>
+                                            </select>
+                                        </div>
                                     </div>
-
                                     <div class="grid grid-cols-2 gap-2 sm:grid-cols-2" data-select2-id="19">
                                         <div class="mb-0">
                                             <label class="form-label" for="category">Dome</label>
@@ -250,7 +266,6 @@
                                             <input type="number" class="form-input" id="ni_max" name="ni_max"
                                                 placeholder="0.0" required>
                                             <p id="NiMaxError" class="text-danger mt-1" style="display: none;"></p>
-
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -301,7 +316,33 @@
 
             $(".form-select").select2({
                 width: '100%', // Sesuaikan lebar dengan kontainer
-                // dropdownParent: document.getElementById("filterModal")
+            });
+
+            $('#id_stockpile').select2({
+                ajax: {
+                    url: "{% url 'get-mine-dumping-point' %}",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            q: params.term,
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: data.results,
+                            pagination: {
+                                more: data.pagination.more
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 2,
+                placeholder: 'Select data',
+                allowClear: true
             });
 
             /*-- Render DataTable --*/
@@ -330,6 +371,10 @@
                     {
                         data: 'pile_id',
                         name: 'pile_id'
+                    },
+                    {
+                        data: 'dumping_point',
+                        name: 'dumping_point'
                     },
 
                     {
@@ -424,6 +469,22 @@
                     toast.fire({
                         icon: 'error',
                         html: 'Dome point is required',
+                        padding: '2em',
+                    });
+                    return;
+                }
+                if ($('#id_stockpile').val().trim() === '') {
+                    // $('#directSale').text('The filled is required').show();
+                    const toast = window.Swal.mixin({
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        padding: '2em',
+                    });
+                    toast.fire({
+                        icon: 'error',
+                        html: 'Stockpile is required',
                         padding: '2em',
                     });
                     return;
@@ -547,6 +608,21 @@
                     });
                     return;
                 }
+                if ($('#edit_stockpile').val().trim() === '') {
+                    const toast = window.Swal.mixin({
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        padding: '2em',
+                    });
+                    toast.fire({
+                        icon: 'error',
+                        html: 'Stockpile is required',
+                        padding: '2em',
+                    });
+                    return;
+                }
                 if ($('#edit_category').val().trim() === '') {
                     const toast = window.Swal.mixin({
                         toast: true,
@@ -577,6 +653,7 @@
                     });
                     return;
                 }
+
                 $.ajax({
                     type: "POST",
                     url: url,
@@ -591,6 +668,7 @@
                         ni_min: $('#edit_ni_min').val(),
                         ni_max: $('#edit_ni_max').val(),
                         direct_sale: $('#edit_direct_sale').val(),
+                        stockpile: $('#edit_stockpile').val(),
                     },
                     success: function (data) {
                         if (data) {
@@ -723,13 +801,18 @@
                         $('#id').val(response.id);
                         $('#edit_pile_id').val(response.pile_id);
                         $('#edit_remarks').val(response.remarks);
-                        $('#edit_category').val(response.category.trim()).trigger('change');
-                        $('#edit_direct_sale').val(response.direct_sale.trim()).trigger('change');
+                        $('#edit_category').val(response.category).trigger('change');
+                        $('#edit_direct_sale').val(response.direct_sale).trigger('change');
                         $('#edit_ni_min').val(response.plan_ni_min);
                         $('#edit_ni_max').val(response.plan_ni_max);
                         $('#edit_duplicateError').hide();
                         $('#edit_PileId').hide();
                         $('#edit_directSale').hide();
+
+                        $('#edit_stockpile').val(response.id_dumping).trigger('change');
+                        // Tambahkan opsi baru ke Select2
+                        var newDome = new Option(response.stockpile, response.id_dumping, true, true);
+                        $('#edit_stockpile').append(newDome).trigger('change');
 
                     } else {
                         alert(
@@ -757,6 +840,35 @@
 
                 }
             });
+
+
+            $('#edit_stockpile').select2({
+                ajax: {
+                    url: "{% url 'get-mine-dumping-point' %}",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            q: params.term,
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: data.results,
+                            pagination: {
+                                more: data.pagination.more
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 2,
+                placeholder: 'Select data',
+                allowClear: true
+            });
+
         });
     </script>
 

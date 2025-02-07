@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.http import HttpResponse
-from ...models.source_model import SourceMinesDome
+from ...models.source_model import detailsDome,SourceMinesDome,SourceMinesDumping
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
@@ -46,16 +46,17 @@ class sourceDomePoint_List(View):
         order_dir = datatables.get('order[0][dir]')
 
         # Set record total
-        records_total = SourceMinesDome.objects.all().count()
+        records_total = detailsDome.objects.all().count()
         # Set records filtered
         records_filtered = records_total
         # Ambil semua yang valid
-        data = SourceMinesDome.objects.all()
+        data = detailsDome.objects.all()
 
         if search:
-            data = SourceMinesDome.objects.filter(
+            data = detailsDome.objects.filter(
                 Q(pile_id__icontains=search) |
                 Q(remarks__icontains=search)|
+                Q(dumping_point__icontains=search)|
                 Q(category__icontains=search)
             )
             records_total = data.count()
@@ -81,25 +82,26 @@ class sourceDomePoint_List(View):
 
         data = [
             {
-                "id"           : item.id,
-                "pile_id"      : item.pile_id,
-                "remarks"      : item.remarks,
-                "category"     : item.category,
-                "status"       : item.status,
-                "status_dome"  : item.status_dome,
-                "dome_finish"  : item.dome_finish,
-                'plan_ni_min'  : item.plan_ni_min,
-                'plan_ni_max'  : item.plan_ni_max,
-                "dome_finish"  : item.dome_finish,
-                "direct_sale"  : item.direct_sale
+                "id"             : item.id,
+                "pile_id"        : item.pile_id,
+                "remarks"        : item.remarks,
+                "category"       : item.category,
+                "status"         : item.status,
+                "status_dome"    : item.status_dome,
+                "dome_finish"    : item.dome_finish,
+                'plan_ni_min'    : item.plan_ni_min,
+                'plan_ni_max'    : item.plan_ni_max,
+                "dome_finish"    : item.dome_finish,
+                "direct_sale"    : item.direct_sale,
+                "dumping_point"  : item.dumping_point
             } for item in object_list
         ]
 
         return {
-            'draw': draw,
-            'recordsTotal': records_total,
+            'draw'           : draw,
+            'recordsTotal'   : records_total,
             'recordsFiltered': records_filtered,
-            'data': data,
+            'data'           : data,
         }
 
 @login_required 
@@ -114,6 +116,14 @@ def get_sourceDomePoint(request, id):
     if request.method == 'GET':
         try:
             job = SourceMinesDome.objects.get(id=id)
+
+            stockpile = None
+
+            if job.id_dumping:
+                dumping = SourceMinesDumping.objects.filter(id=job.id_dumping).first()
+                if dumping:
+                    stockpile = dumping.dumping_point
+
             data = {
                 'id'          : job.id,
                 'pile_id'     : clean_string(job.pile_id), 
@@ -123,6 +133,8 @@ def get_sourceDomePoint(request, id):
                 'plan_ni_min' : job.plan_ni_min,
                 'plan_ni_max' : job.plan_ni_max,
                 'direct_sale' : clean_string(job.direct_sale),
+                'id_dumping'  : job.id_dumping,
+                'stockpile'   : stockpile,
                 'created_at'  : job.created_at
             }
             return JsonResponse(data)
@@ -147,6 +159,7 @@ def insert_sourceDomePoint(request):
         ni_max      = request.POST.get('ni_max')
         status      = 1
         direct_sale = request.POST.get('direct_sale')
+        id_dumping  = request.POST.get('id_stockpile')
 
         # print(request.POST)
 
@@ -165,7 +178,8 @@ def insert_sourceDomePoint(request):
                     plan_ni_min = ni_min,
                     plan_ni_max = ni_max,
                     status      = status,
-                    direct_sale = direct_sale
+                    direct_sale = direct_sale,
+                    id_dumping  = id_dumping
                     )
             return JsonResponse({
                 'status' : 'success',
@@ -177,8 +191,8 @@ def insert_sourceDomePoint(request):
                     'category'    : new_job.category,
                     'status'      : new_job.status,
                     'plan_ni_min' : new_job.plan_ni_min,
-                    'plan_ni_max' : new_job.plan_ni_max,
                     'direct_sale' : new_job.direct_sale,
+                    'id_dumping'  : new_job.id_dumping,
                     'created_at'  : new_job.created_at
                 }
             })
@@ -208,6 +222,7 @@ def update_sourceDomePoint(request, id):
             remarks     = request.POST.get('remarks')
             category    = request.POST.get('category')
             direct_sale = request.POST.get('direct_sale')
+            id_dumping = request.POST.get('stockpile')
             
             # Proses nilai untuk plan_ni_min dan plan_ni_max
             plan_ni_min_str = request.POST.get('ni_min', '')
@@ -227,6 +242,7 @@ def update_sourceDomePoint(request, id):
             job.plan_ni_min = plan_ni_min
             job.plan_ni_max = plan_ni_max
             job.direct_sale = direct_sale
+            job.id_dumping  = id_dumping
             job.save()
 
             # Kembalikan respons JSON
@@ -238,6 +254,7 @@ def update_sourceDomePoint(request, id):
                 'plan_ni_min' : job.plan_ni_min,
                 'plan_ni_max' : job.plan_ni_max, 
                 'direct_sale' : job.direct_sale, 
+                'id_dumping'  : job.id_dumping, 
                 'created_at'  : job.created_at,
                 'updated_at'  : job.updated_at
             })

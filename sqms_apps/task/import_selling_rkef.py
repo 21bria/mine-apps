@@ -74,7 +74,7 @@ def import_selling_rkef(file_path, original_file_name):
 
         # Ambil semua haulage_code yang sudah ada dalam database
         # existing_data = SellingProductions.objects.filter(haulage_code__in=df['haulage_code'].unique()).in_bulk(field_name='haulage_code')
-        existing_data = SellingProductions.objects.filter(haulage_code__in=df['haulage_code'].unique())
+        existing_data = {item.haulage_code: item for item in SellingProductions.objects.filter(haulage_code__in=df['haulage_code'].unique())}
 
         with transaction.atomic():
             for index, row in df.iterrows():

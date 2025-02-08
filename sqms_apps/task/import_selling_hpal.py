@@ -116,7 +116,6 @@ def import_selling_hpal(file_path, original_file_name):
                             'timbang_kosong': timbang_kosong,
                             'id_material': id_material,
                             'remarks': tujuan,
-                            'id_truck': truck,
                             'empety_weigth_f': empety_weigth_f,
                             'fill_weigth_f': fill_weigth_f,
                             'netto_weigth_f': netto_weigth_f,

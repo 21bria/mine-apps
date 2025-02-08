@@ -303,7 +303,8 @@ def export_dome_point(request):
     # Write header row
     header = [
         'No', 
-        'Name', 
+        'Dome', 
+        'Stockpile', 
         'Remarks', 
     ]
 
@@ -315,11 +316,12 @@ def export_dome_point(request):
     # List kolom yang ingin diambil
     columns = [
         'pile_id', 
+        'dumping_point', 
         'remarks'
     ]
 
     # Iterator ini mengambil data dalam beberapa bagian, sehingga hemat memori untuk kumpulan data besar.
-    queryset = SourceMinesDome.objects.all().values_list(*columns)
+    queryset = detailsDome.objects.all().values_list(*columns)
 
     # Membersihkan setiap nilai string dalam hasil queryset
     cleaned_data = [

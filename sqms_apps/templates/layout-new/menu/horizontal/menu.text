@@ -1,0 +1,13 @@
+<!-- horizontal menu -->
+<ul
+    class="horizontal-menu hidden border-t border-[#ebedf2] bg-white py-1.5 px-6 font-semibold text-black rtl:space-x-reverse dark:border-[#191e3a] dark:bg-[#0e1726] dark:text-white-dark lg:space-x-1.5 xl:space-x-8">
+
+    {% include 'layout-new/menu/horizontal/dashboard.html' %}
+
+    {% include 'layout-new/menu/horizontal/mgoqa.html' %}
+
+    {% include 'layout-new/menu/horizontal/mining.html' %}
+
+    {% include 'layout-new/menu/horizontal/sellings.html' %}
+
+</ul>

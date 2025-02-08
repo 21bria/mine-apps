@@ -39,14 +39,13 @@ def clean_numeric(value):
 @shared_task
 def import_selling_rkef(file_path, original_file_name):
     df = pd.read_excel(file_path)
-    errors = []
-    duplicates = []
-    list_objects = []
-    update_objects = []
-    successful_imports = 0
-    duplicate_imports = 0
-
     try:
+        errors = []
+        duplicates = []
+        list_objects = []
+        update_objects = []
+        successful_imports = 0
+        duplicate_imports = 0
         # Konversi kolom tanggal
         df['date_gwt']      = df['date_gwt'].fillna(pd.Timestamp('1900-01-01')).dt.strftime('%Y-%m-%d %H:%M:%S')
         df['date_ewt']      = df['date_ewt'].fillna(pd.Timestamp('1900-01-01')).dt.strftime('%Y-%m-%d %H:%M:%S')
@@ -73,8 +72,9 @@ def import_selling_rkef(file_path, original_file_name):
                 df[col] = df[col].apply(lambda x: None if pd.isna(x) or x == '' else x)
 
         # Ambil semua haulage_code yang sudah ada dalam database
-        # existing_data = SellingProductions.objects.filter(haulage_code__in=df['haulage_code'].unique()).in_bulk(field_name='haulage_code')
-        existing_data = {item.haulage_code: item for item in SellingProductions.objects.filter(haulage_code__in=df['haulage_code'].unique())}
+        existing_data = {
+            obj.haulage_code: obj for obj in SellingProductions.objects.filter(haulage_code__in=df['no_seri'].unique())
+        }
 
         with transaction.atomic():
             for index, row in df.iterrows():

@@ -35,14 +35,16 @@ def clean_numeric(value):
 @shared_task
 def import_selling_hpal(file_path, original_file_name):
     df = pd.read_excel(file_path)
-    errors = []
-    duplicates = []
-    list_objects = []
-    update_objects = []
-    successful_imports = 0
-    duplicate_imports = 0
+ 
 
     try:
+        errors = []
+        duplicates = []
+        list_objects = []
+        update_objects = []
+        successful_imports = 0
+        duplicate_imports = 0
+        
         # Konversi kolom tanggal
         df['timbang_isi']    = df['waktu_timbang_isi'].dt.strftime('%Y-%m-%d %H:%M:%S')
         df['timbang_kosong'] = df['waktu_timbang_kosong'].dt.strftime('%Y-%m-%d %H:%M:%S')
@@ -66,8 +68,11 @@ def import_selling_hpal(file_path, original_file_name):
                 df[col] = df[col].apply(lambda x: None if pd.isna(x) or x == '' else x)
 
         # Ambil semua nota yang sudah ada dalam database
-        existing_data = {item.nota: item for item in SellingProductions.objects.filter(nota__in=df['no_seri'].unique())}
-        
+        existing_data = {
+            obj.nota: obj for obj in SellingProductions.objects.filter(nota__in=df['no_seri'].unique())
+        }
+
+
         with transaction.atomic():
             for index, row in df.iterrows():
                 try:
@@ -163,19 +168,21 @@ def import_selling_hpal(file_path, original_file_name):
                 except Exception as e:
                     errors.append(f"Row {index}: {str(e)}")
 
-            # Simpan data baru dengan bulk_create
-            if list_objects:
-                SellingProductions.objects.bulk_create(list_objects, batch_size=200)
 
-            # Update data yang sudah ada dengan bulk_update
+            # Bulk update data yang sudah ada
             if update_objects:
-                fields_to_update = ['timbang_isi', 'timbang_kosong', 'id_material', 'unit_code', 'delivery_order', 
+                SellingProductions.objects.bulk_update(update_objects, [
+                                    'timbang_isi', 'timbang_kosong', 'id_material', 'unit_code', 'delivery_order', 
                                     'empety_weigth_f', 'fill_weigth_f', 'netto_weigth_f', 'id_factory', 'id_pile', 
                                     'tgl_hauling', 'time_hauling', 'shift', 'left_date',
                                     'batch','kode_batch_g','new_scci_sub', 'new_kode_batch_scci', 'scci_order',
                                     'new_awk_sub', 'new_kode_batch_awk', 'new_batch_awk_pulp', 'awk_order', 'type_selling', 
-                                    'load_code', 'date_wb', 'sale_adjust', 'sale_dome']
-                SellingProductions.objects.bulk_update(update_objects, fields=fields_to_update, batch_size=200)
+                                    'load_code', 'date_wb', 'sale_adjust', 'sale_dome'           
+                ], batch_size=200)
+
+            # Bulk insert data baru yang lolos
+            if list_objects:
+                SellingProductions.objects.bulk_create(list_objects, batch_size=200)   
 
     except Exception as e:
         errors.append(f"Transaction failed: {str(e)}")

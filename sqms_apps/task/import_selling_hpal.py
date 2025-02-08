@@ -66,7 +66,9 @@ def import_selling_hpal(file_path, original_file_name):
                 df[col] = df[col].apply(lambda x: None if pd.isna(x) or x == '' else x)
 
         # Ambil semua nota yang sudah ada dalam database
-        existing_data = SellingProductions.objects.filter(nota__in=df['no_seri'].unique()).in_bulk(field_name='nota')
+        # existing_data = SellingProductions.objects.filter(nota__in=df['no_seri'].unique()).in_bulk(field_name='nota')
+        existing_data = SellingProductions.objects.filter(nota__in=df['no_seri'].unique())
+
 
         with transaction.atomic():
             for index, row in df.iterrows():

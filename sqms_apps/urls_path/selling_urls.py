@@ -59,6 +59,10 @@ urlpatterns = [
     path('split-sale/range-pulp/',rangeSplitPulpAWK, name='get-split-sale-pulp-range'),
     path('split-sale/range-awk-official/',rangeOfficialAwk, name='get-awk-official-range'),
     path('split-sale/range-all/',rangeOfficiaSplit, name='get-awk-range-all'),
+
+    path('split-sale/samples-index/',splitSamples_page, name='split-samples-page'),
+    path('split-sale/samples/mral/',mralSamplesSplit, name='get-awk-split-samples-mral'),
+    path('split-sale/samples/roa/',roaSamplesSplit, name='get-awk-split-samples-roa'),
    
     # Analys Sale
     path('sale-analysis/hpal-grade-index/',gradeHpalMonth_page, name='hpal-grade-index'),

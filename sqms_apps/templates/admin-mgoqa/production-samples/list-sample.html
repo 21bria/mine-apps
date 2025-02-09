@@ -760,15 +760,13 @@
                             dataType: 'json',
                             data: { id: id },
                             success: function (data) {
-                                if (data.status === 'success') {
-                                    Swal.fire(
-                                        'Deleted!',
-                                        data.message,
-                                        'success'
-                                    );
-                                    // Refresh table or remove row
-                                    table.draw();
-                                }
+                                Swal.fire(
+                                    'Deleted!',
+                                    data.message,
+                                    'success'
+                                );
+                                // Refresh table or remove row
+                                table.draw();
                             },
                             error: function (xhr) {
                                 if (xhr.status === 403) {

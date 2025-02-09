@@ -60,6 +60,7 @@ urlpatterns = [
     path('samples-productions-list/', SamplesDetails.as_view(), name='samples-productions-list'),
     path('sample-productions/get-id/<int:id>/', getIdSample, name='get-id-sample'), 
     path('sample-productions/delete/', deleteSample, name='delete-sample-productions'),
+    path('sample-productions/delete/create/', deleteSampleCreate, name='delete-sample-create'),
     path('export-samples-data/',export_samples_data, name='export-samples-data'),
     path('samples-entry/', samples_entry_page, name='samples-entry-page'), 
     path('samples-entry/list/', SamplesCreate.as_view(), name='samples-entry-list'),

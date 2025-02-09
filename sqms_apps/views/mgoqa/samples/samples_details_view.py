@@ -369,6 +369,26 @@ def deleteSample(request):
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 @login_required
+def deleteSampleCreate(request):
+    allowed_groups = ['superadmin','admin-mgoqa']
+    if not request.user.groups.filter(name__in=allowed_groups).exists():
+        return JsonResponse(
+            {'status': 'error', 'message': 'You do not have permission'}, 
+            status=403
+    )
+    if request.method == 'DELETE':
+        job_id = request.GET.get('id')
+        if job_id:
+            # Lakukan penghapusan berdasarkan ID di sini
+            data = SampleProductions.objects.get(id=int(job_id))
+            data.delete()
+            return JsonResponse({'status': 'deleted'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'No ID provided'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+    
+@login_required
 def samples_data_page(request):
     today = datetime.today()
     first_day_of_month = today.replace(day=1)  # Tanggal awal bulan berjalan

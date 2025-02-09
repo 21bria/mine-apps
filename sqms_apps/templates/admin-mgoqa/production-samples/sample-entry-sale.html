@@ -961,7 +961,7 @@
             /*--- Delete ---*/
             $('#data_table').on('click', '.deleteData', function () {
                 var id = $(this).data('id');
-                var url = '{% url "delete-sample-productions" %}?id=' + id;
+                var url = '{% url "delete-sample-create" %}?id=' + id;
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "You won't be able to revert this!",
@@ -977,23 +977,38 @@
                             url: url,
                             type: "DELETE",
                             dataType: 'json',
-                            data: {
-                                id: id,
-                            },
+                            data: { id: id },
                             success: function (data) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    data.message,
+                                    'success'
+                                );
+                                // Refresh table or remove row
                                 table.draw();
-
                             },
-                            error: function (data) {
-                                console.log('Error:', data);
+                            error: function (xhr) {
+                                if (xhr.status === 403) {
+                                    Swal.fire(
+                                        'Access Denied!',
+                                        xhr.responseJSON.message,
+                                        'error'
+                                    );
+                                } else if (xhr.status === 404) {
+                                    Swal.fire(
+                                        'Not Found!',
+                                        xhr.responseJSON.message,
+                                        'error'
+                                    );
+                                } else {
+                                    Swal.fire(
+                                        'Error!',
+                                        'Something went wrong.',
+                                        'error'
+                                    );
+                                }
                             }
                         });
-                        Swal.fire({
-                            title: 'Deleted!',
-                            text: 'Your file has been deleted.',
-                            icon: 'success',
-                            width: 380,
-                        })
                     }
                 })
             });

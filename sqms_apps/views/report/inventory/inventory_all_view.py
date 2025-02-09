@@ -247,7 +247,7 @@ def getInventoryHpal(request):
                 LEFT JOIN selling_by_dome AS t2 ON 
                     t2.sampling_area  = t1.stockpile AND
                     t2.sampling_point = t1.pile_id
-                WHERE t1.status_dome != 'Finished' AND t1.nama_material='LIM'
+                WHERE t1.status_dome != 'Finished' AND t1.sale_adjust='HPAL'
     """
     
     if count_filters:
@@ -362,7 +362,7 @@ def getInventoryRkef(request):
                 LEFT JOIN selling_by_dome AS t2 ON 
                     t2.sampling_area  = t1.stockpile AND
                     t2.sampling_point = t1.pile_id
-                WHERE t1.status_dome != 'Finished' AND t1.nama_material='SAP'
+                WHERE t1.status_dome != 'Finished' AND t1.sale_adjust='RKEF'
     """
     
     if count_filters:
@@ -556,11 +556,10 @@ def getStockpileHpal(request):
                     t1.MC,
                     t1.SM
                 FROM inventory_by_stockpile AS t1
-                    LEFT JOIN selling_by_stockpile AS t2 ON 
-                    t2.sampling_area = t1.stockpile AND
-                    t2.nama_material = t1.nama_material
+                    LEFT JOIN selling_by_stockpile AS t2
+                    ON CONCAT(t1.stockpile, t1.sale_adjust) = CONCAT(t2.sampling_area, t2.sale_adjust)
                 WHERE t1.status_dome != 'Finished' 
-                    AND t1.nama_material='LIM'
+                    AND t1.sale_adjust='HPAL'
         """
 
     filters = []
@@ -580,7 +579,6 @@ def getStockpileHpal(request):
     sql_query += " ORDER BY t1.nama_material ASC, t1.stockpile ASC;"
 
     
-
     with connections['sqms_db'].cursor() as cursor:
         cursor.execute(sql_query, params)
         columns = [col[0] for col in cursor.description]
@@ -616,11 +614,10 @@ def getStockpileRkef(request):
                     t1.MC,
                     t1.SM
                 FROM inventory_by_stockpile AS t1
-                    LEFT JOIN selling_by_stockpile AS t2 ON 
-                    t2.sampling_area = t1.stockpile AND
-                    t2.nama_material = t1.nama_material
+                    LEFT JOIN selling_by_stockpile AS t2
+                    ON CONCAT(t1.stockpile, t1.sale_adjust) = CONCAT(t2.sampling_area, t2.sale_adjust)
                 WHERE t1.status_dome != 'Finished' 
-                    AND t1.nama_material='SAP'
+                    AND t1.sale_adjust='RKEF'
         """
 
     filters = []

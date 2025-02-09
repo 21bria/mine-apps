@@ -64,7 +64,7 @@ def import_selling_hpal(file_path, original_file_name):
                 existing_entry = existing_notas.get(nota)
 
                 truck           = row['no_unit']
-                nama_material   = row['adjust_sale']
+                nama_material   = row['nama_material']
                 empety_weigth_f = row['berat_kosong']
                 fill_weigth_f   = row['berat_kotor']
                 netto_weigth_f  = row['berat_bersih']

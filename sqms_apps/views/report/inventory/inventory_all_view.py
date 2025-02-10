@@ -71,7 +71,7 @@ def getInventoryAll(request):
 
     # Pagination setup
     page = int(request.GET.get('page', 1))
-    per_page = 50
+    per_page = 100
     offset = (page - 1) * per_page
 
     # Query to count total data

@@ -177,7 +177,7 @@ def insert_dome_finish(request):
                 )
 
                 # Update OreProduction
-                OreProductions.objects.filter( id_pile=id_dome).update(status_dome=status_dome)
+                OreProductions.objects.filter(id_pile=id_dome).update(status_dome=status_dome)
 
                 # Update Selling Data
                 SellingProductions.objects.filter(id=id_dome).update(sale_dome=status_dome)

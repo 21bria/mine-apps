@@ -1435,7 +1435,6 @@ def get_sources_mine(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 # For Truck Factors Mine
-
 def getMaterialsFactors(request):
     if request.method == 'GET':
         try:

@@ -166,11 +166,10 @@ class GcSamples(View):
 
 @csrf_exempt
 def export_gc_sample(request):
-    from_date      = request.POST.get('from_date')
-    to_date        = request.POST.get('to_date')
-    materialFilter = request.POST.get('materialFilter')
-    method_filter  = request.POST.get('method_filter')
-    sourceFilter   = request.POST.get('sourceFilter')
+    from_date      = request.GET.get('from_date')
+    to_date        = request.GET.get('to_date')
+    materialFilter = request.GET.get('materialFilter')
+    method_filter  = request.GET.get('method_filter')
 
     # workbook = openpyxl.Workbook()
     workbook = Workbook()
@@ -234,9 +233,6 @@ def export_gc_sample(request):
 
     if materialFilter:
         queryset = queryset.filter(nama_material=materialFilter)
-
-    if sourceFilter:
-        queryset = queryset.filter(sampling_area=sourceFilter)
 
     for row_num, (row_count, row) in enumerate(enumerate(queryset, 1), 1):
         worksheet.cell(row=row_num + 1, column=1, value=row_count)

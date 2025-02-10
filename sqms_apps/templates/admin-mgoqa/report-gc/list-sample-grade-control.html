@@ -499,11 +499,11 @@
                 // Dapatkan nilai dari filter tanggal
                 var from_date = $('#from_date').val();
                 var to_date = $('#to_date').val();
-                var method_filter = $('#method_filter').val();
                 var materialFilter = $('#materialFilter').val();
+                var method_filter = $('#method_filter').val();
                 // Buat URL dengan filter
                 var exportUrl = "{% url 'export-samples-gc' %}?from_date=" + from_date + "&to_date=" +
-                    to_date + "&method_filter=" + method_filter + "&materialFilter=" + materialFilter
+                    to_date + "&materialFilter=" + materialFilter + "&method_filter=" + method_filter;
                 // Redirect ke URL eksport dengan filter
                 window.location.href = exportUrl;
             });

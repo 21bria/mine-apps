@@ -17,7 +17,7 @@ from ..views.settings.remove_data.remove_roa_view import *
 
 
 urlpatterns = [
- # Table Ore Class
+    # Table Ore Class
     path('ore-class/', OreClass_page, name='ore-class-page'), 
     path('ore-class-list/', OreClass_List.as_view(), name='ore-class-list'),
     path('ore-class/insert/', insert_OreClass, name='insert-ore-class'), 

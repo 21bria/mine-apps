@@ -311,6 +311,7 @@
     </ul>
 </li>
 
+<!-- Quallity -->
 <li class="menu nav-item">
     <button type="button" class="nav-link group" :class=" {'active' : activeDropdown==='qa_report' }"
         @click="activeDropdown === 'qa_report' ? activeDropdown = null : activeDropdown = 'qa_report'">
@@ -479,10 +480,14 @@
         <li>
             <a href="{%url 'analyst-data-ore-plan'%}">Ore Grade Plan</a>
         </li>
+        <li>
+            <a href="{%url 'page-ore-grade-batch'%}">Ore Grade Batch</a>
+        </li>
 
     </ul>
 </li>
 
+<!-- Qualty -->
 <li class="menu nav-item">
     <button type="button" class="nav-link group" :class="{'active' : activeDropdown === 'forms'}"
         @click="activeDropdown === 'forms' ? activeDropdown = null : activeDropdown = 'forms'">

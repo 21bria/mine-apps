@@ -27,6 +27,7 @@ from ..views.report.performance_lab.lab_performance_view import *
 from ..views.report.performance_lab.lab_performance_weeks_view import *
 from ..views.report.performance_lab.samples_orders_view import *
 from ..views.report.quality_assurance.analyst_ore_plan import *
+from ..views.report.quality_assurance.grade_ore_batch import *
 
 
 
@@ -225,6 +226,12 @@ urlpatterns = [
     path('data-analyst/ore-histograms-roa/', get_ore_grade_roa, name='get-ore-roa-histograms-analyst'),
     path('data-analyst/ore-bar-date/', get_ore_date_qa, name='get-ore-date-histograms-analyst'),
     path('data-analyst/ore-bar-dome/', get_ore_dome_qa, name='get-ore-dome-histograms-analyst'),
+
+    # Qa Ore Grade
+
+    path('page/grade/ore-batch/', grade_ore_page, name='page-ore-grade-batch'),
+    path('data/grade/ore-batch/mral/', mralgradeBatch, name='data_grade_ore_batch_mral'),
+    path('data/grade/ore-batch/roa/', roagradeBatch, name='data_grade_ore_batch_roa'),
 
 
 ]

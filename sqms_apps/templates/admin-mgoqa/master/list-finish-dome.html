@@ -136,16 +136,8 @@
                                             <input type="text" id="tonnage_dome_e" name="tonnage_dome_e"
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
-                                    </div>
-                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                         <div class="mb-1">
-                                            <label class="form-label">Stockpile</label>
-                                            <input type="text" id="sampling_area" name="sampling_area"
-                                                class="form-input disabled:pointer-events-none" readonly />
-                                        </div>
-                                        <div class="mb-1">
-                                            <label class="form-label">-</label>
-                                            <input type="text" id="id_dome_e" name="id_dome_e"
+                                            <input type="hidden" id="id_dome_e" name="id_dome_e"
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
                                     </div>
@@ -209,18 +201,6 @@
                                         <div class="mb-1">
                                             <label class="form-label">Tonnage</label>
                                             <input type="text" id="tonnage_dome" name="tonnage_dome"
-                                                class="form-input disabled:pointer-events-none" readonly />
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                                        <div class="mb-1">
-                                            <label class="form-label">Stockpile</label>
-                                            <input type="text" id="stockpile" name="stockpile"
-                                                class="form-input disabled:pointer-events-none" readonly />
-                                        </div>
-                                        <div class="mb-1">
-                                            <label class="form-label">-</label>
-                                            <input type="text" id="id_stockpile" name="id_stockpile"
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
                                     </div>
@@ -432,8 +412,6 @@
                             });
                             // Membersihkan formulir setelah sukses input
                             $('#id_dome').val('').trigger('change');
-                            $('#stockpile').val('');
-                            $('#id_stockpile').val('');
                             $('#description').val('');
                             $('#tonnage_dome').val('');
                             toggleModal('createModal');
@@ -521,29 +499,17 @@
                             });
                             toast.fire({
                                 icon: 'success',
-                                // title: 'Insert successfully',
                                 html: response.message,
                                 padding: '2em',
                             });
 
-                            // Membersihkan formulir setelah sukses input
-                            $('#dome_new_e').val('');
-                            $('#tonnage_second_e').val('');
-                            $('#dome_second_e').val('');
-                            $('#stockpile_new_e').val('');
-                            $('#ref_id_e').val('');
-                            $('#stockpile_second_e').val('');
-                            $('#dome_primary_e').val('');
-                            $('#tonnage_primary_e').val('');
-                            $('#original_dome_e').val('');
-                            $('#stockpile_e').val('');
-                            $('#stockpile_ori_e').val('');
-                            $('#remarks_e').val('');
+                            $('#sampling_point').val('');
+                            $('#tonnage_dome_e').val('');
+                            $('#id_dome_e').val('');
+                            $('#description_e').val('');
                             toggleModal('editModal');
-                            // Reload Table
                             $('#data_table').DataTable().clear().draw();
                         } else {
-                            // Handle kesalahan validasi atau kesalahan lainnya
                             alert('Terjadi kesalahan: ' + response.messages);
                         }
                     },
@@ -586,7 +552,6 @@
                             });
                             toast.fire({
                                 icon: 'error',
-                                // title: 'Update successfully',
                                 html: xhr.responseJSON.message,
                                 padding: '2em',
                             });
@@ -629,7 +594,6 @@
                             title: 'Deleted!',
                             text: 'Your file has been deleted.',
                             icon: 'success',
-                            // width: 320,
                         })
                     }
                 })
@@ -657,7 +621,7 @@
                         $('#id').val(response.id);
                         $('#id_dome_e').val(response.id_dome).trigger('change');
                         $('#sampling_point').val(response.sampling_point).trigger('change');
-                        $('#sampling_area').val(response.sampling_area).trigger('change');
+                        // $('#sampling_area').val(response.sampling_area).trigger('change');
                         $('#tonnage_dome_e').val(response.tonnage_dome).trigger('change');
                         $('#description_e').val(response.description);
                     } else {

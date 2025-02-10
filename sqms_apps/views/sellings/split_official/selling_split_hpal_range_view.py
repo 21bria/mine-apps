@@ -219,7 +219,7 @@ def mralSamplesSplit(request):
             COALESCE(t2.fe, 0) AS fe_pulp,
             COALESCE(t2.mgo, 0) AS mgo_pulp,
             COALESCE(t2.sio2, 0) AS sio2_pulp
-        FROM details_selling_awk AS t1
+        FROM details_selling_awk_mral AS t1
         LEFT JOIN (
             SELECT 
                 delivery_order,

@@ -135,14 +135,12 @@ def insert_dome_close(request):
         try:
             # Aturan validasi
             rules = {
-                'id_dome'     : ['required'],
-                'id_stockpile': ['required'],
+                'id_dome':['required'],
             }
 
             # Pesan kesalahan validasi yang disesuaikan
             custom_messages = {
-                'id_dome.required'     : 'Dome is required.',
-                'id_stockpile.required': 'Stockpile is required.',
+                'id_dome.required':'Dome is required.',
             }
 
             # Validasi request
@@ -154,14 +152,13 @@ def insert_dome_close(request):
 
             # Dapatkan data dari request dengan default nilai
             id_dome      = request.POST.get('id_dome')
-            id_stockpile = request.POST.get('id_stockpile')
             tonnage_dome = request.POST.get('tonnage_dome')
             description  = request.POST.get('description')
+            status_dome  = 'Close'
 
-            status_dome='Close'
 
             # Pastikan semua nilai yang diperlukan ada sebelum diubah
-            if any(v is None for v in [id_dome, id_stockpile, tonnage_dome, description]):
+            if any(v is None for v in [id_dome,tonnage_dome, description]):
                 return JsonResponse({'error': 'Semua field harus diisi.'}, status=400)
 
             # Gunakan transaksi database untuk memastikan integritas data
@@ -174,12 +171,10 @@ def insert_dome_close(request):
                 # Simpan data baru
                 domeStatusClose.objects.create(
                     id_dome=int(id_dome),
-                    id_stockpile=int(id_stockpile),
                     tonnage_dome=float(tonnage_dome),
                     status_dome=status_dome,
                     description=description,
                     cek_duplicated=cek_data,
-                    # id_user=request.user.id  # Sesuaikan dengan cara Anda mendapatkan user ID
                 )
 
                 # Update OreProduction

@@ -134,14 +134,12 @@ def insert_dome_finish(request):
         try:
             # Aturan validasi
             rules = {
-                'id_dome'     : ['required'],
-                'id_stockpile': ['required'],
+                'id_dome': ['required']
             }
 
             # Pesan kesalahan validasi yang disesuaikan
             custom_messages = {
-                'id_dome.required'     : 'Dome is required.',
-                'id_stockpile.required': 'Stockpile is required.',
+                'id_dome.required': 'Dome is required.'
             }
 
             # Validasi request
@@ -153,14 +151,13 @@ def insert_dome_finish(request):
 
             # Dapatkan data dari request dengan default nilai
             id_dome      = request.POST.get('id_dome')
-            id_stockpile = request.POST.get('id_stockpile')
             tonnage_dome = request.POST.get('tonnage_dome')
             description  = request.POST.get('description')
 
             status_dome='Finished'
 
             # Pastikan semua nilai yang diperlukan ada sebelum diubah
-            if any(v is None for v in [id_dome, id_stockpile, tonnage_dome, description]):
+            if any(v is None for v in [id_dome, tonnage_dome, description]):
                 return JsonResponse({'error': 'Semua field harus diisi.'}, status=400)
 
             # Gunakan transaksi database untuk memastikan integritas data
@@ -173,7 +170,6 @@ def insert_dome_finish(request):
                 # Simpan data baru
                 domeStatusFinish.objects.create(
                     id_dome=int(id_dome),
-                    id_stockpile=int(id_stockpile),
                     tonnage_dome=float(tonnage_dome),
                     status_dome=status_dome,
                     description=description,
@@ -181,11 +177,7 @@ def insert_dome_finish(request):
                 )
 
                 # Update OreProduction
-                OreProductions.objects.filter(
-                    id_pile=id_dome
-                ).update(
-                    status_dome=status_dome
-                )
+                OreProductions.objects.filter( id_pile=id_dome).update(status_dome=status_dome)
 
                 # Update Selling Data
                 SellingProductions.objects.filter(id=id_dome).update(sale_dome=status_dome)

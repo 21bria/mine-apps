@@ -137,19 +137,19 @@
                                             <input type="text" id="tonnage_dome_e" name="tonnage_dome_e"
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
+                                        <div class="mb-1">
+                                            <input type="hidden" id="id_dome_e" name="id_dome_e"
+                                                class="form-input disabled:pointer-events-none" readonly />
+                                        </div>
                                     </div>
-                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <!-- <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                         <div class="mb-1">
                                             <label class="form-label">Stockpile</label>
                                             <input type="text" id="sampling_area" name="sampling_area"
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
-                                        <div class="mb-1">
-                                            <label class="form-label">-</label>
-                                            <input type="text" id="id_dome_e" name="id_dome_e"
-                                                class="form-input disabled:pointer-events-none" readonly />
-                                        </div>
-                                    </div>
+                                       
+                                    </div> -->
                                     <div class="mb-3">
                                         <label for="desc">Description</label>
                                         <textarea id="description_e" name="description_e" rows="3"
@@ -213,7 +213,7 @@
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
                                     </div>
-                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <!-- <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                         <div class="mb-1">
                                             <label class="form-label">Stockpile</label>
                                             <input type="text" id="stockpile" name="stockpile"
@@ -224,7 +224,7 @@
                                             <input type="text" id="id_stockpile" name="id_stockpile"
                                                 class="form-input disabled:pointer-events-none" readonly />
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="mb-3">
                                         <label for="desc">Description</label>
                                         <textarea id="description" name="description" rows="3"
@@ -307,8 +307,8 @@
                 var id = $(this).val();
                 var url = '/sqms_apps/config/merge-dome-get/stock/' + id + '/';
                 $('#tonnage_dome').val('');
-                $('#stockpile').val('');
-                $('#id_stockpile').val('');
+                // $('#stockpile').val('');
+                // $('#id_stockpile').val('');
                 $.ajax({
                     url: url,
                     method: "GET",
@@ -318,8 +318,8 @@
                             // Ambil data dari item pertama dalam list
                             var item = data.list[0];
                             $('#tonnage_dome').val(item.tonnage);
-                            $('#stockpile').val(item.sampling_area);
-                            $('#id_stockpile').val(item.id_stockpile);
+                            //     $('#stockpile').val(item.sampling_area);
+                            // $('#id_stockpile').val(item.id_stockpile);
                         } else {
                             console.warn("No data found in the response");
                             // Handle the case where there's no data
@@ -434,8 +434,8 @@
                             });
                             // Membersihkan formulir setelah sukses input
                             $('#id_dome').val('').trigger('change');
-                            $('#stockpile').val('');
-                            $('#id_stockpile').val('');
+                            // $('#stockpile').val('');
+                            // $('#id_stockpile').val('');
                             $('#description').val('');
                             $('#tonnage_dome').val('');
                             toggleModal('createModal');
@@ -529,18 +529,10 @@
                             });
 
                             // Membersihkan formulir setelah sukses input
-                            $('#dome_new_e').val('');
-                            $('#tonnage_second_e').val('');
-                            $('#dome_second_e').val('');
-                            $('#stockpile_new_e').val('');
-                            $('#ref_id_e').val('');
-                            $('#stockpile_second_e').val('');
-                            $('#dome_primary_e').val('');
-                            $('#tonnage_primary_e').val('');
-                            $('#original_dome_e').val('');
-                            $('#stockpile_e').val('');
-                            $('#stockpile_ori_e').val('');
-                            $('#remarks_e').val('');
+                            $('#id').val('');
+                            $('#id_dome_e').val('');
+                            $('#tonnage_dome_e').val('');
+                            $('#description_e').val('');
                             toggleModal('editModal');
                             // Reload Table
                             $('#data_table').DataTable().clear().draw();
@@ -674,10 +666,9 @@
                         $('#id').val(response.id);
                         $('#id_dome_e').val(response.id_dome).trigger('change');
                         $('#sampling_point').val(response.sampling_point).trigger('change');
-                        $('#sampling_area').val(response.sampling_area).trigger('change');
+                        // $('#sampling_area').val(response.sampling_area).trigger('change');
                         $('#tonnage_dome_e').val(response.tonnage_dome).trigger('change');
                         $('#description_e').val(response.description);
-
 
                     } else {
                         alert(

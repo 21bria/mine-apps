@@ -64,7 +64,7 @@ def import_mine_productions(file_path, original_file_name):
                         hauler          = row['Hauler']
                         hauler_class    = row['Hauler Class']
                         # source          = row['Sources']
-                        source          = str(row['Sources']).strip()
+                        source          = str(row['Sources']).strip().casefold()  # Pastikan Excel juga casefold
                         loading_point   = row['Loading Point']
                         dumping_point   = row['Dumping Point']
                         dome_id         = row['Pile Id']
@@ -82,8 +82,7 @@ def import_mine_productions(file_path, original_file_name):
                         remarks       = None if pd.isna(remarks) else remarks
 
                         # Cari ID dari Model berdasarkan nama
-                        # id_source     = source_dict.get(source,None)
-                        id_source     = source_dict.get(source.casefold(), None)  # Gunakan casefold() untuk pencocokan saja
+                        id_source     = source_dict.get(source,None)
                         id_loading    = loading_dict.get(loading_point, 1)  
                         id_dumping    = dumping_dict.get(dumping_point, 1)  
                         id_dome       = dome_dict.get(dome_id, 1)  
@@ -97,7 +96,8 @@ def import_mine_productions(file_path, original_file_name):
 
                         # Buat key untuk mencari addition factor
                         # addition_key =  f"{hauler_class.strip()}{nama_material.strip()}"  
-                        addition_key =  f"{hauler_class.strip().casefold()}{vendors.strip().casefold()}{source.strip().casefold()}{nama_material.strip().casefold()}"
+                        addition_key =  f"{hauler_class.strip()}{vendors.strip()}{source.strip()}{nama_material.strip()}"  
+                        # addition_key =  f"{hauler_class.strip().casefold()}{vendors.strip().casefold()}{source.strip().casefold()}{nama_material.strip().casefold()}"
 
 
                         # Ambil tf_bcm dan tf_ton dari dictionary

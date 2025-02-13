@@ -9,6 +9,7 @@ from ..models.source_model import SourceMines,SourceMinesLoading,SourceMinesDump
 from ..models.mine_addition_factor_model import mineAdditionFactor
 from django.db.models import Func
 from django.db.models.functions import Trim
+from django.db.models.functions import Lower
 import logging
 
 # Dapatkan instance logger
@@ -28,7 +29,8 @@ def import_mine_productions(file_path, original_file_name):
     df['Date Production'] = pd.to_datetime(df['Date Production'], format='%Y-%m-%d', errors='coerce')
 
     # Buat dictionary dari Tabel untuk pencarian ID berdasarkan nama
-    source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Trim('sources_area')).values_list('trimmed_sources', 'id'))
+    # source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Trim('sources_area')).values_list('trimmed_sources', 'id'))
+    source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Lower(Trim('sources_area'))).values_list('trimmed_sources', 'id'))
     loading_dict  = dict(SourceMinesLoading.objects.annotate(trimmed_loading=Trim('loading_point')).values_list('trimmed_loading', 'id'))
     dumping_dict  = dict(SourceMinesDumping.objects.annotate(trimmed_dumping=Trim('dumping_point')).values_list('trimmed_dumping', 'id'))
     dome_dict     = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
@@ -62,8 +64,8 @@ def import_mine_productions(file_path, original_file_name):
                         loader          = row['Loader']
                         hauler          = row['Hauler']
                         hauler_class    = row['Hauler Class']
-                        # source          = str(row['Sources']).strip()  # Hapus spasi di awal/akh
-                        source          = row['Sources']
+                        # source          = row['Sources']
+                        source          = str(row['Sources']).strip().lower()
                         loading_point   = row['Loading Point']
                         dumping_point   = row['Dumping Point']
                         dome_id         = row['Pile Id']
@@ -81,7 +83,7 @@ def import_mine_productions(file_path, original_file_name):
                         remarks       = None if pd.isna(remarks) else remarks
 
                         # Cari ID dari Model berdasarkan nama
-                        id_source     = source_dict.get(source, None)  
+                        id_source     = source_dict.get(source,None)
                         id_loading    = loading_dict.get(loading_point, 1)  
                         id_dumping    = dumping_dict.get(dumping_point, 1)  
                         id_dome       = dome_dict.get(dome_id, 1)  

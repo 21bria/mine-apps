@@ -29,8 +29,7 @@ def import_mine_productions(file_path, original_file_name):
     df['Date Production'] = pd.to_datetime(df['Date Production'], format='%Y-%m-%d', errors='coerce')
 
     # Buat dictionary dari Tabel untuk pencarian ID berdasarkan nama
-    # source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Trim('sources_area')).values_list('trimmed_sources', 'id'))
-    source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Lower(Trim('sources_area'))).values_list('trimmed_sources', 'id'))
+    source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Trim('sources_area')).values_list('trimmed_sources', 'id'))
     loading_dict  = dict(SourceMinesLoading.objects.annotate(trimmed_loading=Trim('loading_point')).values_list('trimmed_loading', 'id'))
     dumping_dict  = dict(SourceMinesDumping.objects.annotate(trimmed_dumping=Trim('dumping_point')).values_list('trimmed_dumping', 'id'))
     dome_dict     = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
@@ -65,7 +64,7 @@ def import_mine_productions(file_path, original_file_name):
                         hauler          = row['Hauler']
                         hauler_class    = row['Hauler Class']
                         # source          = row['Sources']
-                        source          = str(row['Sources']).strip().lower()
+                        source          = str(row['Sources']).strip()
                         loading_point   = row['Loading Point']
                         dumping_point   = row['Dumping Point']
                         dome_id         = row['Pile Id']
@@ -83,7 +82,8 @@ def import_mine_productions(file_path, original_file_name):
                         remarks       = None if pd.isna(remarks) else remarks
 
                         # Cari ID dari Model berdasarkan nama
-                        id_source     = source_dict.get(source,None)
+                        # id_source     = source_dict.get(source,None)
+                        id_source     = source_dict.get(source.casefold(), None)  # Gunakan casefold() untuk pencocokan saja
                         id_loading    = loading_dict.get(loading_point, 1)  
                         id_dumping    = dumping_dict.get(dumping_point, 1)  
                         id_dome       = dome_dict.get(dome_id, 1)  
@@ -97,7 +97,8 @@ def import_mine_productions(file_path, original_file_name):
 
                         # Buat key untuk mencari addition factor
                         # addition_key =  f"{hauler_class.strip()}{nama_material.strip()}"  
-                        addition_key =  f"{hauler_class.strip()}{vendors.strip()}{source.strip()}{nama_material.strip()}"  
+                        addition_key =  f"{hauler_class.strip().casefold()}{vendors.strip().casefold()}{source.strip().casefold()}{nama_material.strip().casefold()}"
+
 
                         # Ambil tf_bcm dan tf_ton dari dictionary
                         if not addition_key:

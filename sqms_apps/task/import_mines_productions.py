@@ -63,8 +63,8 @@ def import_mine_productions(file_path, original_file_name):
                         loader          = row['Loader']
                         hauler          = row['Hauler']
                         hauler_class    = row['Hauler Class']
-                        # source          = row['Sources']
-                        source          = str(row['Sources']).strip().casefold()  # Pastikan Excel juga casefold
+                        source          = row['Sources']
+                        # source          = str(row['Sources']).strip().casefold()  # Pastikan Excel juga casefold
                         loading_point   = row['Loading Point']
                         dumping_point   = row['Dumping Point']
                         dome_id         = row['Pile Id']

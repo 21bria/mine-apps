@@ -247,23 +247,13 @@
                             type: "DELETE",
                             dataType: 'json',
                             success: function (data) {
-                                if (data.success) {
-                                    Swal.fire({
-                                        title: 'Deleted!',
-                                        text: 'Your file has been deleted.',
-                                        icon: 'success',
-                                    });
-
-                                    // Refresh tabel setelah delete
-                                    loadData();
-                                } else {
-                                    Swal.fire({
-                                        title: 'Error!',
-                                        text: 'Failed to delete data.',
-                                        icon: 'error',
-                                        // width: 380,
-                                    });
-                                }
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'Your file has been deleted.',
+                                    icon: 'success',
+                                });
+                                // Refresh tabel setelah delete
+                                loadData();
                             },
                             error: function (data) {
                                 console.log('Error:', data);

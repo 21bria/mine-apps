@@ -160,7 +160,7 @@ def create_ore(request):
             # Aturan validasi
             rules = {
                 'tgl_production[]'   : ['required'],
-                'category[]'            : ['required'],
+                'category[]'         : ['required'],
                 'shift[]'            : ['required'],
                 'id_prospect_area[]' : ['required'],
                 'id_block[]'         : ['required'],

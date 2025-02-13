@@ -11,6 +11,7 @@ from ..views.mine_production.productions_entry_view import*
 from ..views.mine_production.Quick.productions_entry_quick_view import *
 from ..views.mine_production.truck_factors import *
 from ..views.mine_production.volume_adjustment_view import *
+from ..views.mine_production.manage_data import *
 
 
 urlpatterns = [
@@ -83,4 +84,8 @@ urlpatterns = [
     path('mine-production/truck-factors/get_material_mine/',get_material_volume,name='get-truck-factors-get-material-mine'),
     path('mine-production/truck-factors/get_volume_mine/',get_volume_data,name='get-truck-factors-get-volume-mine'),
 
+    # Manage Data
+    path('mine/get-vendors/data/page/',vendors_production_page,name='get-vendors-production-page'),
+    path('mine/get-vendors/data/',get_vendor_production,name='get-vendors-production-data'),
+    path('mine/get-vendors/data/delete',delete_range,name='get-vendors-production-data-delete'),
 ]

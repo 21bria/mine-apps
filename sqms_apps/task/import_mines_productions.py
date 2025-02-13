@@ -124,7 +124,6 @@ def import_mine_productions(file_path, original_file_name):
                            # Hapus desimal jika ada (contoh: '07:00:00.1' menjadi '07:00:00')
                             clean_time_str = str(time_columns[i]).strip().split('.')[0]  # Hapus spasi di awal/akhir dan desimal
 
-
                             # Parsing waktu dengan format 24 jam (H:M:S)
                             parsed_time = pd.to_datetime(clean_time_str, format='%H:%M:%S')
 
@@ -162,7 +161,7 @@ def import_mine_productions(file_path, original_file_name):
                                 category_mine   = category_mine,
                                 time_loading    = time_loading,
                                 left_loading    = hour_value, 
-                                # block_id        = id_block,
+                                distance        = distance,
                                 from_rl         = rl_from,
                                 to_rl           = rl_to,
                                 id_material     = id_material,

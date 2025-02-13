@@ -11,7 +11,7 @@ def import_plan_mine_productions(file_path, original_file_name):
     duplicates = []
     list_objects = []
     successful_imports = 0
-    duplicate_imports = 0
+    duplicate_imports  = 0
 
     #Konversi kolom ke datetime dengan format yang sesuai
     df['Date Plan'] = pd.to_datetime(df['Date Plan'], format='%Y-%m-%d', errors='coerce')

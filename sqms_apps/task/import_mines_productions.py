@@ -33,8 +33,10 @@ def import_mine_productions(file_path, original_file_name):
     dumping_dict  = dict(SourceMinesDumping.objects.annotate(trimmed_dumping=Trim('dumping_point')).values_list('trimmed_dumping', 'id'))
     dome_dict     = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
     material_dict = dict(Material.objects.annotate(trimmed_material=Trim('nama_material')).values_list('trimmed_material', 'id'))
-    addition_bcm  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_bcm'))
-    addition_ton  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_ton'))
+    addition_bcm  = dict(mineAdditionFactor.objects.annotate(trimmed_bcm=Trim('validation')).values_list('trimmed_bcm', 'tf_bcm'))
+    addition_ton  = dict(mineAdditionFactor.objects.annotate(trimmed_ton=Trim('validation')).values_list('trimmed_ton', 'tf_ton'))
+    # addition_bcm  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_bcm'))
+    # addition_ton  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_ton'))
 
 
     # Kolom non-waktu (kolom tetap yang tidak perlu ditranspose)
@@ -86,10 +88,15 @@ def import_mine_productions(file_path, original_file_name):
                         id_material   = material_dict.get(nama_material, None)
                         
                         hauler_class  = str(hauler_class) if hauler_class is not None else ""
+                        vendors       = str(vendors) if vendors is not None else ""
+                        source        = str(source) if source is not None else ""
                         nama_material = str(nama_material) if nama_material is not None else ""
+                        
 
                         # Buat key untuk mencari addition factor
-                        addition_key =  f"{hauler_class.strip()}{nama_material.strip()}"  
+                        # addition_key =  f"{hauler_class.strip()}{nama_material.strip()}"  
+                        addition_key =  f"{hauler_class.strip()}{vendors.strip()}{source.strip()}{nama_material.strip()}"  
+
                         # Ambil tf_bcm dan tf_ton dari dictionary
                         if not addition_key:
                             logger.warning(f"Invalid addition_key generated: {addition_key}")

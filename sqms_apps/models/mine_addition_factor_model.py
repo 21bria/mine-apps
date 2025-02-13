@@ -3,6 +3,8 @@ from ..models.source_model import SourceMines,SourceMinesLoading
 
 class mineAdditionFactor(models.Model):
     type_truck  = models.CharField(max_length=100,default=None,null=True,blank=True)
+    vendors     = models.CharField(max_length=25,default=None, null=True, blank=True)
+    source      = models.CharField(max_length=50,default=None, null=True, blank=True)
     material    = models.CharField(max_length=25,default=None, null=True, blank=True)
     tf_bcm      = models.FloatField(default=None, null=True, blank=True)
     tf_ton      = models.FloatField(default=None, null=True, blank=True)
@@ -13,7 +15,7 @@ class mineAdditionFactor(models.Model):
     # updated_at  = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-       return f"{self.type_truck}{self.material}"
+       return f"{self.type_truck}{self.vendors}{self.source}{self.material}"
 
     class Meta:
         db_table  = 'mine_addition_factor'

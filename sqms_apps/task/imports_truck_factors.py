@@ -72,8 +72,8 @@ def import_truck_factors(file_path, original_file_name):
                                 id=existing_dict[validate],  # Ambil ID dari data yang sudah ada
                                 type_truck=type_truck,
                                 vendors=vendors,
-                                sources=sources,
-                                materials=materials,
+                                source=sources,
+                                material=materials,
                                 tf_bcm=bcm,
                                 tf_ton=ton,
                                 remarks=remarks
@@ -89,8 +89,8 @@ def import_truck_factors(file_path, original_file_name):
                         data = mineAdditionFactor(
                             type_truck=type_truck,
                             vendors=vendors,
-                            sources=sources,
-                            materials=materials,
+                            source=sources,
+                            material=materials,
                             tf_bcm=bcm,
                             tf_ton=ton,
                             remarks=remarks,

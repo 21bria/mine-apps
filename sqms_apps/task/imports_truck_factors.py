@@ -74,8 +74,8 @@ def import_truck_factors(file_path, original_file_name):
                                 vendors=vendors,
                                 sources=sources,
                                 materials=materials,
-                                bcm=bcm,
-                                ton=ton,
+                                tf_bcm=bcm,
+                                tf_ton=ton,
                                 remarks=remarks
                             )
                         )
@@ -91,9 +91,10 @@ def import_truck_factors(file_path, original_file_name):
                             vendors=vendors,
                             sources=sources,
                             materials=materials,
-                            bcm=bcm,
-                            ton=ton,
-                            remarks=remarks
+                            tf_bcm=bcm,
+                            tf_ton=ton,
+                            remarks=remarks,
+                            validation=validate,
                         )
                         list_objects.append(data)
                         successful_imports += 1

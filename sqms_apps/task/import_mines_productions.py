@@ -15,7 +15,6 @@ import logging
 # Dapatkan instance logger
 logger = logging.getLogger('celery')
 
-
 @shared_task
 def import_mine_productions(file_path, original_file_name):
     df = pd.read_excel(file_path)
@@ -36,8 +35,6 @@ def import_mine_productions(file_path, original_file_name):
     material_dict = dict(Material.objects.annotate(trimmed_material=Trim('nama_material')).values_list('trimmed_material', 'id'))
     addition_bcm  = dict(mineAdditionFactor.objects.annotate(trimmed_bcm=Trim('validation')).values_list('trimmed_bcm', 'tf_bcm'))
     addition_ton  = dict(mineAdditionFactor.objects.annotate(trimmed_ton=Trim('validation')).values_list('trimmed_ton', 'tf_ton'))
-    # addition_bcm  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_bcm'))
-    # addition_ton  = dict(mineAdditionFactor.objects.values_list('validation', 'tf_ton'))
 
 
     # Kolom non-waktu (kolom tetap yang tidak perlu ditranspose)
@@ -64,7 +61,6 @@ def import_mine_productions(file_path, original_file_name):
                         hauler          = row['Hauler']
                         hauler_class    = row['Hauler Class']
                         source          = row['Sources']
-                        # source          = str(row['Sources']).strip().casefold()  # Pastikan Excel juga casefold
                         loading_point   = row['Loading Point']
                         dumping_point   = row['Dumping Point']
                         dome_id         = row['Pile Id']
@@ -93,12 +89,8 @@ def import_mine_productions(file_path, original_file_name):
                         source        = str(source) if source is not None else ""
                         nama_material = str(nama_material) if nama_material is not None else ""
                         
-
                         # Buat key untuk mencari addition factor
-                        # addition_key =  f"{hauler_class.strip()}{nama_material.strip()}"  
                         addition_key =  f"{hauler_class.strip()}{vendors.strip()}{source.strip()}{nama_material.strip()}"  
-                        # addition_key =  f"{hauler_class.strip().casefold()}{vendors.strip().casefold()}{source.strip().casefold()}{nama_material.strip().casefold()}"
-
 
                         # Ambil tf_bcm dan tf_ton dari dictionary
                         if not addition_key:

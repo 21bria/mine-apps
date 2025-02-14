@@ -1,0 +1,206 @@
+from celery import shared_task
+import pandas as pd
+from datetime import datetime, timedelta,time
+from django.db import transaction
+from ..models.task_model import taskImports
+from ..models.mine_productions_model import mineProductions
+from ..models.materials_model import Material
+from ..models.source_model import SourceMines,SourceMinesLoading,SourceMinesDumping,SourceMinesDome
+from ..models.mine_addition_factor_model import mineAdditionFactor
+from django.db.models import Func
+from django.db.models.functions import Trim
+from django.db.models.functions import Lower
+import logging
+
+# Dapatkan instance logger
+logger = logging.getLogger('celery')
+
+def batch_update(model, objects, fields, batch_size=500):
+    """ Fungsi untuk melakukan batch update """
+    obj_count = len(objects)
+    for i in range(0, obj_count, batch_size):
+        batch = objects[i:i + batch_size]
+        model.objects.bulk_update(batch, fields)
+
+@shared_task
+def import_mine_productions(file_path, original_file_name):
+    df = pd.read_excel(file_path)
+    errors = []
+    error_rows = []  # Untuk menyimpan baris yang bermasalah
+    duplicates = []
+    list_objects = []
+    update_objects = []
+    successful_imports = 0
+
+    # Konversi ke datetime
+    df['Date Production'] = pd.to_datetime(df['Date Production'], format='%Y-%m-%d', errors='coerce')
+
+    # Membuat dictionary lookup
+    source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Trim('sources_area')).values_list('trimmed_sources', 'id'))
+    loading_dict  = dict(SourceMinesLoading.objects.annotate(trimmed_loading=Trim('loading_point')).values_list('trimmed_loading', 'id'))
+    dumping_dict  = dict(SourceMinesDumping.objects.annotate(trimmed_dumping=Trim('dumping_point')).values_list('trimmed_dumping', 'id'))
+    dome_dict     = dict(SourceMinesDome.objects.annotate(trimmed_dome=Trim('pile_id')).values_list('trimmed_dome', 'id'))
+    material_dict = dict(Material.objects.annotate(trimmed_material=Trim('nama_material')).values_list('trimmed_material', 'id'))
+    addition_bcm  = dict(mineAdditionFactor.objects.annotate(trimmed_bcm=Trim('validation')).values_list('trimmed_bcm', 'tf_bcm'))
+    addition_ton  = dict(mineAdditionFactor.objects.annotate(trimmed_ton=Trim('validation')).values_list('trimmed_ton', 'tf_ton'))
+
+    # Kolom tetap
+    non_time_columns = ['Date Production', 'Vendors', 'Shift', 'Loader', 'Hauler', 'Hauler Class', 
+                        'Sources', 'Loading Point', 'Dumping Point', 'Pile Id', 'Material', 
+                        'Category', 'Distance', 'Block Id', 'From Rl', 'To Rl', 'Remarks']
+    time_columns = df.columns[len(non_time_columns):]
+
+    try:
+        with transaction.atomic():
+            for index, row in df.iterrows():
+                for i, time_col in enumerate(time_columns):
+                    time_value = row[time_col]
+                    if pd.notna(time_value):  # Jika ada data ritase
+                        date_pds        = row['Date Production']
+                        vendors         = row['Vendors']
+                        shift           = row['Shift']
+                        loader          = row['Loader']
+                        hauler          = row['Hauler']
+                        hauler_class    = row['Hauler Class']
+                        source          = row['Sources']
+                        loading_point   = row['Loading Point']
+                        dumping_point   = row['Dumping Point']
+                        dome_id         = row['Pile Id']
+                        nama_material   = row['Material']
+                        category_mine   = row['Category']
+                        distance        = row['Distance']
+                        block           = row['Block Id']
+                        rl_from         = row['From Rl']
+                        rl_to           = row['To Rl']
+                        remarks         = row['Remarks']
+
+                        # Konversi None
+                        rl_from = None if pd.isna(rl_from) else rl_from
+                        rl_to   = None if pd.isna(rl_to) else rl_to
+                        remarks = None if pd.isna(remarks) else remarks
+
+                        # Ambil ID dari dictionary
+                        id_source   = source_dict.get(source, None)
+                        id_loading  = loading_dict.get(loading_point, 1)
+                        id_dumping  = dumping_dict.get(dumping_point, 1)
+                        id_dome     = dome_dict.get(dome_id, 1)
+                        id_material = material_dict.get(nama_material, None)
+
+                        # Normalisasi string untuk addition key
+                        addition_key = f"{str(hauler_class).strip()}{str(vendors).strip()}{str(source).strip()}{str(nama_material).strip()}"
+                        bcm_factor = addition_bcm.get(addition_key, 0)
+                        ton_factor = addition_ton.get(addition_key, 0)
+
+                        # Cek tipe hauler
+                        type_hauler = 'ADT' if 'ADT' in str(hauler_class) else 'DT' if 'Dump Truck' in str(hauler_class) else None
+
+                        # Generate waktu loading
+                        try:
+                            clean_time_str = str(time_columns[i]).strip().split('.')[0]
+                            parsed_time = pd.to_datetime(clean_time_str, format='%H:%M:%S')
+
+                            if pd.isna(parsed_time):
+                                raise ValueError(f"Invalid time format: {clean_time_str}")
+
+                            hour_value = parsed_time.hour
+                            minute_value = int(float(time_value))
+
+                            if shift == 'N' and 7 <= hour_value <= 18:
+                                hour_value = (hour_value + 12) % 24
+
+                            time_loading = f"{hour_value}:{minute_value:02d}"
+                        except Exception as e:
+                            errors.append(f"Error parsing time column: {clean_time_str} -> {str(e)}")
+                            continue
+
+                        # Generate reference plan
+                        ref_plan = f"{date_pds}{category_mine}{source}{vendors}".replace(" ", "")
+
+                        # **CEK DUPLIKASI**
+                        existing_data = mineProductions.objects.filter(
+                            date_production=date_pds,
+                            vendors=vendors,
+                            shift=shift,
+                            loader=loader,
+                            hauler=hauler,
+                            sources_area=id_source,
+                            time_loading=time_loading,
+                            id_material=id_material  # Tambahkan material ke dalam filter
+                        ).first()
+
+
+                        if existing_data:
+                            # Jika data sudah ada, update nilainya
+                            existing_data.hauler_class = hauler_class
+                            existing_data.dumping_point = id_dumping
+                            existing_data.dome_id = id_dome
+                            existing_data.id_material = id_material
+                            existing_data.category_mine = category_mine
+                            existing_data.left_loading = hour_value
+                            existing_data.distance = distance
+                            existing_data.from_rl = rl_from
+                            existing_data.to_rl = rl_to
+                            existing_data.bcm = bcm_factor
+                            existing_data.tonnage = ton_factor
+                            existing_data.remarks = remarks
+                            existing_data.hauler_type = type_hauler
+                            existing_data.ref_materials = ref_plan
+                            update_objects.append(existing_data)  # Masukkan ke list update
+                            duplicates.append(existing_data.id)
+                        else:
+                            # Jika tidak ada, buat data baru
+                            new_data = mineProductions(
+                                date_production=date_pds,
+                                vendors=vendors,
+                                shift=shift,
+                                loader=loader,
+                                hauler=hauler,
+                                hauler_class=hauler_class,
+                                sources_area=id_source,
+                                loading_point=id_loading,
+                                dumping_point=id_dumping,
+                                dome_id=id_dome,
+                                category_mine=category_mine,
+                                time_loading=time_loading,
+                                left_loading=hour_value, 
+                                distance=distance,
+                                from_rl=rl_from,
+                                to_rl=rl_to,
+                                id_material=id_material,
+                                ritase=1,
+                                bcm=bcm_factor,
+                                tonnage=ton_factor,
+                                remarks=remarks,
+                                hauler_type=type_hauler,
+                                ref_materials=ref_plan,
+                            )
+                            list_objects.append(new_data)
+                            successful_imports += 1
+
+            # Simpan data baru dan update data yang ada
+            mineProductions.objects.bulk_create(list_objects, batch_size=200)
+            # **Update data yang ada dalam batch**
+            batch_update(mineProductions, update_objects, [
+                'hauler_class','sources_area', 'loading_point','dumping_point', 'dome_id', 'id_material', 'category_mine', 'left_loading', 
+                'distance', 'from_rl', 'to_rl', 'bcm', 'tonnage', 'remarks', 'hauler_type', 'ref_materials'
+            ], batch_size=500)
+
+    except Exception as e:
+        errors.append(str(e))
+
+    # Buat laporan import
+    taskImports.objects.create(
+        task_id             =import_mine_productions.request.id, 
+        successful_imports  =successful_imports,
+        failed_imports      =len(errors),
+        duplicate_imports   =0,
+        errors              ="\n".join(errors) if errors else None,
+        duplicates          ="\n".join(duplicates) if duplicates else None,
+        file_name           =original_file_name,
+        destination         ='Mine Productions',
+    )
+
+    if errors or duplicates:
+        return {'message': 'Import completed with some errors or duplicates', 'errors': errors, 'duplicates': duplicates}
+    else:
+        return {'message': 'Import successful'}

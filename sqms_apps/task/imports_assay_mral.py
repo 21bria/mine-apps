@@ -56,15 +56,17 @@ def import_assay_mral(file_path, original_file_name):
         # Mulai transaksi untuk memastikan rollback jika terjadi error
         with transaction.atomic():
             for index, row in df.iterrows():
+                release_date = row['Release Date']
+                release_time = row['Release Time']
                 release_mral = row['release_mral']
-                job_number = row['Job Number']
-                sample_id = row['Samples Id']
-                ni = row['Ni-mral']
-                co = row['Co-mral']
-                fe2o3 = row['Fe2O3-mral']
-                fe = row['Fe-mral']
-                mgo = row['Mgo-mral']
-                sio2 = row['SiO2-mral']
+                job_number   = row['Job Number']
+                sample_id    = row['Samples Id']
+                ni           = row['Ni-mral']
+                co           = row['Co-mral']
+                fe2o3        = row['Fe2O3-mral']
+                fe           = row['Fe-mral']
+                mgo          = row['Mgo-mral']
+                sio2         = row['SiO2-mral']
 
                 # Cek duplikat berdasarkan kriteria
                 if AssayMral.objects.filter(sample_id=sample_id).exists():
@@ -75,6 +77,8 @@ def import_assay_mral(file_path, original_file_name):
                 try:
                     # Siapkan data untuk disimpan
                     data = AssayMral(
+                        release_date=release_date ,
+                        release_time=release_time,
                         release_mral=release_mral,
                         job_number=job_number,
                         sample_id=sample_id,

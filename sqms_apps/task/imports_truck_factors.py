@@ -123,7 +123,7 @@ def import_truck_factors(file_path, original_file_name):
             errors="\n".join(errors) if errors else None,
             duplicates="\n".join(duplicates) if duplicates else None,
             file_name=original_file_name,
-            destination='Assay mral'
+            destination='Mine Truck Factors'
         )
     except Exception as e:
         errors.append(f"Error while logging import task: {str(e)}")

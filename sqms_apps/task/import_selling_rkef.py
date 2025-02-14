@@ -1,18 +1,15 @@
 from celery import shared_task
 import pandas as pd
 import re
-from django.db.models import F, Func
 from datetime import datetime
 from django.db import transaction
 from ..models.task_model import taskImports
-from ..models.task_model import UploadLog
 from ..models.selling_data_model import SellingProductions
 from ..models.materials_model import Material
 from ..models.stock_factories_model import StockFactories
 from ..models.selling_dome_model import SellingDomeTemp
 from ..models.selling_stock_model import SellingStockTemp
-from ..models.mine_units_model import MineUnits
-from ..models.source_model import SourceMinesDumping,SourceMinesDome
+from ..models.source_model import SourceMinesDome
 from django.db.models.functions import Trim
 
 # Fungsi untuk membersihkan data numerik

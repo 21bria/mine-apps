@@ -20,21 +20,6 @@ class taskImports(models.Model):
         db_table  = 'task_imports'
         app_label = 'sqms_apps'
 
-
-class UploadLog(models.Model):
-    file_name = models.CharField(max_length=255)
-    upload_time = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('processing', 'Processing'), ('completed', 'Completed'), ('failed', 'Failed')])
-    task_id = models.CharField(max_length=255, null=True, blank=True)
-    error_message = models.TextField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.file_name} - {self.status}"
-    
-    class Meta:
-        db_table  = 'task_imports_log'
-        app_label = 'sqms_apps'
-
     
 class taskList(models.Model):
     # order_slug   = models.CharField(max_length=50, null=True,default=None)
@@ -46,6 +31,10 @@ class taskList(models.Model):
     allowed_groups = models.ManyToManyField(Group, related_name="allowed_tasks", blank=True)
 
     def save(self, *args, **kwargs):
+         # Set status default ke 1 jika belum diisi
+        if self.status is None:
+            self.status = 1
+
         if not self.order_slug:  # Generate slug only if it is not set
             self.order_slug = slugify(self.type_table)
         super().save(*args, **kwargs)

@@ -47,6 +47,8 @@ class dataTruckFactors(View):
         if search:
             data = data.filter(
                 Q(type_truck__icontains=search) |
+                Q(vendors__icontains=search) |
+                Q(source__icontains=search) |
                 Q(material__icontains=search)
             )
        
@@ -84,6 +86,8 @@ class dataTruckFactors(View):
             {
                 "id"        : item.id,
                 "type_truck": item.type_truck,
+                "vendors"   : item.vendors,
+                "source"    : item.source,
                 "material"  : item.material,
                 "tf_bcm"    : item.tf_bcm,
                 "tf_ton"    : item.tf_ton,
@@ -109,6 +113,8 @@ def create_truck_factors(request):
             # Aturan validasi
             rules = {
                 'type_truck[]': ['required'],
+                'vendors[]'   : ['required'],
+                'source[]'    : ['required'],
                 'material[]'  : ['required'],
                 'tf_bcm[]'    : ['required'],
                 'tf_ton[]'    : ['required'],
@@ -117,6 +123,8 @@ def create_truck_factors(request):
             # Pesan kesalahan validasi yang disesuaikan
             custom_messages = {
                 'type_truck[].required' : 'Type truck is required.',
+                'vendors[].required'    : 'Vendors ore is required.',
+                'source[].required'     : 'Sources ore is required.',
                 'material[].required'   : 'Material ore is required.',
                 'tf_bcm[].required'     : 'Bcm is required.',
                 'tf_ton[].required'     : 'Tonnage is required.',
@@ -147,19 +155,23 @@ def create_truck_factors(request):
             with transaction.atomic():
                 # Dapatkan data dari request
                 type_truck = request.POST.getlist('type_truck[]')
+                vendors    = request.POST.getlist('vendors[]')
+                source     = request.POST.getlist('source[]')
                 material   = request.POST.getlist('material[]')
                 tf_bcm     = request.POST.getlist('tf_bcm[]')
                 tf_ton     = request.POST.getlist('tf_ton[]')
 
                 # Loop untuk menyimpan setiap data sample
                 for idx in range(len(type_truck)):
-                    checkDup = type_truck[idx] + material[idx] 
+                    checkDup = type_truck[idx] + vendors[idx] + source[idx] + material[idx] 
                     if mineAdditionFactor.objects.filter(validation=checkDup).exists():
                             return JsonResponse({'message': f'{checkDup} : already exists.'}, status=422)
     
                     # Simpan data baru
                     mineAdditionFactor.objects.create(
                         type_truck = type_truck[idx],
+                        vendors    = vendors[idx],
+                        source     = source[idx],
                         material   = material[idx],
                         tf_bcm     = tf_bcm[idx],
                         tf_ton     = tf_ton[idx],
@@ -190,6 +202,8 @@ def getIdTruckFactors(request):
             data = {
                 'id'        : items.id,
                 'type_truck': clean_string(items.type_truck),
+                'vendors'   : clean_string(items.vendors),
+                'source'    : clean_string(items.source),
                 'material'  : clean_string(items.material),
                 'tf_bcm'    : items.tf_bcm,
                 'tf_ton'    : items.tf_ton,
@@ -209,6 +223,8 @@ def update_truck_factors(request, id):
         # Aturan validasi
         rules = {
             'type_truck' : ['required'],
+            'vendors'    : ['required'],
+            'source'     : ['required'],
             'material'   : ['required'],
             'tf_bcm'     : ['required'],
             'tf_ton'     : ['required'],
@@ -217,6 +233,8 @@ def update_truck_factors(request, id):
         # Pesan kesalahan validasi yang disesuaikan
         custom_messages = {
             'type_truck.required': 'Type truck is required.',
+            'vendors.required'   : 'Vendors required.',
+            'source.required'    : 'Source required.',
             'material.required'  : 'Materials required.',
             'tf_bcm.required'    : 'Bcm is required.',
             'tf_ton.required'    : 'Tonnage is required.'
@@ -243,14 +261,15 @@ def update_truck_factors(request, id):
                         return JsonResponse({'error': custom_messages[f'{field}.regex']}, status=400)
 
         type_truck = request.POST.get('type_truck')
+        vendors    = request.POST.get('vendors')
+        source     = request.POST.get('source')
         material   = request.POST.get('material')
         tf_bcm     = request.POST.get('tf_bcm')
         tf_ton     = request.POST.get('tf_ton')
         remarks    = request.POST.get('remarks')
 
-
         # Validasi duplikat
-        checkDup = type_truck + material 
+        checkDup = type_truck + vendors  + source  + material 
         if mineAdditionFactor.objects.exclude(id=id).filter(validation=checkDup).exists(): 
             return JsonResponse({'message': f'{checkDup} : already exists.'}, status=422)
         
@@ -259,6 +278,8 @@ def update_truck_factors(request, id):
 
         # Lakukan update data dengan nilai baru
         data.type_truck   = type_truck
+        data.vendors      = vendors
+        data.source       = source
         data.material     = material
         data.tf_bcm       = tf_bcm
         data.tf_ton       = tf_ton

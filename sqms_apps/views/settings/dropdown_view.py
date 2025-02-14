@@ -935,7 +935,7 @@ def get_units_vendors(request):
                 result = cursor.fetchall()
 
             # Ubah hasil query menjadi list of dictionaries
-            data_list = [{'id': row[0], 'vendor_name': row[1]} for row in result]
+            data_list = [{'id': row[0], 'vendor_name': row[1],'code': row[2]} for row in result]
 
             # Buat respons JSON dengan list data
             response_data = {
@@ -1458,3 +1458,4 @@ def getMaterialsFactors(request):
             return JsonResponse({'error': 'Data tidak ditemukan'}, status=404)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+

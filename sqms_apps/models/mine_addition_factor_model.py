@@ -1,6 +1,4 @@
 from django.db import models
-from ..models.source_model import SourceMines,SourceMinesLoading
-
 class mineAdditionFactor(models.Model):
     type_truck  = models.CharField(max_length=100,default=None,null=True,blank=True)
     vendors     = models.CharField(max_length=25,default=None, null=True, blank=True)

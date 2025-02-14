@@ -2,7 +2,6 @@ from celery import shared_task
 import pandas as pd
 import re
 from ..models.assay_mral_model import AssayMral
-from ..models.task_model import UploadLog
 from ..models.task_model import taskImports
 from datetime import datetime
 from django.db import transaction
@@ -73,7 +72,6 @@ def import_assay_mral(file_path, original_file_name):
                     duplicates.append(f"Duplicate at row {index}: {sample_id}")
                     duplicate_imports += 1
                     continue
-
                 try:
                     # Siapkan data untuk disimpan
                     data = AssayMral(

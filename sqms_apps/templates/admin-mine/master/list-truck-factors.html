@@ -99,10 +99,12 @@
                                 <thead>
                                     <tr>
                                         <th width="3%">No</th>
-                                        <th>Type Truck</th>
-                                        <th>Material</th>
-                                        <th>Bcm</th>
-                                        <th>Tonnage</th>
+                                        <th width="10%">Type Truck</th>
+                                        <th width="5%">Vendors</th>
+                                        <th width="10%">Sources</th>
+                                        <th width="10%">Material</th>
+                                        <th width="5%">Bcm</th>
+                                        <th width="5%">Tonnage</th>
                                         <th>Remarks</th>
                                         <th width="5%">Action</th>
                                     </tr>
@@ -199,7 +201,9 @@
                                             <thead>
                                                 <tr>
                                                     <th scope="col" width="2%">#</th>
-                                                    <th scope="col" width="10%" class="text-danger">Type Truck</th>
+                                                    <th scope="col" width="20%" class="text-danger">Type Truck</th>
+                                                    <th scope="col" width="10%" class="text-danger">Vendors</th>
+                                                    <th scope="col" width="10%" class="text-danger">Sources</th>
                                                     <th scope="col" width="10%" class="text-danger">Material</th>
                                                     <th scope="col" width="10%" class="text-danger">Bcm</th>
                                                     <th scope="col" width="10%" class="text-danger">Tonnage</th>
@@ -281,11 +285,13 @@
                                             <thead>
                                                 <tr>
                                                     <!-- <th scope="col" width="2%">#</th> -->
-                                                    <th scope="col" width="10%" class="text-danger">Type Truck</th>
+                                                    <th scope="col" width="20%" class="text-danger">Type Truck</th>
+                                                    <th scope="col" width="10%" class="text-danger">Vendors</th>
+                                                    <th scope="col" width="10%" class="text-danger">Source</th>
                                                     <th scope="col" width="10%" class="text-danger">Material</th>
                                                     <th scope="col" width="15%" class="text-danger">Bcm</th>
                                                     <th scope="col" width="10%" class="text-danger">Tonnagge</th>
-                                                    <th scope="col" width="25%" class="text-danger">Remarks</th>
+                                                    <th scope="col" width="20%" class="text-danger">Remarks</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -298,6 +304,20 @@
                                                             <input type="text" name="type_truck" id="type_truck"
                                                                 class="form-input text-black" data-row="0">
                                                         </div>
+                                                    </td>
+                                                    <td>
+                                                        <div>
+                                                            <select name="vendors" id="vendors" class="form-select">
+                                                                <option value="">-- Select -- </option>
+
+                                                            </select>
+                                                    </td>
+                                                    <td>
+                                                        <div>
+                                                            <select name="source" id="source" class="form-select">
+                                                                <option value="">-- Select -- </option>
+
+                                                            </select>
                                                     </td>
                                                     <td>
                                                         <div>
@@ -415,6 +435,14 @@
                         data: 'type_truck',
                         name: 'type_truck',
                     },
+                    {
+                        data: 'vendors',
+                        name: 'vendors',
+                    },
+                    {
+                        data: 'source',
+                        name: 'source',
+                    },
 
                     {
                         data: 'material',
@@ -491,6 +519,8 @@
             $('#updateButton').click(function () {
                 var id = $('#id').val();
                 var type_truck = $('#type_truck').val();
+                var vendors = $('#vendors').val();
+                var source = $('#source').val();
                 var material = $('#material').val();
                 var tf_bcm = $('#tf_bcm').val();
                 var tf_ton = $('#tf_ton').val();
@@ -498,6 +528,8 @@
 
                 var updatedData = {
                     type_truck: type_truck,
+                    vendors: vendors,
+                    source: source,
                     material: material,
                     tf_bcm: tf_bcm,
                     tf_ton: tf_ton,
@@ -512,6 +544,8 @@
                         if (response.success) {
                             $('#id').val('');
                             $('#type_truck').val('');
+                            $('#vendors').val('').trigger('change');
+                            $('#source').val('').trigger('change');
                             $('#material').val('').trigger('change');
                             $('#tf_bcm').val('');
                             $('#tf_ton').val('');
@@ -613,6 +647,8 @@
 
                             // Membersihkan formulir setelah sukses input
                             $("[name='type_truck[]']").val('');
+                            $("[name='vendors[]']").val('').trigger('change');
+                            $("[name='source[]']").val('').trigger('change');
                             $("[name='material[]']").val('').trigger('change');
                             $("[name='tf_bcm[]']").val('');
                             $("[name='tf_ton[]']").val('');
@@ -720,6 +756,36 @@
     <!-- Get Data for Edit -->
     <script>
         $.ajax({
+            url: "{% url 'get-units-vendor' %}",
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+                // Loop melalui data dan tambahkan sebagai opsi
+                var options = '';
+                // Loop melalui data dan tambahkan sebagai opsi Select2
+                $.each(data.list, function (key, value) {
+                    options += '<option value="' + value.code + '">' + value.code + '</option>';
+                });
+                // Set options in the Select2 element
+                $('#vendors').append(options);
+            }
+        });
+        $.ajax({
+            url: "{% url 'get-mine-source-all' %}",
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+                // Loop melalui data dan tambahkan sebagai opsi
+                var options = '';
+                // Loop melalui data dan tambahkan sebagai opsi Select2
+                $.each(data.results, function (key, value) {
+                    options += '<option value="' + value.text + '">' + value.text + '</option>';
+                });
+                // Set options in the Select2 element
+                $('#source').append(options);
+            }
+        });
+        $.ajax({
             url: "{% url 'get-materials-factors' %}",
             method: "GET",
             dataType: "json",
@@ -753,6 +819,8 @@
                         // Mengisi formulir dengan data yang diterima
                         $('#id').val(response.id);
                         $('#type_truck').val(response.type_truck);
+                        $('#vendors').val(response.vendors).trigger('change');
+                        $('#source').val(response.source).trigger('change');
                         $('#material').val(response.material).trigger('change');
                         $('#tf_bcm').val(parseFloat(response.tf_bcm).toFixed(2));
                         $('#tf_ton').val(parseFloat(response.tf_ton).toFixed(2));
@@ -818,6 +886,16 @@
                     '</i></button></td>' +
                     '<td><input type="tetx" name="type_truck[]" value=""class="form-input"></td>' +
                     '<td>' +
+                    '<select name="vendors[]" class="form-select" style="width: 100%;">' +
+                    '<option value="">-- Select --</option>' +
+                    '</select>' +
+                    '</td>' +
+                    '<td>' +
+                    '<select name="source[]" class="form-select" style="width: 100%;">' +
+                    '<option value="">-- Select --</option>' +
+                    '</select>' +
+                    '</td>' +
+                    '<td>' +
                     '<select name="material[]" class="form-select" style="width: 100%;">' +
                     '<option value="">-- Select --</option>' +
                     '</select>' +
@@ -843,6 +921,34 @@
                         width: '100%',
                     });
 
+                    $.ajax({
+                        url: "{% url 'get-units-vendor' %}",
+                        method: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            var options = '';
+                            // Loop melalui data dan tambahkan sebagai opsi Select2
+                            $.each(data.list, function (index, value) {
+                                options += '<option value="' + value.code + '">' + value.code + '</option>';
+                            });
+                            // Set opsi dalam elemen Select2
+                            element.find('select[name="vendors[]"]').append(options);
+                        }
+                    });
+                    $.ajax({
+                        url: "{% url 'get-mine-source-all' %}",
+                        method: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            var options = '';
+                            // Loop melalui data dan tambahkan sebagai opsi Select2
+                            $.each(data.results, function (index, value) {
+                                options += '<option value="' + value.text + '">' + value.text + '</option>';
+                            });
+                            // Set opsi dalam elemen Select2
+                            element.find('select[name="source[]"]').append(options);
+                        }
+                    });
                     $.ajax({
                         url: "{% url 'get-materials-factors' %}",
                         method: "GET",

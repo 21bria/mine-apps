@@ -8,7 +8,7 @@ from ..models.task_model import taskImports
 from ..models.selling_data_model import SellingProductions
 from ..models.materials_model import Material
 from ..models.stock_factories_model import StockFactories
-from ..models.source_model import SourceMinesDumping,SourceMinesDome
+from ..models.source_model import SourceMinesDome
 
 # Fungsi untuk membersihkan data numerik
 def clean_numeric(value):

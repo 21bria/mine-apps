@@ -10,14 +10,17 @@ def import_plan_mine_productions(file_path, original_file_name):
     errors = []
     duplicates = []
     list_objects = []
+    update_objects = []
     successful_imports = 0
-    duplicate_imports  = 0
+    duplicate_imports = 0
 
-    #Konversi kolom ke datetime dengan format yang sesuai
+    # Konversi kolom ke datetime dengan format yang sesuai
     df['Date Plan'] = pd.to_datetime(df['Date Plan'], format='%Y-%m-%d', errors='coerce')
+    df['Date Plan'] = df['Date Plan'].dt.date  # Ambil hanya tanggal
 
-    # Ambil hanya tanggal (tanpa waktu)
-    df['Date Plan'] = df['Date Plan'].dt.date
+    # Ambil semua ref_plan yang sudah ada di database
+    existing_data = planProductions.objects.values_list("id", "ref_plan")
+    existing_dict = {val: record_id for record_id, val in existing_data}  # Dictionary {ref_plan: id}
 
     # Mulai transaksi untuk memastikan rollback jika terjadi error
     try:
@@ -48,43 +51,74 @@ def import_plan_mine_productions(file_path, original_file_name):
                 # Gabungkan Refrensi Plan
                 ref_plan = f"{date_plan}{category}{sources}{vendors}".replace(" ", "")
 
-                 # Cek duplikat berdasarkan kriteria
-                if planProductions.objects.filter(ref_plan=ref_plan).exists():
-                    duplicates.append(f"Duplicate at row {index}: {date_plan}")
-                    duplicate_imports += 1
-                    continue
-
-                try:
-                    data = planProductions(
-                        date_plan=date_plan,
-                        category=category,
-                        sources=sources,
-                        vendors=vendors,
-                        TopSoil=TopSoil,
-                        OB=OB,
-                        LGLO=LGLO,
-                        MGLO=MGLO,
-                        HGLO=HGLO,
-                        Waste=Waste,
-                        MWS=MWS,
-                        LGSO =LGSO,
-                        MGSO=MGSO,
-                        HGSO=HGSO,
-                        Quarry=Quarry,
-                        Ballast=Ballast,
-                        Biomass=Biomass,
-                        ref_plan=ref_plan,
-                        task_id=import_plan_mine_productions.request.id,
+                if ref_plan in existing_dict:
+                    # Jika sudah ada, tambahkan ke daftar update
+                    update_objects.append(
+                        planProductions(
+                            id=existing_dict[ref_plan],  # ID dari database
+                            date_plan=date_plan,
+                            category=category,
+                            sources=sources,
+                            vendors=vendors,
+                            TopSoil=TopSoil,
+                            OB=OB,
+                            LGLO=LGLO,
+                            MGLO=MGLO,
+                            HGLO=HGLO,
+                            Waste=Waste,
+                            MWS=MWS,
+                            LGSO=LGSO,
+                            MGSO=MGSO,
+                            HGSO=HGSO,
+                            Quarry=Quarry,
+                            Ballast=Ballast,
+                            Biomass=Biomass,
+                            ref_plan=ref_plan,
+                            task_id=import_plan_mine_productions.request.id,
+                        )
                     )
-                    list_objects.append(data)
+                    duplicate_imports += 1
+                    duplicates.append(f"Updated at row {index}: {ref_plan}")
+                else:
+                    # Jika belum ada, tambahkan ke daftar insert
+                    list_objects.append(
+                        planProductions(
+                            date_plan=date_plan,
+                            category=category,
+                            sources=sources,
+                            vendors=vendors,
+                            TopSoil=TopSoil,
+                            OB=OB,
+                            LGLO=LGLO,
+                            MGLO=MGLO,
+                            HGLO=HGLO,
+                            Waste=Waste,
+                            MWS=MWS,
+                            LGSO=LGSO,
+                            MGSO=MGSO,
+                            HGSO=HGSO,
+                            Quarry=Quarry,
+                            Ballast=Ballast,
+                            Biomass=Biomass,
+                            ref_plan=ref_plan,
+                            task_id=import_plan_mine_productions.request.id,
+                        )
+                    )
                     successful_imports += 1
-                except Exception as e:
-                    errors.append(f"Error at row {index}: {str(e)}")
-                    continue
-            
-            # Menggunakan bulk_create untuk menyimpan objek dalam batch
-            planProductions.objects.bulk_create(list_objects, batch_size=200)
-    
+
+            # Simpan semua insert dengan bulk_create
+            if list_objects:
+                planProductions.objects.bulk_create(list_objects, batch_size=200)
+
+            # Simpan semua update dengan bulk_update
+            if update_objects:
+                planProductions.objects.bulk_update(update_objects, [
+                    "date_plan", "category", "sources", "vendors",
+                    "TopSoil", "OB", "LGLO", "MGLO", "HGLO", "Waste",
+                    "MWS", "LGSO", "MGSO", "HGSO", "Quarry", "Ballast", "Biomass",
+                    "task_id"
+                ], batch_size=200)
+
     except Exception as e:
         errors.append(f"Transaction failed: {str(e)}")
 

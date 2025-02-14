@@ -9,7 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.views.generic import View
 from django.db.models import Q
-from .models.task_model import taskImports,UploadLog
+from .models.task_model import taskImports
 from .task.imports_assay_mral import import_assay_mral
 from .task.imports_assay_roa import import_assay_roa
 from .task.import_selling_hpal import import_selling_hpal
@@ -19,6 +19,7 @@ from .task.import_samples_pds import import_sample_GcQa
 from .task.import_mines_productions import import_mine_productions
 from .task.import_plan_mine_productions import import_plan_mine_productions
 from .task.import_mines_productions_quick import import_mine_productions_quick
+from .task.imports_truck_factors import import_truck_factors
 from .utils.permissions import get_dynamic_permissions
 
 @login_required
@@ -114,7 +115,7 @@ def upload_file(request):
 
         if file:
             original_file_name = file.name  # Dapatkan nama asli file
-
+            
             # Simpan file ke disk sementara
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
                 for chunk in file.chunks():
@@ -139,6 +140,8 @@ def upload_file(request):
                 task = import_plan_mine_productions.delay(file_path,original_file_name)
             elif import_type == 'mine_productions_qiuck':
                 task = import_mine_productions_quick.delay(file_path,original_file_name)
+            elif import_type == 'data-truck-factors-mine':
+                task = import_truck_factors.delay(file_path,original_file_name)
             else:
                 return JsonResponse({'message': 'Invalid import type'}, status=400)
             

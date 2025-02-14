@@ -108,7 +108,7 @@ def import_truck_factors(file_path, original_file_name):
 
             # Update data yang sudah ada dengan bulk_update
             if update_objects:
-                mineAdditionFactor.objects.bulk_update(update_objects, ["type_truck", "vendors", "sources", "materials", "bcm", "ton", "remarks"], batch_size=200)
+                mineAdditionFactor.objects.bulk_update(update_objects, ["type_truck", "vendors", "source", "material", "bcm", "ton", "remarks"], batch_size=200)
 
     except Exception as e:
         errors.append(f"Transaction failed: {str(e)}")

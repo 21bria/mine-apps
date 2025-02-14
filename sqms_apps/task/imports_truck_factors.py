@@ -66,10 +66,11 @@ def import_truck_factors(file_path, original_file_name):
                 # Cek apakah data sudah ada di database
                 if validate in existing_dict:
                     # Jika sudah ada, update data
+                    duplicate_imports += 1  # Tambah jumlah duplikat
                     try:
                         update_objects.append(
                             mineAdditionFactor(
-                                id=existing_dict[validate],  # Ambil ID dari data yang sudah ada
+                                id=existing_dict[validate], 
                                 type_truck=type_truck,
                                 vendors=vendors,
                                 source=sources,

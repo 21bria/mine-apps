@@ -21,6 +21,7 @@ urlpatterns = [
     path('mine-totals-pds/', total_mine_pds, name='mine-totals-pds'),
     path('mine-totals-pds/mining/', total_pds_mining, name='mine-totals-pds-mining'),
     path('mine-totals-pds/project/', total_pds_project, name='mine-totals-pds-projects'),
+    path('mine-production/export/', export_mine_data, name='mine-production-export'),
 
     # Entry Data / CRUD
     path('mine-production-entry/page/', productions_entry_page, name='mine-production-entry-page'), 

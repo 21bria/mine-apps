@@ -1,8 +1,6 @@
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from ...models.ore_productions_model import OreProductions
-from ...models.ore_production_model import OreProductionsView
 from ...models.mine_productions_model import mineProductionsView
 from django.shortcuts import render
 from django.db.models import Q
@@ -138,8 +136,8 @@ class viewMineProduction(View):
                 "time_dumping"   : item.time_dumping,
                 "nama_material"  : item.nama_material,
                 "ritase"         : item.ritase,
-                "bcm"            : item.bcm,
-                "tonnage"        : item.tonnage,
+                "bcm"            : round(item.bcm, 2),
+                "tonnage"        : round(item.tonnage, 2),
                 "vendors"        : item.vendors,
                 "mine_block"     : item.mine_block,
                 "rl"             : item.rl,
@@ -162,43 +160,37 @@ class viewMineProduction(View):
 @csrf_exempt
 def export_mine_data(request):
     # Lakukan filter data sesuai parameter yang diterima dari permintaan
-    startDate = request.GET.get('startDate')
-    endDate = request.GET.get('endDate')
+    startDate       = request.GET.get('startDate')
+    endDate         = request.GET.get('endDate')
     material_filter = request.GET.get('material_filter')
-    batch_status = request.GET.get('batch_status')
-    area_filter = request.GET.get('area_filter')
-    point_filter = request.GET.get('point_filter')
-    source_filter = request.GET.get('source_filter')
+    sources_area    = request.GET.get('sources_area')
+    loading_point   = request.GET.get('loading_point')
+    category_mine   = request.GET.get('category_mine')
 
     # workbook = openpyxl.Workbook()
     workbook = Workbook()
     worksheet = workbook.active
-    worksheet.title = 'Export Data Ore'
+    worksheet.title = 'Export Data Productions'
 
     # Write header row
     header = [
         'No', 
         'Date', 
         'Shift', 
+        'Time',
+        'Loader',
+        'Hauler',
+        'Hauler Class',
+        'Hauler Type',
         'Source',
-        'From',
-        'To-Rl',
-        'Material',
-        'Class',
-        'Ni-Expect',
-        'Mine Gelology',
-        'Units',
-        'Stockpile',
+        'Loading Point',
+        'Dumping Point',
         'Dome',
-        'Bacth',
-        'Increment',
-        'Batch Status',
+        'Category',
+        'Material',
         'Ritase',
-        'Tonnage',
-        'Dome Status',
-        'Truck Factor',
-        'Sample Id',
-        'Remarks'
+        'Bcm',
+        'Tonnage'
     ]
 
     for col_num, column_title in enumerate(header, 1):
@@ -208,45 +200,39 @@ def export_mine_data(request):
 
     # List kolom yang ingin diambil
     columns = [
-        'tgl_production', 
+        'date_production', 
         'shift', 
-        'prospect_area',
-        'from_rl',
-        'to_rl',
+        'time_loading', 
+        'vendors',
+        'hauler',
+        'hauler_class',
+        'hauler_type',
+        'sources_area',
+        'loading_point',
+        'dumping_point',
+        'dome_id',
+        'category_mine',
         'nama_material',
-        'ore_class',
-        'ni_grade',
-        'grade_control',
-        'unit_truck',
-        'stockpile',
-        'pile_id',
-        'batch_code',
-        'increment',
-        'batch_status',
         'ritase',
-        'tonnage',
-        'pile_status',
-        'truck_factor',
-        'sample_number',
-        'remarks',
+        'bcm',
+        'tonnage'
     ]
 
     # Iterator ini mengambil data dalam beberapa bagian, sehingga hemat memori untuk kumpulan data besar.
-    queryset = OreProductionsView.objects.all().values_list(*columns)
+    queryset = mineProductionsView.objects.all().values_list(*columns)
     
 
     if startDate and endDate:
-        queryset = queryset.filter(tgl_production__range=[startDate, endDate])
+        queryset = queryset.filter(date_production__range=[startDate, endDate])
     if material_filter:
         queryset = queryset.filter(nama_material=material_filter)
-    if batch_status:
-        queryset = queryset.filter(batch_status=batch_status)
-    if area_filter:
-        queryset = queryset.filter(stockpile=area_filter)
-    if point_filter:
-        queryset = queryset.filter(pile_id=point_filter)
-    if source_filter:
-        queryset = queryset.filter(prospect_area=source_filter)
+    if sources_area:
+        queryset = queryset.filter(sources_area=sources_area)
+    if loading_point:
+        queryset = queryset.filter(loading_point=loading_point)
+    if category_mine:
+        queryset = queryset.filter(category_mine=category_mine)
+
 
     for row_num, (row_count, row) in enumerate(enumerate(queryset, 1), 1):
         worksheet.cell(row=row_num + 1, column=1, value=row_count)
@@ -269,7 +255,7 @@ def export_mine_data(request):
         worksheet.column_dimensions[col_letter].width = adjusted_width
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="Ore_data.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="data-productions.xlsx"'
     workbook.save(response)
 
     return response
@@ -401,10 +387,11 @@ def total_pds_project(request):
 def getIdMinePds(request, id):
     if request.method == 'GET':
         try:
-            items = OreProductions.objects.get(id=id)
+            items = mineProductionsView.objects.get(id=id)
             data = {
                 'id'              : items.id,
-                'tgl_production'  : items.tgl_production, 
+                'date_production' : items.date_production, 
+                'vendors'         : items.vendors, 
                 'shift'           : items.shift,
                 'id_prospect_area': items.id_prospect_area,
                 'id_block'        : items.id_block,
@@ -429,7 +416,7 @@ def getIdMinePds(request, id):
                 'remarks'         : items.remarks
             }
             return JsonResponse(data)
-        except OreProductions.DoesNotExist:
+        except mineProductionsView.DoesNotExist:
             return JsonResponse({'error': 'Data tidak ditemukan'}, status=404)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
@@ -440,7 +427,7 @@ def delete_data_mine(request):
         job_id = request.GET.get('id')
         if job_id:
             # Lakukan penghapusan berdasarkan ID di sini
-            data = OreProductions.objects.get(id=int(job_id))
+            data = mineProductionsView.objects.get(id=int(job_id))
             data.delete()
             return JsonResponse({'status': 'deleted'})
         else:

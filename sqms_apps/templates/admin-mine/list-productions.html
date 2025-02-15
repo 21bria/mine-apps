@@ -181,7 +181,7 @@
                                         <th class="bg-soft-secondary">RL</th>
                                         <th class="bg-soft-secondary">Remarks</th>
                                         <th class="bg-soft-secondary">Hauler Type</th> -->
-                                        <th class="bg-soft-secondary" width="7%">Action</th>
+                                        <!-- <th class="bg-soft-secondary" width="7%">Action</th> -->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -203,7 +203,7 @@
                                         <th class="bg-soft-secondary"></th>
                                         <th class="bg-soft-secondary"></th>
                                         <th class="bg-soft-secondary"></th>
-                                        <th class="bg-soft-secondary" width="7%"></th>
+                                        <!-- <th class="bg-soft-secondary" width="7%"></th> -->
                                     </tr>
                                 </tfoot>
                                 </tbody>
@@ -588,30 +588,30 @@
                         data: 'vendors',
                         name: 'vendors'
                     },
-                    {
-                        'data': null,
-                        'name': 'action',
-                        'orderable': false,
-                        'searchable': false,
-                        'render': function (data, type, row) {
-                            return `
-                                     <div  class="flex gap-2 items-center" >
-                                            <a href="javascript:void(0)" data-toggle="tooltip" data-id='${row.id}' class="hover:text-info editData">
-                                               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary">
-                                                 <circle opacity="0.5" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
-                                                  <path d="M8.5 12.5L10.5 14.5L15.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                               </svg>
-                                            </a>
-                                             <a href="javascript:void(0)" data-toggle="tooltip" data-id='${row.id}' class="hover:text-danger deleteData">
-                                               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-danger">
-                                                <circle opacity="0.5" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
-                                                <path d="M14.5 9.50002L9.5 14.5M9.49998 9.5L14.5 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                                </svg>
-                                            </a>
-                                        </div>
-                                    `;
-                        }
-                    },
+                    // {
+                    //     'data': null,
+                    //     'name': 'action',
+                    //     'orderable': false,
+                    //     'searchable': false,
+                    //     'render': function (data, type, row) {
+                    //         return `
+                    //                  <div  class="flex gap-2 items-center" >
+                    //                         <a href="javascript:void(0)" data-toggle="tooltip" data-id='${row.id}' class="hover:text-info editData">
+                    //                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary">
+                    //                              <circle opacity="0.5" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
+                    //                               <path d="M8.5 12.5L10.5 14.5L15.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    //                            </svg>
+                    //                         </a>
+                    //                          <a href="javascript:void(0)" data-toggle="tooltip" data-id='${row.id}' class="hover:text-danger deleteData">
+                    //                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-danger">
+                    //                             <circle opacity="0.5" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
+                    //                             <path d="M14.5 9.50002L9.5 14.5M9.49998 9.5L14.5 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                    //                             </svg>
+                    //                         </a>
+                    //                     </div>
+                    //                 `;
+                    //     }
+                    // },
 
                 ],
                 // Mengatur default sort pada kolom secara desc
@@ -644,7 +644,8 @@
                             return intVal(a) + intVal(b);
                         }, 0);
 
-                    // Membulatkan col_14 ke dua angka desimal
+                    // Membulatkan col_13 dan col_14 ke dua angka desimal
+                    col_13 = col_13.toFixed(2);
                     col_14 = col_14.toFixed(2);
 
                     // Update footer by showing the total with the reference of the column index   
@@ -1104,6 +1105,61 @@
 
         });
     </script>
+
+    <!-- Exports to Excel -->
+    <script>
+        $(document).ready(function () {
+            $('#exportFilter').click(function () {
+                const modal = document.getElementById('filterModal');
+                modal.classList.remove('hidden');
+                $('#exportButton').show();
+                $('#applyFilterBtn').hide();
+            });
+
+            $('#exportButton').click(function () {
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+                var sources_area = $('#sources_area').val();
+                var loading_point = $('#loadingPoint').val();
+                var category_mine = $('#category').val();
+                var material_filter = $('#material_filter').val();
+
+                // Konversi tanggal ke objek Date
+                var start = new Date(startDate);
+                var end = new Date(endDate);
+
+                // Hitung selisih bulan
+                var maxDateRange = new Date(start);
+                maxDateRange.setMonth(maxDateRange.getMonth() + 1); // Tambah 1 bulan
+
+                if (end > maxDateRange) {
+                    // alert("Maksimal rentang tanggal hanya 1 bulan!");
+                    const toast = window.Swal.mixin({
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        padding: '2em',
+                    });
+                    toast.fire({
+                        icon: 'error',
+                        html: "Maksimal rentang tanggal hanya 1 bulan!",
+                        padding: '2em',
+                    });
+                    return;
+                }
+
+                // Buat URL untuk ekspor
+                var exportUrl = "{% url 'mine-production-export' %}?startDate=" + startDate + "&endDate=" +
+                    endDate + "&category_mine=" + category_mine + "&material_filter=" + material_filter +
+                    "&sources_area=" + sources_area + "&loading_point=" + loading_point;
+
+                // Redirect ke URL ekspor
+                window.location.href = exportUrl;
+            });
+        });
+    </script>
+
 
     <!-- For Edit Row--->
     <script>

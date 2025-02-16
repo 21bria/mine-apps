@@ -113,10 +113,18 @@ def create_approval(request):
                 return JsonResponse({'error': f'Data "{date_production.strftime("%Y/%m/%d")}" is not available in Mine Productions. Unable to create approval.'}, status=400)
 
             # Validasi apakah data dengan kombinasi date_production dan team sudah ada di Approval
-            if Workflow.objects.filter(date_production=date_production, team=team).exists():
-                return JsonResponse({'error': f'Data "{date_production.strftime("%Y/%m/%d")}" and team "{team}" already exist in Approval'}, status=400)
-            
+            # if Workflow.objects.filter(date_production=date_production, team=team).exists():
+            #     return JsonResponse({'error': f'Data "{date_production.strftime("%Y/%m/%d")}" and team "{team}" already exist in Approval'}, status=400)
 
+            # Cek apakah ada data dengan kombinasi date_production dan team di Workflow
+            existing_workflow = Workflow.objects.filter(date_production=date_production, team=team).first()
+
+            if existing_workflow:
+                # Jika statusnya bukan 'rejected', tolak pembuatan ulang
+                if existing_workflow.status != 'rejected':
+                    return JsonResponse({'error': f'Data "{date_production.strftime("%Y/%m/%d")}" and team "{team}" already exist in Approval with status "{existing_workflow.get_status_display()}".'}, status=400)
+
+                        
             title = f'Production/{team}/{date_production.strftime("%y%m%d")}'
             # Gunakan transaksi database untuk memastikan integritas data
             with transaction.atomic():

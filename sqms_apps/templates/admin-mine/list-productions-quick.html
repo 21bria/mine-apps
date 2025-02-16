@@ -274,14 +274,8 @@
                                     </div>
                                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div class="flex-1">
-                                            <label>Dumping Point</label>
-                                            <select class="form-select" id="dumpingPoint" name="dumpingPoint">
-                                                <option value="">--- Select --- </option>
-                                            </select>
-                                        </div>
-                                        <div class="flex-1">
-                                            <label>Dome Id</label>
-                                            <select class="form-select" id="pile_id" name="pile_id">
+                                            <label>Vendors</label>
+                                            <select class="form-select" id="vendorsFilter" name="vendorsFilter">
                                                 <option value="">--- Select --- </option>
                                             </select>
                                         </div>
@@ -302,7 +296,7 @@
                     </div>
                 </div>
 
-                <!-- Eidt Modal -->
+                <!-- Edit Modal -->
                 <div class="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60 hidden" id="editModal">
                     <div class="flex items-start justify-center min-h-screen px-4">
                         <div class="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-5xl my-8">
@@ -506,6 +500,7 @@
                         data.dumping_point = $('#dumpingPoint').val();
                         data.pile_id = $('#pile_id').val();
                         data.category_mine = $('#category').val();
+                        data.vendors = $('#vendorsFilter').val();
                         return data;
                     },
                 },
@@ -682,6 +677,7 @@
                 $('#dumpingPoint').val('').trigger('change');
                 $('#pile_id').val('').trigger('change');
                 $('#category').val('').trigger('change');
+                $('#vendorsFilter').val('').trigger('change');
 
                 table.ajax.reload(); //just reload table
                 call_TotalPDS();
@@ -1114,6 +1110,21 @@
                 placeholder: 'Select data',
                 allowClear: true
             });
+            $.ajax({
+                url: "{% url 'get-units-vendor' %}",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Loop melalui data dan tambahkan sebagai opsi
+                    var options = '';
+                    // Loop melalui data dan tambahkan sebagai opsi Select2
+                    $.each(data.list, function (key, value) {
+                        options += '<option value="' + value.code + '">' + value.code + '</option>';
+                    });
+                    // Set options in the Select2 element
+                    $('#vendorsFilter').append(options);
+                }
+            });
         });
     </script>
 
@@ -1433,6 +1444,60 @@
             });
         });
 
+    </script>
+
+    <!-- Exports to Excel -->
+    <script>
+        $(document).ready(function () {
+            $('#exportFilter').click(function () {
+                const modal = document.getElementById('filterModal');
+                modal.classList.remove('hidden');
+                $('#exportButton').show();
+                $('#applyFilterBtn').hide();
+            });
+
+            $('#exportButton').click(function () {
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+                var sources_area = $('#sources_area').val();
+                var loading_point = $('#loadingPoint').val();
+                var category_mine = $('#category').val();
+                var material_filter = $('#material_filter').val();
+                var vendors = $('#vendorsFilter').val();
+
+                // Konversi tanggal ke objek Date
+                var start = new Date(startDate);
+                var end = new Date(endDate);
+
+                // Hitung selisih bulan
+                var maxDateRange = new Date(start);
+                maxDateRange.setMonth(maxDateRange.getMonth() + 1); // Tambah 1 bulan
+
+                if (end > maxDateRange) {
+                    const toast = window.Swal.mixin({
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        padding: '2em',
+                    });
+                    toast.fire({
+                        icon: 'error',
+                        html: "Maksimal rentang tanggal hanya 1 bulan!",
+                        padding: '2em',
+                    });
+                    return;
+                }
+
+                // Buat URL untuk ekspor
+                var exportUrl = "{% url 'mine-production-export-quick' %}?startDate=" + startDate + "&endDate=" +
+                    endDate + "&category_mine=" + category_mine + "&material_filter=" + material_filter +
+                    "&sources_area=" + sources_area + "&loading_point=" + loading_point + "&vendors=" + vendors;
+
+                // Redirect ke URL ekspor
+                window.location.href = exportUrl;
+            });
+        });
     </script>
 </body>
 

@@ -33,6 +33,7 @@ urlpatterns = [
 
     path('mine-production-quick/page/', mine_production_quick_page, name='mine-production-quick-page'), 
     path('mine-production-quick/list/', viewMineProductionQuick.as_view(), name='mine-production-quick-list'),
+    path('mine-production/export/quick/', export_mine_data_quick, name='mine-production-export-quick'),
 
     # Mine Quick Production Data
     path('mine-production-entry/quick/page/', productions_quick_entry_page, name='mine-production-entry-quick-page'), 

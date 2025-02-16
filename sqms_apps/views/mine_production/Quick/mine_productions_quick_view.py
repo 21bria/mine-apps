@@ -7,7 +7,12 @@ from django.views.generic import View
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Sum
 from datetime import datetime
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 from django.views import View
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
 from ....utils.permissions import get_dynamic_permissions
 
 def format_angka(jumlah):
@@ -66,6 +71,7 @@ class viewMineProductionQuick(View):
         dumping_point   = request.POST.get('dumping_point')
         pile_id         = request.POST.get('pile_id')
         category_mine   = request.POST.get('category_mine')
+        vendors         = request.POST.get('vendors')
 
         if startDate and endDate:
             data = data.filter(date_production_range=[startDate, endDate])
@@ -87,6 +93,9 @@ class viewMineProductionQuick(View):
 
         if category_mine:
             data = data.filter(category_mine=category_mine)
+
+        if vendors:
+            data = data.filter(vendors=vendors)
 
         # Atur sorting
         if order_dir == 'desc':
@@ -261,6 +270,112 @@ def total_project_quick(request):
         'Qty': result['qty'],
         'Bcm': result['bcm']
     })
+
+@login_required   
+@csrf_exempt
+def export_mine_data_quick(request):
+    # Lakukan filter data sesuai parameter yang diterima dari permintaan
+    startDate       = request.GET.get('startDate')
+    endDate         = request.GET.get('endDate')
+    material_filter = request.GET.get('material_filter')
+    sources_area    = request.GET.get('sources_area')
+    loading_point   = request.GET.get('loading_point')
+    category_mine   = request.GET.get('category_mine')
+    vendors         = request.GET.get('vendors')
+
+    # workbook = openpyxl.Workbook()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Export Data Productions'
+
+    # Write header row
+    header = [
+        'No', 
+        'Date', 
+        'Shift', 
+        'Time',
+        'Loader',
+        'Hauler',
+        'Hauler Class',
+        'Hauler Type',
+        'Source',
+        'Loading Point',
+        'Dumping Point',
+        'Dome',
+        'Category',
+        'Material',
+        'Ritase',
+        'Bcm',
+        'Tonnage'
+    ]
+
+    for col_num, column_title in enumerate(header, 1):
+        cell = worksheet.cell(row=1, column=col_num)
+        cell.value = column_title
+        cell.font = Font(bold=True)  # Mengatur teks menjadi bold
+
+    # List kolom yang ingin diambil
+    columns = [
+        'date_production', 
+        'shift', 
+        'time_loading', 
+        'vendors',
+        'hauler',
+        'hauler_class',
+        'hauler_type',
+        'sources_area',
+        'loading_point',
+        'dumping_point',
+        'pile_id',
+        'category_mine',
+        'nama_material',
+        'ritase',
+        'bcm',
+        'tonnage'
+    ]
+
+    # Iterator ini mengambil data dalam beberapa bagian, sehingga hemat memori untuk kumpulan data besar.
+    queryset = mineQuickProductionsView.objects.all().values_list(*columns)
+    
+    if startDate and endDate:
+        queryset = queryset.filter(date_production__range=[startDate, endDate])
+    if material_filter:
+        queryset = queryset.filter(nama_material=material_filter)
+    if sources_area:
+        queryset = queryset.filter(sources_area=sources_area)
+    if loading_point:
+        queryset = queryset.filter(loading_point=loading_point)
+    if category_mine:
+        queryset = queryset.filter(category_mine=category_mine)
+    if vendors:
+        queryset = queryset.filter(vendors=vendors)
+
+
+    for row_num, (row_count, row) in enumerate(enumerate(queryset, 1), 1):
+        worksheet.cell(row=row_num + 1, column=1, value=row_count)
+        for col_num, cell_value in enumerate(row, 2):
+            cell = worksheet.cell(row=row_num + 1, column=col_num)
+            cell.value = cell_value
+
+    # Sesuaikan lebar kolom berdasarkan panjang teks di header
+    for col_num, column_title in enumerate(header, 1):
+        col_letter = get_column_letter(col_num)
+        max_length = len(column_title)  # Panjang teks di header
+        for row in worksheet.iter_rows(min_col=col_num, max_col=col_num):
+            for cell in row:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+        adjusted_width = (max_length + 2)
+        worksheet.column_dimensions[col_letter].width = adjusted_width
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="data-productions-quick.xlsx"'
+    workbook.save(response)
+
+    return response
 
 @login_required
 def mine_production_quick_page(request):

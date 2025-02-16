@@ -80,33 +80,33 @@ def materialMonthProduction(request):
                     SELECT 
                         left_date,
                         ref_material, 
-                        -- SUM(tonnage) AS total,
+                        -- SUM(bcm) AS total,
                         -- ROUND(COALESCE(SUM(DISTINCT TopSoil+OB+LGLO+MGLO+HGLO+Waste+MWS+LGSO+MGSO+HGSO+Quarry+Ballast+Biomass),0),2) as plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Top Soil' THEN tonnage ELSE 0 END),0),2) TopSoil,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Top Soil' THEN bcm ELSE 0 END),0),2) TopSoil,
                         ROUND(COALESCE(SUM(DISTINCT TopSoil),0),2) as Soil_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='LGLO' THEN tonnage ELSE 0 END),0),2) LGLO,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='LGLO' THEN bcm ELSE 0 END),0),2) LGLO,
                         ROUND(COALESCE(SUM(DISTINCT LGLO),0),2) as LGLO_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='OB' THEN tonnage ELSE 0 END),0),2) OB,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='OB' THEN bcm ELSE 0 END),0),2) OB,
                         ROUND(COALESCE(SUM(DISTINCT OB),0),2) as OB_Plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='MGLO' THEN tonnage ELSE 0 END),0),2) MGLO,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='MGLO' THEN bcm ELSE 0 END),0),2) MGLO,
                         ROUND(COALESCE(SUM(DISTINCT MGLO),0),2) as MGLO_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='HGLO' THEN tonnage ELSE 0 END),0),2) HGLO,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='HGLO' THEN bcm ELSE 0 END),0),2) HGLO,
                         ROUND(COALESCE(SUM(DISTINCT HGLO),0),2) as HGLO_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Waste' THEN tonnage ELSE 0 END),0),2) Waste,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Waste' THEN bcm ELSE 0 END),0),2) Waste,
                         ROUND(COALESCE(SUM(DISTINCT Waste),0),2) as Waste_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='MWS' THEN tonnage ELSE 0 END),0),2) MWS,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='MWS' THEN bcm ELSE 0 END),0),2) MWS,
                         ROUND(COALESCE(SUM(DISTINCT MWS),0),2) as MWS_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='LGSO' THEN tonnage ELSE 0 END),0),2) LGSO,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='LGSO' THEN bcm ELSE 0 END),0),2) LGSO,
                         ROUND(COALESCE(SUM(DISTINCT LGSO),0),2) as LGSO_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='MGSO' THEN tonnage ELSE 0 END),0),2) MGSO,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='MGSO' THEN bcm ELSE 0 END),0),2) MGSO,
                         ROUND(COALESCE(SUM(DISTINCT MGSO),0),2) as MGSO_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='HGSO' THEN tonnage ELSE 0 END),0),2) HGSO,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='HGSO' THEN bcm ELSE 0 END),0),2) HGSO,
                         ROUND(COALESCE(SUM(DISTINCT HGSO),0),2) as HGSO_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Quarry' THEN tonnage ELSE 0 END),0),2) Quarry,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Quarry' THEN bcm ELSE 0 END),0),2) Quarry,
                         ROUND(COALESCE(SUM(DISTINCT Quarry),0),2) as Quarry_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Ballast' THEN tonnage ELSE 0 END),0),2) Ballast,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Ballast' THEN bcm ELSE 0 END),0),2) Ballast,
                         ROUND(COALESCE(SUM(DISTINCT Ballast),0),2) as Ballast_plan,
-                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Biomass' THEN tonnage ELSE 0 END),0),2) Biomass,
+                        ROUND(COALESCE(SUM(CASE WHEN nama_material ='Biomass' THEN bcm ELSE 0 END),0),2) Biomass,
                         ROUND(COALESCE(SUM(DISTINCT Biomass),0),2) as Biomass_plan
                  	FROM mine_productions
                 	LEFT JOIN 
@@ -305,7 +305,7 @@ def achievmentMonthProduction(request):
     query = """
             SELECT 
                 t1.left_date,
-                ROUND(COALESCE(SUM(DISTINCT tonnage),0),2) as total_tonnage,
+                ROUND(COALESCE(SUM(DISTINCT bcm),0),2) as total_bcm,
                 ROUND(COALESCE(SUM(DISTINCT plan_data),0),2) as total_plan
             FROM tanggal t1
             LEFT JOIN (
@@ -315,7 +315,7 @@ def achievmentMonthProduction(request):
 			        sources_area,
 			        mine_productions.vendors,
                     ref_material, 
-                    SUM(tonnage) AS tonnage,
+                    SUM(bcm) AS bcm,
                     ROUND(COALESCE(SUM(DISTINCT TopSoil+OB+LGLO+MGLO+HGLO+Waste+MWS+LGSO+MGSO+HGSO+Quarry+Ballast+Biomass),0),2) as plan_data
                 FROM mine_productions
                 LEFT JOIN

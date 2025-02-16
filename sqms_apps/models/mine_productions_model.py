@@ -39,6 +39,8 @@ class mineProductions(models.Model):
     task_id         = models.CharField(max_length=255, default=None, null=True, blank=True)
     left_date       = models.IntegerField(default=None, null=True, blank=True)
     id_user         = models.IntegerField(default=None, null=True, blank=True)
+    hauler_plan     = models.CharField(max_length=20, default=None, null=True, blank=True)
+    fleet           = models.CharField(max_length=25, default=None, null=True, blank=True)
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now_add=True)
 

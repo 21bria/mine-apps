@@ -38,9 +38,8 @@ def import_mine_productions(file_path, original_file_name):
 
 
     # Kolom non-waktu (kolom tetap yang tidak perlu ditranspose)
-    non_time_columns = ['Date Production', 'Vendors', 'Shift', 'Loader', 'Hauler', 'Hauler Class', 
-                        'Sources', 'Loading Point', 'Dumping Point', 'Pile Id', 'Material', 
-                        'Category', 'Distance', 'Block Id', 'From Rl', 'To Rl', 'Remarks']
+    non_time_columns = ['Hauler Plan','Fleet','Date Production', 'Vendors', 'Shift', 'Loader', 'Hauler', 'Hauler Class', 
+                        'Sources', 'Loading Point', 'Dumping Point', 'Pile Id', 'Material', 'Category', 'Distance']
 
     # Kolom waktu dimulai dari kolom yang mengandung jam (contoh: 07:00, 08:00, dst.)
     time_columns = df.columns[len(non_time_columns):]  # Mulai dari kolom waktu
@@ -54,6 +53,8 @@ def import_mine_productions(file_path, original_file_name):
                 for i, time_col in enumerate(time_columns):
                     time_value = row[time_col]
                     if pd.notna(time_value):  # Jika ada data ritase
+                        hauler_plan     = row['Hauler Plan']
+                        fleet           = row['Fleet']
                         date_pds        = row['Date Production']
                         vendors         = row['Vendors']
                         shift           = row['Shift']
@@ -67,15 +68,13 @@ def import_mine_productions(file_path, original_file_name):
                         nama_material   = row['Material']
                         category_mine   = row['Category']
                         distance        = row['Distance']
-                        block           = row['Block Id']
-                        rl_from         = row['From Rl']
-                        rl_to           = row['To Rl']
-                        # bcm           = row['Bcm']
-                        # tonnage       = row['Tonnage']
-                        remarks       = row['Remarks']
-                        rl_from       = None if pd.isna(rl_from) else rl_from
-                        rl_to         = None if pd.isna(rl_to) else rl_to
-                        remarks       = None if pd.isna(remarks) else remarks
+                        # block           = row['Block Id']
+                        # rl_from         = row['From Rl']
+                        # rl_to           = row['To Rl']
+                        # remarks       = row['Remarks']
+                        # rl_from       = None if pd.isna(rl_from) else rl_from
+                        # rl_to         = None if pd.isna(rl_to) else rl_to
+                        # remarks       = None if pd.isna(remarks) else remarks
 
                         # Cari ID dari Model berdasarkan nama
                         id_source     = source_dict.get(source,None)
@@ -164,16 +163,18 @@ def import_mine_productions(file_path, original_file_name):
                                 time_loading    = time_loading,
                                 left_loading    = hour_value, 
                                 distance        = distance,
-                                from_rl         = rl_from,
-                                to_rl           = rl_to,
+                                # from_rl         = rl_from,
+                                # to_rl           = rl_to,
                                 id_material     = id_material,
                                 ritase          = 1,  # Tetap 1 untuk setiap baris
                                 bcm             = bcm_factor,
                                 tonnage         = ton_factor,
-                                remarks         = remarks,
+                                # remarks         = remarks,
                                 hauler_type     = type_hauler,
                                 ref_materials   = ref_plan,
                                 left_date       = date_pds.day if date_pds else None,
+                                hauler_plan     = hauler_plan,
+                                fleet           = fleet,
                                 task_id         = import_mine_productions.request.id,
                             )
                             list_objects.append(data)

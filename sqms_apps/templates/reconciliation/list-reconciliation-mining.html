@@ -68,7 +68,7 @@
                 <div x-data="dataForm">
 
                     <div class="panel mt-6">
-                        <h5 class="text-lg font-semibold dark:text-white-light">Data to Reconcile</h5>
+                        <h5 class="text-lg font-semibold dark:text-white-light">Mining to Reconcile</h5>
                         <div class="grid grid-cols-1 gap-2 xl:grid-cols-2 mt-4">
                             <div class="grid grid-cols-5 gap-2 xl:grid-cols-5">
                                 <div>
@@ -114,10 +114,11 @@
                                     <tr>
                                         <th class="bg-soft-secondary" width="5%">No</th>
                                         <th class="bg-soft-secondary">Production</th>
-                                        <th class="bg-soft-secondary">Data MGOQA</th>
-                                        <th class="bg-soft-secondary">MGOQA Approval</th>
-                                        <th class=" bg-soft-secondary">Mining Approval</th>
                                         <th class="bg-soft-secondary"">Data Mining</th>
+                                        <th class=" bg-soft-secondary">Mining Approval</th>
+                                        <th class="bg-soft-secondary">MGOQA Approval</th>
+                                        <th class="bg-soft-secondary">Data MGOQA</th>
+
                                         <!-- <th class=" bg-soft-secondary" width="7%">Action</th> -->
                                     </tr>
                                 </thead>
@@ -195,15 +196,50 @@
                         data: 'production_date',
                         name: 'production_date'
                     },
-
                     {
-                        data: 'status_gc',
-                        name: 'status_gc',
+                        data: 'status_mining',
+                        name: 'status_mining',
                         render: function (data, type, row) {
-                            // Ubah nilai status menjadi elemen HTML berdasarkan nilai
                             return data == "Ready" ?
                                 '<span class="badge rounded-full whitespace-nowrap badge-outline-success" : class="badge-outline-success">Ready</span>' :
                                 '<span class="badge rounded-full whitespace-nowrap badge-outline-danger" : class="badge-outline-danger">Not Ready</span>';
+                        }
+                    },
+                    {
+                        data: 'mining_status',
+                        name: 'mining_status',
+                        render: function (data, type, row) {
+                            let badgeClass;
+                            let displayText;
+
+                            switch (data) {
+                                case 'submitted':
+                                    badgeClass = 'badge-outline-warning';
+                                    displayText = 'Review Asisten';
+                                    break;
+                                case 'reviewd':
+                                    badgeClass = 'badge-outline-info';
+                                    displayText = 'Review Manager';
+                                    break;
+                                case 'approved':
+                                    badgeClass = 'badge-outline-success';
+                                    displayText = 'Approved';
+                                    break;
+                                case 'rejected':
+                                    badgeClass = 'badge-outline-danger';
+                                    displayText = 'Rejected';
+                                    break;
+                                default:
+                                    badgeClass = 'badge-outline-danger';
+                                    displayText = 'Not Submit';
+                            }
+                            // Tambahkan hyperlink dengan tooltip
+                            return `
+                                <button type="button" class="btn ${badgeClass} badge rounded-full"
+                                        data-bs-toggle="popover"
+                                        title="Workflow History" data-bs-content="Klik untuk melihat log detail"
+                                        onclick="showLogStatus(${row.id})">${displayText}
+                                    </button>`;
                         }
                     },
                     {
@@ -244,52 +280,16 @@
                         }
                     },
                     {
-                        data: 'mining_status',
-                        name: 'mining_status',
+                        data: 'status_gc',
+                        name: 'status_gc',
                         render: function (data, type, row) {
-                            let badgeClass;
-                            let displayText;
-
-                            switch (data) {
-                                case 'submitted':
-                                    badgeClass = 'badge-outline-warning';
-                                    displayText = 'Review Asisten';
-                                    break;
-                                case 'reviewd':
-                                    badgeClass = 'badge-outline-info';
-                                    displayText = 'Review Manager';
-                                    break;
-                                case 'approved':
-                                    badgeClass = 'badge-outline-success';
-                                    displayText = 'Approved';
-                                    break;
-                                case 'rejected':
-                                    badgeClass = 'badge-outline-danger';
-                                    displayText = 'Rejected';
-                                    break;
-                                default:
-                                    badgeClass = 'badge-outline-danger';
-                                    displayText = 'Not Submit';
-                            }
-                            // Tambahkan hyperlink dengan tooltip
-                            return `
-                                <button type="button" class="btn ${badgeClass} badge rounded-full"
-                                        data-bs-toggle="popover"
-                                        title="Workflow History" data-bs-content="Klik untuk melihat log detail"
-                                        onclick="showLogStatus(${row.id})">${displayText}
-                                    </button>`;
-                        }
-                    },
-
-                    {
-                        data: 'status_mining',
-                        name: 'status_mining',
-                        render: function (data, type, row) {
+                            // Ubah nilai status menjadi elemen HTML berdasarkan nilai
                             return data == "Ready" ?
                                 '<span class="badge rounded-full whitespace-nowrap badge-outline-success" : class="badge-outline-success">Ready</span>' :
                                 '<span class="badge rounded-full whitespace-nowrap badge-outline-danger" : class="badge-outline-danger">Not Ready</span>';
                         }
                     },
+
                     {
                         'data': null,
                         'name': 'action',

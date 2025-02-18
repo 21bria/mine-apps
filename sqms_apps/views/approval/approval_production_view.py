@@ -480,11 +480,19 @@ def create_approval_page(request):
 
 @login_required
 def asisten_approval_page(request):
-    return render(request, 'approval/review_asisten_approval.html')
+    permissions = get_dynamic_permissions(request.user)
+    context = {
+        'permissions': permissions,
+    }
+    return render(request, 'approval/review_asisten_approval.html',context)
 
 @login_required
 def manager_approval_page(request):
-    return render(request, 'approval/review_manager_approval.html')
+    permissions = get_dynamic_permissions(request.user)
+    context = {
+        'permissions': permissions,
+    }
+    return render(request, 'approval/review_manager_approval.html',context)
 
 # ===== render mining form approval ======
 
@@ -511,8 +519,16 @@ def createApproval_page(request):
 
 @login_required
 def asistenApproval_page(request):
-    return render(request, 'admin-mine/approval/review_asisten_approval.html')
+    permissions = get_dynamic_permissions(request.user)
+    context = {
+        'permissions': permissions,
+    }
+    return render(request, 'admin-mine/approval/review_asisten_approval.html',context)
 
 @login_required
 def managerApproval_page(request):
-    return render(request, 'admin-mine/approval/review_manager_approval.html')
+    permissions = get_dynamic_permissions(request.user)
+    context = {
+        'permissions': permissions,
+    }
+    return render(request, 'admin-mine/approval/review_manager_approval.html',context)

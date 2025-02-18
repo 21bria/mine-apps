@@ -138,7 +138,7 @@
     </ul>
 </li>
 
-{% if permissions.mining_admin%}
+
 <li class="menu nav-item">
     <button type="button" class="nav-link group" :class="{'active' : activeDropdown === 'reconsile_mining'}"
         @click="activeDropdown === 'reconsile_mining' ? activeDropdown = null : activeDropdown = 'reconsile_mining'">
@@ -174,12 +174,12 @@
             <a href="{% url 'submit-approval-page-mining'%}">Submit Data</a>
         </li>
         {% endif %}
-        {% if permissions.mgoqa_workflow_assiten%}
+        {% if permissions.mining_workflow_assiten%}
         <li>
             <a href="{% url 'approval-asisten-page-mining'%}">Approve Suptent</a>
         </li>
         {% endif %}
-        {% if permissions.mgoqa_workflow_manager%}
+        {% if permissions.mining_workflow_manager%}
         <li>
             <a href="{% url 'approval-manager-page-mining'%}">Approve Manager</a>
         </li>
@@ -189,7 +189,7 @@
         </li>
     </ul>
 </li>
-{% endif %}
+
 
 {% if permissions.mining_admin%}
 <li class="menu nav-item">

@@ -210,9 +210,13 @@ urlpatterns = [
     path('mine-reconciliation/list/', viewReconciliationPds.as_view(), name='mine-reconciliation-list'),
     # Sum date
     path('mine-reconciliation/get/page', mine_recon_day_page, name='mine-reconciliation-get-page'),
-    path('mine-reconciliation/get/day', recon_mine_day, name='mine-reconciliation-get-day'),
-    path('mine-reconciliation/get/date', recon_mine_date, name='mine-reconciliation-get-date'),
+    path('gc-reconciliation/get/page/', gc_recon_day_page, name='gc-reconciliation-get-page'),
+    path('mine-reconciliation/get/gc/date', recon_gc_date, name='gc-reconciliation-get-date'),
+    path('mine-reconciliation/get/mine/date', recon_mine_date, name='mine-reconciliation-get-date'),
     path('mine-reconciliation/get/date/dome', source_mine_dome, name='mine-reconciliation-get-date-dome'),
+    # Create forma
+    path('gc-reconciliation/get/daily/', recon_gc_daily, name='gc-reconciliation-get-daily'),
+    path('mine-reconciliation/get/daily/', recon_mine_daily, name='mine-reconciliation-get-daily'),
 
     # Create Approval Production :
     # Form create Approval

@@ -67,7 +67,9 @@
                 <!-- start main content section -->
                 <div x-data="dataForm">
                     <div class="mb-5 flex items-center dark:text-white-light">
-
+                        <h5 id="dataToReconcile" class="text-lg font-semibold dark:text-white-light">
+                            Data to Reconcile: <span id="filterDateValue"></span>
+                        </h5>
                         <div x-data="form" class="ltr:ml-auto rtl:mr-auto">
                             <a href="javascript:void(0)" class="btn btn-sm btn-outline-warning flex"
                                 :class="{ 'text-white bg-warning': selectedTab === 'work' }" onclick="backToList()">
@@ -84,10 +86,34 @@
                             </a>
                         </div>
                     </div>
-                    <div class="panel mt-6">
+
+                    <div class="mt-5 ">
+                        <div class="mt-5 mb-5 table-responsive">
+                            <table id="summary-table" border="1" cellspacing="0" cellpadding="5">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2" colspan="1" class="left-align">Summary</th>
+                                        <th colspan="2" class="center-align">Grade Control</th>
+                                        <th colspan="2" class="center-align">Mining</th>
+                                        <th colspan="2" class="center-align">Difference</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="center-align">Ritase</th>
+                                        <th class="center-align">Tonnage</th>
+                                        <th class="center-align">Ritase</th>
+                                        <th class="center-align">Tonnage</th>
+                                        <th class="center-align">Ritase Diff</th>
+                                        <th class="center-align">Tonnage Diff</th>
+                                    </tr>
+
+                                </thead>
+                                <tbody id="summary-body">
+                                </tbody>
+                            </table>
+                        </div>
                         <div class="mb-5 flex items-center dark:text-white-light">
                             <h5 id="dataToReconcile" class="text-lg font-semibold dark:text-white-light">
-                                Data to Reconcile: <span id="filterDateValue"></span>
+                                Details Reconcile :<span></span>
                             </h5>
 
                             <div x-data="form" class="ltr:ml-auto rtl:mr-auto">
@@ -107,7 +133,8 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="mt-5 table-responsive">
+
+                        <div class="panel mt-5 table-responsive">
                             <table id="data-table" border="1" cellspacing="0" cellpadding="5">
                                 <thead>
                                     <tr>
@@ -176,9 +203,32 @@
 
 
 
-
     <script>
         // Function to format numbers with rounding
+        function summaryTable(data) {
+            const tbody = $('#summary-body');
+
+            // Function to format numbers with rounding
+            function formatNumber(value) {
+                return value != null ? Math.round(value * 100) / 100 : 0; // Handle null values
+            }
+
+            console.log("Data received:", data); // Debugging line
+
+            data.forEach(item => {
+                const row = $('<tr>').html(`
+                    <td>${item.material_type}</td>
+                    <td>${formatNumber(item.total_gc_ritase)}</td>
+                    <td>${formatNumber(item.total_gc_tonnage)}</td>
+                    <td>${formatNumber(item.total_mining_ritase)}</td>
+                    <td>${formatNumber(item.total_mining_tonnage)}</td>
+                    <td class="${item.total_ritase_diff !== 0 ? 'negative-difference' : ''}">${formatNumber(item.total_ritase_diff)}</td>
+                    <td class="${item.total_tonnage_diff !== 0 ? 'negative-difference' : ''}">${formatNumber(item.total_tonnage_diff)}</td>
+                `);
+                tbody.append(row);
+            });
+        }
+
         function populateTable(data) {
             const tbody = $('#data-body');
             let currentShift = '';
@@ -188,7 +238,7 @@
                 return value != null ? Math.round(value * 100) / 100 : 0; // Handle null values
             }
 
-            console.log("Data received:", data); // Debugging line
+            // console.log("Data received:", data); // Debugging line
 
             data.forEach(item => {
                 // console.log("Processing item:", item); // Debugging line
@@ -233,13 +283,15 @@
 
             // Fetch data from server using jQuery
             $.ajax({
-                url: '{% url "mine-reconciliation-get-day" %}',
+                url: '{% url "gc-reconciliation-get-date" %}',
                 method: 'GET',
                 data: { filter_date: filter_date },
                 success: function (response) {
                     // Kosongkan tabel terlebih dahulu
                     const tbody = $('#data-body');
                     tbody.empty();
+                    const sbody = $('#summary-body');
+                    sbody.empty();
 
                     if (response.data && response.data.length > 0) {
                         // Populate table jika ada data
@@ -252,7 +304,14 @@
                         // Jika data kosong, tambahkan baris kosong atau pesan
                         tbody.append('<tr><td colspan="8" class="text-center">No data available for the selected date</td></tr>');
                     }
-                    // populateTable(response.data);
+
+                    if (response.summary_total && response.summary_total.length > 0) {
+                        summaryTable(response.summary_total);
+                    } else {
+                        console.log("No summary data received");
+                        tbody.append('<tr><td colspan="7" class="text-center">No data available for the selected date</td></tr>');
+                    }
+                    console.log(response.summary_total);
                 },
                 error: function (error) {
                     console.error("Error fetching data:", error);
@@ -264,7 +323,7 @@
 
     <script>
         function backToList() {
-            const url = "{% url 'mine-reconciliation-page' %}";
+            const url = "{% url 'gc-reconciliation-page' %}";
             window.location.href = url;
         }
     </script>
@@ -364,5 +423,11 @@
 
     thead>tr:nth-child(1)>th:nth-child(4) {
         background-color: #e7f6f2;
+    }
+
+    table tbody tr td,
+    table tfoot tr th,
+    table thead tr th {
+        padding: 0.18rem 1rem;
     }
 </Style>

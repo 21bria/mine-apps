@@ -9,6 +9,7 @@ from django.core.cache import cache
 from datetime import datetime
 from django.utils.timezone import now as timezone_now
 from django.db.models import Sum
+from collections import defaultdict
 from ...encrypt_view import  decrypt_date
 from ...utils.permissions import get_dynamic_permissions
 
@@ -87,7 +88,7 @@ class viewReconciliationPds(View):
         }
     
 # encrypted
-def recon_mine_day(request):
+def recon_gc_date(request):
     if request.method != 'GET':
         return JsonResponse({'error': 'Metode permintaan tidak valid. Gunakan GET.'}, status=405)
 
@@ -125,6 +126,10 @@ def recon_mine_day(request):
                 'mining_total_tonnage': round(mining['mining_total_tonnage'], 2),
             }
 
+        # Inisialisasi dictionary untuk summary total by material_type
+        summary_total = defaultdict(lambda: {'total_gc_ritase': 0, 'total_mining_ritase': 0, 'total_ritase_diff': 0,
+                                     'total_gc_tonnage': 0, 'total_mining_tonnage': 0, 'total_tonnage_diff': 0})
+
         # Gabungkan hasil rekonsiliasi
         reconciliation_data = []
         for gc in gc_data:
@@ -154,12 +159,128 @@ def recon_mine_day(request):
                 'tonnage_difference'  : tonnage_difference,
             })
 
-        return JsonResponse({'data': reconciliation_data}, safe=False)
+            # return JsonResponse({'data': reconciliation_data}, safe=False)
+
+            # Tambahkan ke summary berdasarkan material_type
+            material_type = gc['ore_class']
+            summary_total[material_type]['total_gc_ritase'] += gc_total_ritase
+            summary_total[material_type]['total_mining_ritase'] += mining_total_ritase
+            summary_total[material_type]['total_ritase_diff'] += ritase_difference
+            summary_total[material_type]['total_gc_tonnage'] += gc_total_tonnage
+            summary_total[material_type]['total_mining_tonnage'] += mining_total_tonnage
+            summary_total[material_type]['total_tonnage_diff'] += tonnage_difference
+
+        # Konversi summary_total ke list agar bisa dikembalikan dalam JSON
+        summary_list = [{'material_type': mt, **values} for mt, values in summary_total.items()]
+
+        return JsonResponse({'data': reconciliation_data, 'summary_total': summary_list}, safe=False)
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
 def recon_mine_date(request):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Metode permintaan tidak valid. Gunakan GET.'}, status=405)
+
+    try:
+        encrypted_date = request.GET.get('filter_date')
+        # Dekripsi filter_date yang dienkripsi
+        filter_date = decrypt_date(encrypted_date)
+        # Query untuk data produksi GC dengan filter tanggal dan urutan
+        gc_data = OreProductionsView.objects.filter(tgl_production=filter_date) \
+            .values('tgl_production', 'prospect_area', 'shift', 'nama_material', 'ore_class') \
+            .annotate(
+                gc_total_ritase  = Sum('ritase'),
+                gc_total_tonnage = Sum('tonnage')
+            ) \
+            .order_by('tgl_production', 'prospect_area', 'shift', 'nama_material','ore_class')
+
+        # Query untuk data produksi Mining dengan filter tanggal dan urutan
+        mining_data = mineProductionsView.objects.filter(date_production=filter_date) \
+            .values('date_production', 'loading_point', 'shift', 'nama_material') \
+            .annotate(
+                mining_total_ritase  = Sum('ritase'),
+                mining_total_tonnage = Sum('tonnage')
+            ) \
+            .order_by('date_production', 'loading_point', 'shift', 'nama_material')
+
+        # Mengubah data gc ke dalam dictionary untuk pencarian lebih cepat
+        gc_dict = {}
+        for gc in gc_data:
+            # print(f"Processing Mining: {mining}")  # Debug data mentah
+            key = (
+                gc['tgl_production'].strftime('%Y-%m-%d') if gc['tgl_production'] else "",
+                gc['prospect_area'].strip().lower() if gc['prospect_area'] else "",
+                gc['shift'].strip() if gc['shift'] else "",
+                # gc['nama_material'].strip().lower() if gc['nama_material'] else "",
+                gc['ore_class'].strip().lower() if gc['ore_class'] else "",
+            )
+            # print("Mining Key:", key)
+            gc_dict[key] = {
+                'gc_total_ritase' : round(gc['gc_total_ritase'], 2),
+                'gc_total_tonnage': round(gc['gc_total_tonnage'], 2),
+            }
+
+        # Inisialisasi dictionary untuk summary total by material_type
+        summary_total = defaultdict(lambda: {'total_gc_ritase': 0, 'total_mining_ritase': 0, 'total_ritase_diff': 0,
+                                     'total_gc_tonnage': 0, 'total_mining_tonnage': 0, 'total_tonnage_diff': 0})
+        # Gabungkan hasil rekonsiliasi
+        reconciliation_data = []
+        for mining in mining_data:
+            key = (
+                str(mining['date_production']).strip(),  # Konversi ke string terlebih dahulu
+                mining['loading_point'].strip().lower(),
+                mining['shift'].strip(),
+                mining['nama_material'].strip().lower()
+            )
+            print("Mining Key:", key)
+            gc = gc_dict.get(key)
+
+            # Hitung dengan pembulatan
+            mining_ritase = round(mining['mining_total_ritase'], 2)
+            gc_ritase     = gc['gc_total_ritase'] if gc else 0
+            ritase_diff   = round(mining_ritase - gc_ritase, 2)
+
+            mining_tonnage = round(mining['mining_total_tonnage'], 2)
+            gc_tonnage     = gc['gc_total_tonnage'] if gc else 0
+            tonnage_diff   = round(mining_tonnage - gc_tonnage, 2)
+
+            reconciliation_data.append({
+                'date'      : mining['date_production'],
+                'area'      : mining['loading_point'].strip(),
+                'shift'     : mining['shift'].strip(),
+                'material'  : mining['nama_material'].strip(),
+                # 'material_type'       : gc['ore_class'].strip(),
+                'gc_ritase'      : gc_ritase,
+                'mining_ritase'  : mining_ritase,
+                'ritase_diff'    : ritase_diff,
+                'gc_tonnage'     : gc_tonnage,
+                'mining_tonnage' : mining_tonnage,
+                'tonnage_diff'   : tonnage_diff,
+            })
+
+            # Fiter MAterial yang diambil
+            allowed_materials = {"MWS", "LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"}
+
+            # Tambahkan ke summary berdasarkan material_type jika material_type ada di daftar
+            material_type = mining['nama_material'].strip()
+            if material_type in allowed_materials:
+                summary_total[material_type]['total_gc_ritase'] += gc_ritase
+                summary_total[material_type]['total_mining_ritase'] += mining_ritase
+                summary_total[material_type]['total_ritase_diff'] += ritase_diff
+                summary_total[material_type]['total_gc_tonnage'] += gc_tonnage
+                summary_total[material_type]['total_mining_tonnage'] += mining_tonnage
+                summary_total[material_type]['total_tonnage_diff'] += tonnage_diff
+
+        summary_list = [{'material_type': mt, **values} for mt, values in summary_total.items()]
+
+        return JsonResponse({'data': reconciliation_data, 'summary_total': summary_list}, safe=False)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+# decrypts
+def recon_gc_daily(request):
     if request.method != 'GET':
         return JsonResponse({'error': 'Metode permintaan tidak valid. Gunakan GET.'}, status=405)
 
@@ -200,6 +321,9 @@ def recon_mine_date(request):
                 'mining_total_tonnage': round(mining['mining_total_tonnage'], 2),
             }
 
+        # Inisialisasi dictionary untuk summary total by material_type
+        summary_total = defaultdict(lambda: {'total_gc_ritase': 0, 'total_mining_ritase': 0, 'total_ritase_diff': 0,
+                                     'total_gc_tonnage': 0, 'total_mining_tonnage': 0, 'total_tonnage_diff': 0})
         # Gabungkan hasil rekonsiliasi
         reconciliation_data = []
         for gc in gc_data:
@@ -236,11 +360,124 @@ def recon_mine_date(request):
                 'tonnage_difference'  : tonnage_difference,
             })
 
-        return JsonResponse({'data': reconciliation_data}, safe=False)
+           # return JsonResponse({'data': reconciliation_data}, safe=False)
+
+            # Tambahkan ke summary berdasarkan material_type
+            material_type = gc['ore_class']
+            summary_total[material_type]['total_gc_ritase'] += gc_total_ritase
+            summary_total[material_type]['total_mining_ritase'] += mining_total_ritase
+            summary_total[material_type]['total_ritase_diff'] += ritase_difference
+            summary_total[material_type]['total_gc_tonnage'] += gc_total_tonnage
+            summary_total[material_type]['total_mining_tonnage'] += mining_total_tonnage
+            summary_total[material_type]['total_tonnage_diff'] += tonnage_difference
+
+        # Konversi summary_total ke list agar bisa dikembalikan dalam JSON
+        summary_list = [{'material_type': mt, **values} for mt, values in summary_total.items()]
+        
+        return JsonResponse({'data': reconciliation_data, 'summary_total': summary_list}, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def recon_mine_daily(request):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Metode permintaan tidak valid. Gunakan GET.'}, status=405)
+
+    try:
+        filter_date = request.GET.get('filter_date')
+        # Query untuk data produksi GC dengan filter tanggal dan urutan
+        
+        gc_data = OreProductionsView.objects.filter(tgl_production=filter_date) \
+            .values('tgl_production', 'prospect_area', 'shift', 'nama_material', 'ore_class') \
+            .annotate(
+                gc_total_ritase  = Sum('ritase'),
+                gc_total_tonnage = Sum('tonnage')
+            ) \
+            .order_by('tgl_production', 'prospect_area', 'shift', 'nama_material','ore_class')
+
+        # Query untuk data produksi Mining dengan filter tanggal dan urutan
+        mining_data = mineProductionsView.objects.filter(date_production=filter_date) \
+            .values('date_production', 'loading_point', 'shift', 'nama_material') \
+            .annotate(
+                mining_total_ritase  = Sum('ritase'),
+                mining_total_tonnage = Sum('tonnage')
+            ) \
+            .order_by('date_production', 'loading_point', 'shift', 'nama_material')
+
+        # Mengubah data gc ke dalam dictionary untuk pencarian lebih cepat
+        gc_dict = {}
+        for gc in gc_data:
+            # print(f"Processing Mining: {mining}")  # Debug data mentah
+            key = (
+                gc['tgl_production'].strftime('%Y-%m-%d') if gc['tgl_production'] else "",
+                gc['prospect_area'].strip().lower() if gc['prospect_area'] else "",
+                gc['shift'].strip() if gc['shift'] else "",
+                # gc['nama_material'].strip().lower() if gc['nama_material'] else "",
+                gc['ore_class'].strip().lower() if gc['ore_class'] else "",
+            )
+            # print("Mining Key:", key)
+            gc_dict[key] = {
+                'gc_total_ritase' : round(gc['gc_total_ritase'], 2),
+                'gc_total_tonnage': round(gc['gc_total_tonnage'], 2),
+            }
+
+        # Inisialisasi dictionary untuk summary total by material_type
+        summary_total = defaultdict(lambda: {'total_gc_ritase': 0, 'total_mining_ritase': 0, 'total_ritase_diff': 0,
+                                     'total_gc_tonnage': 0, 'total_mining_tonnage': 0, 'total_tonnage_diff': 0})
+        # Gabungkan hasil rekonsiliasi
+        reconciliation_data = []
+        for mining in mining_data:
+            key = (
+                str(mining['date_production']).strip(),  # Konversi ke string terlebih dahulu
+                mining['loading_point'].strip().lower(),
+                mining['shift'].strip(),
+                mining['nama_material'].strip().lower()
+            )
+            print("Mining Key:", key)
+            gc = gc_dict.get(key)
+
+            # Hitung dengan pembulatan
+            mining_ritase = round(mining['mining_total_ritase'], 2)
+            gc_ritase     = gc['gc_total_ritase'] if gc else 0
+            ritase_diff   = round(mining_ritase - gc_ritase, 2)
+
+            mining_tonnage = round(mining['mining_total_tonnage'], 2)
+            gc_tonnage     = gc['gc_total_tonnage'] if gc else 0
+            tonnage_diff   = round(mining_tonnage - gc_tonnage, 2)
+
+            reconciliation_data.append({
+                'date'      : mining['date_production'],
+                'area'      : mining['loading_point'].strip(),
+                'shift'     : mining['shift'].strip(),
+                'material'  : mining['nama_material'].strip(),
+                # 'material_type'       : gc['ore_class'].strip(),
+                'gc_ritase'      : gc_ritase,
+                'mining_ritase'  : mining_ritase,
+                'ritase_diff'    : ritase_diff,
+                'gc_tonnage'     : gc_tonnage,
+                'mining_tonnage' : mining_tonnage,
+                'tonnage_diff'   : tonnage_diff,
+            })
+
+            # Fiter MAterial yang diambil
+            allowed_materials = {"MWS", "LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"}
+
+            # Tambahkan ke summary berdasarkan material_type jika material_type ada di daftar
+            material_type = mining['nama_material'].strip()
+            if material_type in allowed_materials:
+                summary_total[material_type]['total_gc_ritase'] += gc_ritase
+                summary_total[material_type]['total_mining_ritase'] += mining_ritase
+                summary_total[material_type]['total_ritase_diff'] += ritase_diff
+                summary_total[material_type]['total_gc_tonnage'] += gc_tonnage
+                summary_total[material_type]['total_mining_tonnage'] += mining_tonnage
+                summary_total[material_type]['total_tonnage_diff'] += tonnage_diff
+
+        summary_list = [{'material_type': mt, **values} for mt, values in summary_total.items()]
+
+        return JsonResponse({'data': reconciliation_data, 'summary_total': summary_list}, safe=False)
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+        
 def source_mine_dome(request):
     if request.method != 'GET':
         return JsonResponse({'error': 'Metode permintaan tidak valid. Gunakan GET.'}, status=405)
@@ -349,7 +586,7 @@ def mine_reconciliation_page(request):
         'end_date'   : today.strftime('%Y-%m-%d'),
         'permissions':permissions
     }
-    return render(request, 'reconciliation/list-reconciliation-pds.html',context)
+    return render(request, 'reconciliation/list-reconciliation-mining.html',context)
 
 def gc_reconciliation_page(request):
     allowed_groups = ['superadmin','admin-mgoqa','superintendent-mgoqa','manager-mgoqa']
@@ -371,7 +608,7 @@ def gc_reconciliation_page(request):
         'permissions':permissions
         
     }
-    return render(request, 'reconciliation/list-reconciliation-pds.html',context)
+    return render(request, 'reconciliation/list-reconciliation-gc.html',context)
 
 def mine_recon_day_page(request):
     # Cek permission
@@ -379,4 +616,12 @@ def mine_recon_day_page(request):
     context = {
         'permissions':permissions
     }
-    return render(request, 'reconciliation/sum-reconciliation-day.html',context)
+    return render(request, 'reconciliation/sum-reconciliation-mining.html',context)
+
+def gc_recon_day_page(request):
+    # Cek permission
+    permissions = get_dynamic_permissions(request.user)
+    context = {
+        'permissions':permissions
+    }
+    return render(request, 'reconciliation/sum-reconciliation-gc.html',context)

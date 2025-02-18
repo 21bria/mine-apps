@@ -67,9 +67,9 @@
                 <!-- start main content section -->
                 <div x-data="approvalAdd">
                     <div class="flex flex-col gap-2.5 xl:flex-row">
-                        <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
-                            <hr class="my-6 border-[#e0e6ed] dark:border-[#1b2e4b]">
-                            <div class="mt-8 px-4">
+                        <div class="flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
+                            <div class="mt-3 px-4">
+                                <hr class="my-6 border-[#e0e6ed] dark:border-[#1b2e4b]">
                                 <form id="entryForm" name="entryForm">
                                     <div class="flex flex-col justify-between lg:flex-row">
                                         <div class="mb-6 w-full lg:w-1/2 ltr:lg:mr-6 rtl:lg:ml-6">
@@ -101,8 +101,6 @@
                                                     disabled:pointer-events-none disabled:bg-[#eee]"
                                                     placeholder="Notes...." disabled></textarea>
                                             </div>
-
-
                                         </div>
                                         <div class="w-full lg:w-1/2">
                                             <div class="px-4 text-lg font-semibold">Approval Superintendent</div>
@@ -133,15 +131,37 @@
                                     </div>
                                 </form>
                             </div>
-                            <div class="mt-8 px-4">
+                            <div class="mt-3 px-4">
+                                <table id="summary-table" border="1" cellspacing="0" cellpadding="5">
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="2" colspan="1" class="left-align">Summary</th>
+                                            <th colspan="2" class="center-align">Mining</th>
+                                            <th colspan="2" class="center-align">Grade Control</th>
+                                            <th colspan="2" class="center-align">Difference</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="center-align">Ritase</th>
+                                            <th class="center-align">Tonnage</th>
+                                            <th class="center-align">Ritase</th>
+                                            <th class="center-align">Tonnage</th>
+                                            <th class="center-align">Ritase Diff</th>
+                                            <th class="center-align">Tonnage Diff</th>
+                                        </tr>
 
+                                    </thead>
+                                    <tbody id="summary-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="panel mt-3 px-4">
                                 <div class="mt-5 table-responsive">
                                     <table id="data-table" border="1" cellspacing="0" cellpadding="5">
                                         <thead>
                                             <tr>
-                                                <th rowspan="2" colspan="2" class="left-align">Sources</th>
-                                                <th colspan="2" class="center-align">Grade Control</th>
+                                                <th rowspan="2" colspan="1" class="left-align">Sources</th>
                                                 <th colspan="2" class="center-align">Mining</th>
+                                                <th colspan="2" class="center-align">Grade Control</th>
                                                 <th colspan="2" class="center-align">Difference</th>
                                             </tr>
                                             <tr>
@@ -295,15 +315,34 @@
                 });
             });
 
-
-
         });
     </script>
 
 
     <!-- Get Summary Data -->
     <script>
-        // Function to format numbers with rounding
+        function summaryTable(data) {
+            const tbody = $('#summary-body');
+
+            function formatNumber(value) {
+                return value != null ? Math.round(value * 100) / 100 : 0; // Handle null values
+            }
+
+            console.log("Data received:", data); // Debugging line
+
+            data.forEach(item => {
+                const row = $('<tr>').html(`
+                    <td>${item.material_type}</td>
+                    <td>${formatNumber(item.total_mining_ritase)}</td>
+                    <td>${formatNumber(item.total_mining_tonnage)}</td>
+                    <td>${formatNumber(item.total_gc_ritase)}</td>
+                    <td>${formatNumber(item.total_gc_tonnage)}</td>
+                    <td class="${item.total_ritase_diff !== 0 ? 'negative-difference' : ''}">${formatNumber(item.total_ritase_diff)}</td>
+                    <td class="${item.total_tonnage_diff !== 0 ? 'negative-difference' : ''}">${formatNumber(item.total_tonnage_diff)}</td>
+                `);
+                tbody.append(row);
+            });
+        }
         function populateTable(data) {
             const tbody = $('#data-body');
             let currentShift = '';
@@ -318,7 +357,7 @@
 
             if (!data || data.length === 0) {
                 // Jika data kosong, tambahkan baris pesan
-                tbody.append('<tr><td colspan="8" class="text-center">No data available for the selected date</td></tr>');
+                tbody.append('<tr><td colspan="7" class="text-center">No data available for the selected date</td></tr>');
                 return;
             }
 
@@ -326,7 +365,7 @@
             data.forEach(item => {
                 if (item.area !== currentArea) {
                     const areaHeaderRow = $('<tr>');
-                    const areaHeaderCell = $('<th>').attr('colspan', 8).addClass('area-header').text(`${item.area}`);
+                    const areaHeaderCell = $('<th>').attr('colspan', 7).addClass('area-header').text(`${item.area}`);
                     areaHeaderRow.append(areaHeaderCell);
                     tbody.append(areaHeaderRow);
                     currentArea = item.area;
@@ -338,22 +377,21 @@
                 // Cek jika shift telah berubah
                 if (shiftText !== currentShift) {
                     const shiftHeaderRow = $('<tr>');
-                    const shiftHeaderCell = $('<th>').attr('colspan', 8).addClass('shift-header ' + (shiftText === 'Night' ? 'shift-n' : '')).text(` ${shiftText}`);
+                    const shiftHeaderCell = $('<th>').attr('colspan', 7).addClass('shift-header ' + (shiftText === 'Night' ? 'shift-n' : '')).text(` ${shiftText}`);
                     shiftHeaderRow.append(shiftHeaderCell);
                     tbody.append(shiftHeaderRow);
                     currentShift = shiftText; // Update currentShift dengan shiftText
                 }
 
                 const row = $('<tr>').html(`
-                            <td>${item.material}</td>
-                            <td>${item.material_type}</td>
-                            <td>${formatNumber(item.gc_total_ritase)}</td>
-                            <td>${formatNumber(item.gc_total_tonnage)}</td>
-                            <td>${formatNumber(item.mining_total_ritase)}</td>
-                            <td>${formatNumber(item.mining_total_tonnage)}</td>
-                            <td class="${item.ritase_difference !== 0 ? 'negative-difference' : ''}">${formatNumber(item.ritase_difference)}</td>
-                            <td class="${item.tonnage_difference !== 0 ? 'negative-difference' : ''}">${formatNumber(item.tonnage_difference)}</td>
-                        `);
+                    <td>${item.material}</td>
+                    <td>${formatNumber(item.mining_ritase)}</td>
+                    <td>${formatNumber(item.mining_tonnage)}</td>
+                    <td>${formatNumber(item.gc_ritase)}</td>
+                    <td>${formatNumber(item.gc_tonnage)}</td>
+                    <td class="${item.ritase_diff !== 0 ? 'negative-difference' : ''}">${formatNumber(item.ritase_diff)}</td>
+                    <td class="${item.tonnage_diff !== 0 ? 'negative-difference' : ''}">${formatNumber(item.tonnage_diff)}</td>
+                `);
                 tbody.append(row);
             });
         }
@@ -363,20 +401,28 @@
             var filter_date = new URLSearchParams(window.location.search).get('filter_date');
             // Fetch data from server using jQuery
             $.ajax({
-                url: '{% url "mine-reconciliation-get-day" %}',
+                url: '{% url "mine-reconciliation-get-date" %}',
                 method: 'GET',
                 data: { filter_date: filter_date },
                 success: function (response) {
                     // Kosongkan tabel terlebih dahulu
                     const tbody = $('#data-body');
                     tbody.empty();
+                    const sbody = $('#summary-body');
+                    sbody.empty();
 
                     if (response.data && response.data.length > 0) {
                         // Populate table jika ada data
                         populateTable(response.data);
                     } else {
                         // Jika data kosong, tambahkan baris pesan
-                        tbody.append('<tr><td colspan="8" class="text-center">No data available for the selected date</td></tr>');
+                        tbody.append('<tr><td colspan="7" class="text-center">No data available for the selected date</td></tr>');
+                    }
+                    if (response.summary_total && response.summary_total.length > 0) {
+                        summaryTable(response.summary_total);
+                    } else {
+                        console.log("No summary data received");
+                        sbody.append('<tr><td colspan="7" class="text-center">No data available for the selected date</td></tr>');
                     }
                 },
                 error: function (error) {
@@ -426,9 +472,6 @@
         })
 
     </script>
-
-
-
 </body>
 
 </html>
@@ -457,8 +500,31 @@
         /* Hanya untuk header yang perlu di tengah */
     }
 
+    #summary-table th.left-align {
+        padding: 12px;
+        text-align: left;
+        /* Hanya untuk header 'Sources' */
+    }
+
+    #summary-table th.center-align {
+        text-align: center;
+        /* Hanya untuk header yang perlu di tengah */
+    }
+
+    #summary-table td {
+        padding: 6px;
+        text-align: center;
+        /* Rata tengah untuk sel data */
+    }
+
     #data-table td {
-        padding: 8px;
+        padding: 6px;
+        text-align: center;
+        /* Rata tengah untuk sel data */
+    }
+
+    #data-table td {
+        padding: 6px;
         text-align: center;
         /* Rata tengah untuk sel data */
     }
@@ -499,7 +565,6 @@
     }
 
 
-
     strong {
         font-weight: bold;
         /* color: #007bff; */
@@ -525,5 +590,11 @@
 
     thead>tr:nth-child(1)>th:nth-child(4) {
         background-color: #e7f6f2;
+    }
+
+    table tbody tr td,
+    table tfoot tr th,
+    table thead tr th {
+        padding: 0.18rem 1rem;
     }
 </Style>

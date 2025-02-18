@@ -291,7 +291,7 @@ def reviewApproval_page(request):
 # ==== Asisten
 @login_required
 def reviewAsisten_page(request):
-    allowed_groups = ['superadmin','superintendent-mgoqa']
+    allowed_groups = ['superadmin','superintendent-mining']
     if not request.user.groups.filter(name__in=allowed_groups).exists():
         # Jika tidak memiliki izin, arahkan ke halaman error
         context = {
@@ -310,7 +310,7 @@ def reviewAsisten_page(request):
 # === Manager
 @login_required
 def reviewManager_page(request):
-    allowed_groups = ['superadmin','manager-mgoqa']
+    allowed_groups = ['superadmin','manager-mining']
     if not request.user.groups.filter(name__in=allowed_groups).exists():
         context = {
             'error_message': 'You do not have permission to access this page.',

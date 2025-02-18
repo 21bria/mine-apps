@@ -332,6 +332,7 @@
 
 </html>
 
+
 <Style>
     #data-table {
         width: 100%;
@@ -355,8 +356,31 @@
         /* Hanya untuk header yang perlu di tengah */
     }
 
+    #summary-table th.left-align {
+        padding: 12px;
+        text-align: left;
+        /* Hanya untuk header 'Sources' */
+    }
+
+    #summary-table th.center-align {
+        text-align: center;
+        /* Hanya untuk header yang perlu di tengah */
+    }
+
+    #summary-table td {
+        padding: 6px;
+        text-align: center;
+        /* Rata tengah untuk sel data */
+    }
+
     #data-table td {
-        padding: 8px;
+        padding: 6px;
+        text-align: center;
+        /* Rata tengah untuk sel data */
+    }
+
+    #data-table td {
+        padding: 6px;
         text-align: center;
         /* Rata tengah untuk sel data */
     }
@@ -395,7 +419,6 @@
         color: #ff0000;
         /* Contoh: warna teks merah */
     }
-
 
 
     strong {

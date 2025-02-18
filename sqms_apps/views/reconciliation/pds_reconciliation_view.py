@@ -589,7 +589,7 @@ def mine_reconciliation_page(request):
     return render(request, 'reconciliation/list-reconciliation-mining.html',context)
 
 def gc_reconciliation_page(request):
-    allowed_groups = ['superadmin','admin-mgoqa','superintendent-mgoqa','manager-mgoqa']
+    allowed_groups = ['superadmin','admin-mgoqa','superintendent-mgoqa','manager-mgoqa','data-control']
     if not request.user.groups.filter(name__in=allowed_groups).exists():
         # Jika tidak memiliki izin, arahkan ke halaman error
         context = {

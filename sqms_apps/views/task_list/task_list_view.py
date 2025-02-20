@@ -89,6 +89,12 @@ class task_List(View):
 
 # Add Data
 def add_task(request):
+      # Cek permission
+    permissions = get_dynamic_permissions(request.user)
+    context = {
+        'permissions': permissions,
+    }
+
     if request.method == 'POST':
         form = TaskListForm(request.POST)
         if form.is_valid():
@@ -97,13 +103,14 @@ def add_task(request):
             form.save_m2m()
             return redirect('task-table-page')  # Redirect on success
         else:
-            return render(request, 'task/task_add.html', {'form': form, 'title': 'Add Task'})
+            return render(request, 'task/task_add.html', {'form': form, 'title': 'Add Task','permissions': permissions})
     else:
         form = TaskListForm()
-    return render(request, 'task/task_add.html', {'form': form, 'title': 'Add Task'})
+    return render(request, 'task/task_add.html', {'form': form, 'title': 'Add Task','permissions': permissions})
 
 # Edit data
 def edit_task(request, pk):
+    permissions = get_dynamic_permissions(request.user)
     task = get_object_or_404(taskList, pk=pk)
     if request.method == 'POST':
         form = TaskListForm(request.POST, instance=task)
@@ -112,7 +119,7 @@ def edit_task(request, pk):
             return redirect('task-table-page')
     else:
         form = TaskListForm(instance=task)
-    return render(request, 'task/task_edit.html', {'form': form, 'title': 'Edit Task'})
+    return render(request, 'task/task_edit.html', {'form': form, 'title': 'Edit Task','permissions': permissions})
 
 @login_required
 def delete_task(request):

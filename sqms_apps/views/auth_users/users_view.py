@@ -99,6 +99,7 @@ class user_List(View):
 
 @login_required   
 def user_create(request):
+    permissions = get_dynamic_permissions(request.user)
     allowed_groups = ['superadmin']
     if not request.user.groups.filter(name__in=allowed_groups).exists():
         return JsonResponse(
@@ -118,10 +119,11 @@ def user_create(request):
             messages.error(request, 'Please correct the error below.')
     else:
         form = CustomUserForm()
-    return render(request, 'auth/user_add.html', {'form': form})
+    return render(request, 'auth/user_add.html', {'form': form,'permissions': permissions})
 
 @login_required
 def user_edit(request, pk):
+    permissions = get_dynamic_permissions(request.user)
     allowed_groups = ['superadmin']
     if not request.user.groups.filter(name__in=allowed_groups).exists():
         return JsonResponse(
@@ -137,7 +139,7 @@ def user_edit(request, pk):
             return redirect('user-page')
     else:
         form = CustomUserForm(instance=user)
-    return render(request, 'auth/user_edit.html', {'form': form})
+    return render(request, 'auth/user_edit.html', {'form': form,'permissions': permissions})
 
 @login_required
 def delete_users(request):

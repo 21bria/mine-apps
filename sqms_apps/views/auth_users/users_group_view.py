@@ -93,6 +93,7 @@ class group_List(View):
 
 @login_required
 def group_create(request, pk=None):
+    permissions = get_dynamic_permissions(request.user)
     allowed_groups = ['superadmin']
     if not request.user.groups.filter(name__in=allowed_groups).exists():
         return JsonResponse(
@@ -112,10 +113,11 @@ def group_create(request, pk=None):
         return redirect('group-page')  # Redirect to the group list page after saving
 
     # Render the form template
-    return render(request, 'auth/group_form.html', {'form': form, 'is_edit': bool(pk)})
+    return render(request, 'auth/group_form.html', {'form': form, 'is_edit': bool(pk),'permissions': permissions})
 
 @login_required
 def group_edit(request, pk):
+    permissions = get_dynamic_permissions(request.user)
     allowed_groups = ['superadmin']
     if not request.user.groups.filter(name__in=allowed_groups).exists():
         return JsonResponse(
@@ -130,7 +132,7 @@ def group_edit(request, pk):
             return redirect('group-page')  # Redirect ke 'group-page' setelah berhasil menyimpan
     else:
         form = CustomGroupForm(instance=group)
-    return render(request, 'auth/group_form.html', {'form': form})
+    return render(request, 'auth/group_form.html', {'form': form,'permissions': permissions})
 
 @login_required
 def delete_group(request):

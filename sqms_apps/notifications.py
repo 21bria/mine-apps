@@ -3,12 +3,6 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 def send_notification(message, group_name):
-    """
-    Kirim notifikasi ke grup WebSocket yang ditentukan.
-    
-    :param message: Pesan yang ingin dikirimkan ke grup
-    :param group_name: Nama grup yang menerima pesan (misalnya 'assistants_group', 'manager_group', dll)
-    """
     channel_layer = get_channel_layer()
     # Mengirimkan pesan ke grup melalui WebSocket channel layer
     async_to_sync(channel_layer.group_send)(

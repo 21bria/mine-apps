@@ -8,9 +8,7 @@ from sqms_apps.models import Material
 from ..serializers.materials import MaterialsSerializer
 
 class MaterialView(APIView):
-    """
-    ViewSet untuk Material: Mendukung operasi GET, POST, PUT, dan DELETE.
-    """
+
     # permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
 
     permission_classes = [AllowAny] #menonaktifkan autentikasi
@@ -43,9 +41,6 @@ class MaterialView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pk):
-        """
-        Perbarui data Material berdasarkan `pk`.
-        """
         material = get_object_or_404(Material, pk=pk)
         serializer = MaterialsSerializer(material, data=request.data)
         if serializer.is_valid():
@@ -54,9 +49,6 @@ class MaterialView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        """
-        Hapus data Material berdasarkan `pk`.
-        """
         material = get_object_or_404(Material, pk=pk)
         material.delete()
         return Response({"message": "Material deleted successfully."}, status=status.HTTP_204_NO_CONTENT)

@@ -138,7 +138,6 @@ def create_sample(request):
     
     if request.method == 'POST':
         try:
-            # Aturan validasi
             rules = {
                 'tgl_sample[]'    : ['required'],
                 'shift[]'         : ['required'],
@@ -247,10 +246,8 @@ def create_sample(request):
                         gc_expect           = float(gc_expect[idx]) if gc_expect and gc_expect[idx].replace('.', '', 1).isdigit() else 0.0,
                         kode_batch          = combinedKodeBatch,
                         no_sample           = code,
-                        id_user             = request.user.id  # Sesuaikan dengan cara Anda mendapatkan user ID
+                        id_user             = request.user.id
                     )
-
-
 
             # Kembalikan respons JSON sukses
             return JsonResponse({'success': True, 'message': 'Data berhasil disimpan.'})
@@ -342,7 +339,7 @@ def update_sample(request, id):
         pulpKodeBatch    = pulpKodeBatch.replace(" ", "")  # Menghapus spasi
 
         print(combinedKodeBatch)
-        print('sampling_area : ', sampling_area)
+        print('sampling_area  : ', sampling_area)
         print('sampling_point : ', sampling_point)
         print('type : ', type)
 

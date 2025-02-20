@@ -241,7 +241,7 @@ def create_sample_sale(request):
                         kode_batch          = combinedKodeBatch,
                         selling_pulp        = pulpKodeBatch,
                         no_sample           = no_sample, 
-                        id_user             = request.user.id  # Sesuaikan dengan cara Anda mendapatkan user ID
+                        id_user             = request.user.id  
                     )
 
             # Kembalikan respons JSON sukses

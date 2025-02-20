@@ -62,7 +62,7 @@ class batchStatusView(models.Model):
     
 
     class Meta:
-        managed     = False
-        db_table    = 'ore_pds_batch_status'
-        app_label   = 'sqms_apps'
+        managed    = False
+        db_table   = 'ore_pds_batch_status'
+        app_label  = 'sqms_apps'
 

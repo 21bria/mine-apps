@@ -48,8 +48,8 @@ class Menu(models.Model):
         return self.name
 
     class Meta:
-        db_table = 'permission_menu'
-        app_label = 'sqms_apps'
+        db_table    = 'permission_menu'
+        app_label   = 'sqms_apps'
         verbose_name = "Menu"
         verbose_name_plural = "Menus"
         ordering = ['name']  # Urutkan berdasarkan nama

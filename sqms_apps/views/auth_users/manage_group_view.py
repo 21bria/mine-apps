@@ -80,6 +80,7 @@ class group_permissionList(View):
 
 @login_required
 def group_permission_create(request, pk=None):
+    permissions = get_dynamic_permissions(request.user)
     allowed_groups = ['superadmin']
     if not request.user.groups.filter(name__in=allowed_groups).exists():
         return JsonResponse({'status': 'error', 'message': 'You do not have permission'}, status=403)
@@ -98,10 +99,11 @@ def group_permission_create(request, pk=None):
             # Debugging error form
             return JsonResponse({'status': 'error', 'message': 'Form is not valid', 'errors': form.errors}, status=400)
 
-    return render(request, 'permission/group-form.html', {'form': form, 'is_edit': bool(pk)})
+    return render(request, 'permission/group-form.html', {'form': form, 'is_edit': bool(pk),'permissions': permissions})
 
 @login_required
 def group_permission_edit(request, pk):
+    permissions = get_dynamic_permissions(request.user)
     allowed_groups = ['superadmin']
     if not request.user.groups.filter(name__in=allowed_groups).exists():
         return JsonResponse(
@@ -119,7 +121,7 @@ def group_permission_edit(request, pk):
              print(f"Form errors: {form.errors}")  # Menampilkan error jika form tidak valid 
     else:
         form = PermissionGroupForm(instance=group)
-    return render(request, 'permission/group-form.html', {'form': form})
+    return render(request, 'permission/group-form.html', {'form': form,'permissions': permissions})
 
 
 @login_required

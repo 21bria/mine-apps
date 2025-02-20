@@ -34,8 +34,6 @@ class AssayRoa(models.Model):
     p75um        = models.FloatField(default=None, null=True, blank=True)
     _5mm         = models.FloatField(default=None, null=True, blank=True)
     problem      = models.CharField(max_length=255, default=None, null=True, blank=True)
-    set_ni       = models.IntegerField(default=None, null=True, blank=True)
-    no_input     = models.BigIntegerField(default=None, null=True, blank=True)
     user_id      = models.IntegerField(default=None, null=True, blank=True)
     created_at   = models.DateTimeField(auto_now_add=True)
     updated_at   = models.DateTimeField(auto_now_add=True,null=True)

@@ -20,6 +20,7 @@ from .task.import_mines_productions import import_mine_productions
 from .task.import_plan_mine_productions import import_plan_mine_productions
 from .task.import_mines_productions_quick import import_mine_productions_quick
 from .task.imports_truck_factors import import_truck_factors
+from .task.import_selling_official import import_selling_official
 from .utils.permissions import get_dynamic_permissions
 
 @login_required
@@ -142,6 +143,8 @@ def upload_file(request):
                 task = import_mine_productions_quick.delay(file_path,original_file_name)
             elif import_type == 'data-truck-factors-mine':
                 task = import_truck_factors.delay(file_path,original_file_name)
+            elif import_type == 'data-official-selling':
+                task = import_selling_official.delay(file_path,original_file_name)
             else:
                 return JsonResponse({'message': 'Invalid import type'}, status=400)
             

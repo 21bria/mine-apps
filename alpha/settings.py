@@ -253,8 +253,8 @@ LOGGING = {
 LANGUAGE_CODE = 'en-us'
 
 # Pengaturan waktu
-# TIME_ZONE = 'Asia/Makassar'  # Atur sesuai zona waktu Anda
-TIME_ZONE = 'UTC'  # atau zona waktu default Anda
+# TIME_ZONE = 'Asia/Makassar'  # Atur sesuai zona waktu
+TIME_ZONE = 'UTC'  # atau zona waktu default
 TIME_ZONE = 'Asia/Makassar'
 print('Cek Time : ',TIME_ZONE)
 

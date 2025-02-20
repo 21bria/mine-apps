@@ -12,7 +12,6 @@ class AssayMral(models.Model):
     fe           = models.FloatField(default=None, null=True, blank=True)
     mgo          = models.FloatField(default=None, null=True, blank=True)
     sio2         = models.FloatField(default=None, null=True, blank=True)
-    no_input     = models.BigIntegerField(default=None, null=True, blank=True)
     user_id      = models.IntegerField(default=None, null=True, blank=True)
     created_at   = models.DateTimeField(auto_now_add=True)
     updated_at   = models.DateTimeField(auto_now_add=True)

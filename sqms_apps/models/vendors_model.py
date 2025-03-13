@@ -1,4 +1,5 @@
 from django.db import models
+
 class Vendors(models.Model):
     vendor_name = models.CharField(max_length=50, unique=True)
     code        = models.CharField(max_length=15, default=None, null=True, blank=True)

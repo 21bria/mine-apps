@@ -9,8 +9,13 @@ class MineUnits(models.Model):
     supports    = models.CharField(max_length=50, default=None, null=True, blank=True)
     status      = models.IntegerField(default=None, null=True, blank=True)
     description = models.CharField(max_length=255, default=None, null=True, blank=True)
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now_add=True)
+    merk        = models.CharField(max_length=150, default=None, null=True, blank=True)
+    commisionong_date = models.DateField(default=None, null=True, blank=True)
+    on_hire      = models.DateField(default=None, null=True, blank=True)
+    off_hire     = models.DateField(default=None, null=True, blank=True)
+    code_vendors = models.CharField(max_length=50,default=None, null=True, blank=True)
+    created_at   = models.DateTimeField(auto_now_add=True)
+    updated_at   = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.unit_code

@@ -853,11 +853,11 @@ def get_ore_dome_qa(request):
     # Retrieve date parameters from request
     tgl_pertama  = request.GET.get('startDate')
     tgl_terakhir = request.GET.get('endDate')
-    # theme        = request.GET.get('theme', 'light')  # Default to 'light'
+    theme        = request.GET.get('theme', 'light')  # Default to 'light'
 
     query = """
         SELECT
-            pile_id AS dome,nama_material, COALESCE(SUM(tonnage), 0) AS tonnage
+            TRIM(pile_id) AS dome,TRIM(nama_material) AS nama_material, COALESCE(SUM(tonnage), 0) AS tonnage
         FROM 
             ore_production
         WHERE 
@@ -883,10 +883,10 @@ def get_ore_dome_qa(request):
             fig.update_layout(
                 xaxis={"visible": False},
                 yaxis={"visible": False},
-                # plot_bgcolor='#0e1726' if theme == 'dark' else 'rgba(0,0,0,0)',
-                # paper_bgcolor='#FFFFFF' if theme == 'light' else '#0e1726',
-                # font=dict(color='#000000' if theme == 'light' else '#FFFFFF'),
-                # template='plotly_dark' if theme == 'dark' else 'simple_white',
+                plot_bgcolor='#0e1726' if theme == 'dark' else 'rgba(0,0,0,0)',
+                paper_bgcolor='#FFFFFF' if theme == 'light' else '#0e1726',
+                font=dict(color='#000000' if theme == 'light' else '#FFFFFF'),
+                template='plotly_dark' if theme == 'dark' else 'simple_white',
                 annotations=[
                     {
                         "text": "No matching data found",
@@ -935,10 +935,10 @@ def get_ore_dome_qa(request):
             height        = 380,
             hovermode     = 'x unified',
             bargap        = 0.03,  # Adjust bar gap
-            # plot_bgcolor  ='rgba(201,201,201,0.08)' if theme == 'light' else '#0e1726',
-            # paper_bgcolor ='#FFFFFF' if theme == 'light' else '#0e1726',
-            # font          = dict(color ='#000000' if theme == 'light' else '#FFFFFF'),
-            # template      = 'plotly_dark' if theme == 'dark' else 'plotly_white',
+            plot_bgcolor  ='rgba(201,201,201,0.08)' if theme == 'light' else '#0e1726',
+            paper_bgcolor ='#FFFFFF' if theme == 'light' else '#0e1726',
+            font          = dict(color ='#000000' if theme == 'light' else '#FFFFFF'),
+            template      = 'plotly_dark' if theme == 'dark' else 'plotly_white',
 
 
         )

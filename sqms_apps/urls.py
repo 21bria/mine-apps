@@ -21,17 +21,12 @@ from .views.approval.submit_admin_view import *
 from .views.approval.approval_production_view import *
 
 
-# Imports
-# from .views.imports_data_view import import_data, imports_page,load_columns
-
 # Dashboard
 from  .views.dashboard.index import *
 from  .views.dashboard.dashboard_selling import *
 from .views.dashboard.dashboard_mgoqa import *
 from .views.dashboard.dashboard_mining import *
 from .views.analyst_ore import *
-
-
 from .views_upload import *
 from .encrypt_view import *
 from .views.notification.notifications_view import get_notifications
@@ -75,7 +70,6 @@ urlpatterns = [
     path('get-sample/this-days/', get_sample_this_days, name='get-sample-this-days'),
     path('get-ore/stockpile/hpal/', get_stockpile_hpal, name='get-ore-stockpile-hpal'),
     path('get-ore/stockpile/rkef/', get_stockpile_rkef, name='get-ore-stockpile-rkef'),
-
     path('get-ore/production/forecast/', forecast_production, name='get-ore-forecast-production'),
 
     
@@ -122,7 +116,6 @@ urlpatterns = [
     path('get-mine/material/days/', get_MineByDays, name='get-mine-material-days'),
     path('get-mine/analysis/weeks/', get_mine_chart_weeks, name='get-mine-weeks-analysis'),
     path('get-mine/analysis/on-weeks/', get_material_on_week, name='get-mine-on-weeks-analysis'),
-
 
     # Get Dropdown dinamyc
     path('method_dropdown/', method_dropdown, name='method-dropdown'), 
@@ -290,7 +283,6 @@ urlpatterns = [
     # tempalte format import
     path('format-downloads/', format_downloads, name='format_downloads'),
     path('send-email/', send_test_email, name='send_test_email'),
-
 
     # permission role
     path('permission/group/', permission_group_page, name='permission-group-page'),

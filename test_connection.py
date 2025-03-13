@@ -6,7 +6,7 @@ mysql_conn = mysql.connector.connect(
     host='localhost',
     user='root',
     password='',
-    database='sqms_django',
+    database='SQMS',
 )
 
 print("MySQL connection successful!")
@@ -16,7 +16,7 @@ sql_server_conn = pyodbc.connect(
     'DRIVER={ODBC Driver 17 for SQL Server};'
     'SERVER=10.50.2.20;'
     'PORT=1433;'
-    'DATABASE=sqms_django;'
+    'DATABASE=SQMS;'
     'UID=sa;'
     'PWD=konawe@2023;'
 )

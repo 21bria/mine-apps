@@ -821,9 +821,7 @@
 
                     // Loop melalui data dan tambahkan sebagai opsi Select2
                     $.each(data.details_materials, function (key, value) {
-                        options += '<option value="' + value.nama_material + '">' + value
-                            .nama_material +
-                            '</option>';
+                        options += '<option value="' + value.nama_material + '">' + value.nama_material + '</option>';
                     });
 
                     $('#materialFilter').append(options);
@@ -841,9 +839,7 @@
                     var options = '';
                     // Loop melalui data dan tambahkan sebagai opsi Select2
                     $.each(data.type, function (key, value) {
-                        options += '<option value="' + value.type_sample + '">' + value
-                            .type_sample +
-                            '</option>';
+                        options += '<option value="' + value.type_sample + '">' + value.type_sample + '</option>';
                     });
                     // Set opsi dalam elemen Select2
                     $('#typeFilter').append(options);

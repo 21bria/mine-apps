@@ -190,7 +190,9 @@ def create_sample(request):
            
             # Gunakan transaksi database untuk memastikan integritas data
             with transaction.atomic():
-                # Dapatkan data dari request
+                # Proses untuk menghilangkan "DUP_" jika ada
+                dupSample           = [desc.replace('DUP_', '', 1) if desc.startswith('DUP_') else desc for desc in sampling_deskripsi]
+                
                 tgl_sample          = request.POST.getlist('tgl_sample[]')
                 shift               = request.POST.getlist('shift[]')
                 id_type_sample      = request.POST.getlist('id_type_sample[]')
@@ -223,7 +225,8 @@ def create_sample(request):
                     if type_pds[idx] == "PDS":
                         if SampleProductions.objects.filter(kode_batch=combinedKodeBatch).exists():
                             return JsonResponse({'message': f'{batch_code[idx]} : batch code already exists.'}, status=422)
-
+                    
+          
                     # Simpan data sample baru
                     SampleProductions.objects.create(
                         tgl_sample          = tgl_sample[idx],
@@ -234,7 +237,8 @@ def create_sample(request):
                         sample_number       = sample_number[idx],
                         sampling_area       = int(sampling_area[idx]) if sampling_area and sampling_area[idx].isdigit() else None,
                         sampling_point      = int(sampling_point[idx]) if sampling_point and sampling_point[idx].isdigit() else None,
-                        sampling_deskripsi  = sampling_deskripsi[idx] if sampling_deskripsi else "",
+                        # sampling_deskripsi  = sampling_deskripsi[idx] if sampling_deskripsi else "",
+                        sampling_deskripsi  = dupSample[idx],
                         batch_code          = batch_code[idx] if batch_code else "",
                         increments          = int(increments[idx]) if increments and increments[idx].isdigit() else 0,
                         sample_weight       = float(sample_weight[idx]) if sample_weight and sample_weight[idx].replace('.', '', 1).isdigit() else 0.0,

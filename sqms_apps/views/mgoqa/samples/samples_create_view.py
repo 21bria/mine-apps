@@ -180,19 +180,19 @@ def create_sample(request):
                         if not pattern.match(request.POST.get(field, '')):
                             return JsonResponse({'error': custom_messages[f'{field}.regex']}, status=400)
 
+            # After fetching all POST parameters
+            sampling_deskripsi  = request.POST.getlist('sampling_deskripsi[]')
+            dupSample = [desc.replace('DUP_', '', 1) if desc.startswith('DUP_') else desc for desc in sampling_deskripsi]
+
             # Cek keunikan sample_number
             sample_numbers = request.POST.getlist('sample_number[]')
             for sample_number in sample_numbers:
                 if SampleProductions.objects.filter(sample_number=sample_number).exists():
                     return JsonResponse({'error': f'SampleID {sample_number} already exists.'}, status=400)
                 
-            # code  = request.POST.get('code')
            
             # Gunakan transaksi database untuk memastikan integritas data
             with transaction.atomic():
-                # Proses untuk menghilangkan "DUP_" jika ada
-                dupSample           = [desc.replace('DUP_', '', 1) if desc.startswith('DUP_') else desc for desc in sampling_deskripsi]
-                
                 tgl_sample          = request.POST.getlist('tgl_sample[]')
                 shift               = request.POST.getlist('shift[]')
                 id_type_sample      = request.POST.getlist('id_type_sample[]')
@@ -212,6 +212,10 @@ def create_sample(request):
                 type_pds            = request.POST.getlist('type_pds[]')
                 gc_expect           = request.POST.getlist('gc_expect[]')
                 code                = request.POST.get('code')
+
+    
+                # Proses untuk menghilangkan "DUP_" jika ada
+                # dupSample = [desc.replace('DUP_', '', 1) if desc.startswith('DUP_') else desc for desc in sampling_deskripsi]
                 
                 # Loop untuk menyimpan setiap data sample
                 for idx in range(len(tgl_sample)):

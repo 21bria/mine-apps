@@ -480,12 +480,10 @@
                         dataType: "json",
                         success: function (data) {
                             // idMethodSelect.empty();
-                            // Clear option sebelum request, tambahkan opsi kosong
                             idMethodSelect.empty().append('<option value="">---</option>');
                             // Loop melalui data dan tambahkan sebagai opsi baru
                             $.each(data.methods, function (key, value) {
                                 idMethodSelect.append(
-                                    // '<option value="">---</option>' +
                                     '<option value="' + value.id + '">' + value.sample_method + '</option>'
                                 );
                             });

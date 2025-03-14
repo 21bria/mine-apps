@@ -51,6 +51,17 @@ def import_assay_mral(file_path, original_file_name):
         numeric_columns = ['Ni-mral', 'Co-mral', 'Fe2O3-mral', 'Fe-mral', 'Mgo-mral', 'SiO2-mral']
         for col in numeric_columns:
             df[col] = df[col].apply(clean_numeric)
+        
+        # Hapus duplikat berdasarkan 'sample_id' (hanya ambil baris pertama yang muncul untuk setiap sample_id)
+        # df = df.drop_duplicates(subset=['Samples Id'], keep='first')
+        # Pilih entri dengan release_mral terbesar untuk setiap sample_id
+        # df = df.loc[df.groupby('Samples Id')['release_mral'].idxmax()]
+
+        # Tambahkan suffix 'REP' untuk duplikat 'sample_id'
+        df['Samples Id'] = df.groupby('Samples Id').cumcount().apply(lambda x: f"{df['Samples Id'].iloc[x]}" if x == 0 else f"{df['Samples Id'].iloc[x]}REP")
+
+        # Pastikan hanya mengambil baris pertama untuk setiap sample_id
+        df = df.drop_duplicates(subset=['Samples Id'], keep='first')
 
         # Mulai transaksi untuk memastikan rollback jika terjadi error
         with transaction.atomic():

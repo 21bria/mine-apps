@@ -54,11 +54,10 @@ def import_assay_mral(file_path, original_file_name):
         
         # Hapus duplikat berdasarkan 'sample_id' (hanya ambil baris pertama yang muncul untuk setiap sample_id)
         # df = df.drop_duplicates(subset=['Samples Id'], keep='first')
-        # Pilih entri dengan release_mral terbesar untuk setiap sample_id
-        # df = df.loc[df.groupby('Samples Id')['release_mral'].idxmax()]
+
 
         # Tambahkan suffix 'REP' untuk duplikat 'sample_id'
-        df['Samples Id'] = df.groupby('Samples Id').cumcount().apply(lambda x: f"{df['Samples Id'].iloc[x]}" if x == 0 else f"{df['Samples Id'].iloc[x]}REP")
+        # df['Samples Id'] = df.groupby('Samples Id').cumcount().apply(lambda x: f"{df['Samples Id'].iloc[x]}" if x == 0 else f"{df['Samples Id'].iloc[x]}REP")
 
         # Pastikan hanya mengambil baris pertama untuk setiap sample_id
         df = df.drop_duplicates(subset=['Samples Id'], keep='first')

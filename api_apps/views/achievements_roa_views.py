@@ -158,7 +158,6 @@ class AchievementsRoaView(APIView):
             sql_query += f" LIMIT {per_page} OFFSET {offset};"
         
         elif db_vendor in ['mssql', 'microsoft']:
-            # Adding pagination (OFFSET-FETCH) SQL SERVER
             sql_query += f" OFFSET {offset} ROWS FETCH NEXT {per_page} ROWS ONLY;"
         else:
             raise ValueError("Unsupported database vendor.")

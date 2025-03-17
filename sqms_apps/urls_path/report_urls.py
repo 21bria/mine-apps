@@ -129,7 +129,8 @@ urlpatterns = [
     path('scatter/ploty/sio2', scatter_ploty_sio2, name='scatter_ploty_sio2'),
 
     path('samples-duplicated/page-roa/', sampleDuplicateRoa, name='samples-duplicated-roa-page'), 
-    path('samples-duplicated/list-roa/', SamplesDuplicatedRoa.as_view(), name='samples-duplicated-roa-list'), 
+    path('samples-duplicated/list-roa/', SamplesDuplicatedRoa.as_view(), name='samples-duplicated-roa-list'),
+    path('samples-duplicated/export/', export_sample_duplikat, name='samples-duplicated-roa-export'),
 
     # for Wet  Mral & roa
     path('chart/sample-wet-mral', sampleDuplicateWetMral, name='sample-duplicate-wet-mral'),
@@ -161,12 +162,14 @@ urlpatterns = [
 
     path('samples-crm/page-mral/', sampleCrmMralPage, name='sample-crm-mral-page'), 
     path('samples-crm/list-mral/', sampleCrmMral.as_view(), name='samples-crm-mral-list'), 
+    path('samples-crm/export-mral/', export_crm_mral, name='samples-crm-mral-export'), 
     path('samples-crm/page-chart-mral/', sampleCrmMralChart, name='samples-crm-mral-chart-page'), 
     path('samples-crm/get-mral/', getDataCrmMral, name='samples-crm-mral-get'), 
     path('samples-crm/get-mral-ploty/', getDataCrmMralPloty, name='samples-crm-mral-ploty-get'), 
 
     path('samples-crm/page-roa/', sampleCrmRoaPage, name='sample-crm-roa-page'), 
     path('samples-crm/list-roa/', sampleCrmRoa.as_view(), name='samples-crm-roa-list'), 
+    path('samples-crm/export-roa/', export_crm_roa, name='samples-crm-roa-export'), 
     path('samples-crm/page-chart-roa/', sampleCrmRoaChart, name='samples-crm-roa-chart-page'), 
     path('samples-crm/get-roa/', getDataCrmRoa, name='samples-crm-roa-get'), 
     path('samples-crm/get-roa-ploty/', getDataCrmRoaPloty, name='samples-crm-roa-ploty-get'), 

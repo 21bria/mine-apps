@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.http import HttpResponse
 from datetime import datetime, timedelta
 from django.views.generic import View
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -8,7 +10,9 @@ from django.db import connections
 import numpy as np  # Import numpy for NaN representation
 import plotly.graph_objs as go
 import plotly.io as pio
-from django.shortcuts import render
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
 import pandas as pd
 from .....utils.permissions import get_dynamic_permissions
 
@@ -548,3 +552,79 @@ class sampleCrmRoa(View):
             'totalPages'     : total_pages,
         }
  
+@csrf_exempt
+def export_crm_roa(request):
+    from_date  = request.GET.get('from_date')
+    to_date    = request.GET.get('to_date')
+    filterTypeCrm  = request.GET.get('filterTypeCrm')
+
+    # Query SQL
+    sql_query = """
+        SELECT 
+        oreas_name,oreas_ni ,oreas_co,oreas_fe2o3,oreas_fe,oreas_mgo
+        ,oreas_sio2,sampling_deskripsi,sample_id,release_date,
+        roa_ni,roa_co,roa_fe2o3,roa_fe,roa_mgo,roa_sio2,diff_ni,diff_co,diff_fe2o3,diff_fe,diff_mgo,diff_sio2 
+        FROM oreas_diff_abs_roa
+    """
+    params = []
+
+    if from_date and to_date:
+        sql_query += " WHERE release_date BETWEEN %s AND %s"
+        params.extend([from_date, to_date])
+
+    if filterTypeCrm:
+            sql_query += " AND oreas_name = %s"
+            params.extend([filterTypeCrm])    
+
+    # Eksekusi query SQL dengan handling error jika data kosong
+    with connections['sqms_db'].cursor() as cursor:
+        cursor.execute(sql_query, params)
+        rows = cursor.fetchall()
+        
+        # Cek apakah data kosong
+        if not rows:
+            return HttpResponse("No data available for export.", content_type="text/plain")
+        
+        columns = [col[0] for col in cursor.description]  # Ambil nama kolom dari hasil query
+
+    # Inisialisasi Workbook
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Export Data CRM - ROA'
+
+    # Header Kolom
+    header = [
+        'No', 'Name', 'Ni [Oreas]', 'Co [Oreas]', 'Fe2O3 [Oreas]', 'Fe [Oreas]', 'MgO [Oreas]', 'SiO2 [Oreas]', 'Deskripsi',
+        'Sample Id', 'Realese','Ni', 'Co','Fe2O3','Fe', 'Mgo','SiO2','Diff [Ni]', 'Diff [Co]', 'Diff [Fe2O3]','Diff [Fe]', 'Diff [MgO]', 'Diff [SiO2]'
+    ]
+
+    # Cek kesesuaian jumlah header dengan data dari SQL
+    expected_columns = len(header) - 1  # Kurangi 1 karena ada kolom "No"
+    actual_columns = len(columns)
+
+    if expected_columns != actual_columns:
+        return HttpResponse(f"Column mismatch: expected {expected_columns}, got {actual_columns}.", content_type="text/plain")
+
+    # Menulis header ke Excel
+    for col_num, column_title in enumerate(header, 1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = Font(bold=True)
+
+    # Menulis data ke Excel
+    for row_num, row in enumerate(rows, start=2):
+        worksheet.cell(row=row_num, column=1, value=row_num - 1)  # Kolom "No"
+        for col_num, cell_value in enumerate(row, start=2):  # Mulai dari kolom ke-2
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    # Menyesuaikan lebar kolom berdasarkan panjang data
+    for col_num, column_title in enumerate(header, 1):
+        col_letter = get_column_letter(col_num)
+        max_length = max(len(column_title), max((len(str(row[col_num - 2])) for row in rows if row[col_num - 2] is not None), default=0))
+        worksheet.column_dimensions[col_letter].width = max_length + 2
+
+    # Menyiapkan response untuk download file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Data CRM (ROA).xlsx"'
+    workbook.save(response)
+
+    return response

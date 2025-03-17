@@ -227,50 +227,66 @@ def recon_mine_date(request):
         # Gabungkan hasil rekonsiliasi
         reconciliation_data = []
         for mining in mining_data:
-            key = (
-                str(mining['date_production']).strip(),  # Konversi ke string terlebih dahulu
-                mining['loading_point'].strip().lower(),
-                mining['shift'].strip(),
-                mining['nama_material'].strip().lower()
-            )
-            print("Mining Key:", key)
-            gc = gc_dict.get(key)
+            # key = (
+            #     str(mining['date_production']).strip(),  # Konversi ke string terlebih dahulu
+            #     mining['loading_point'].strip().lower(),
+            #     mining['shift'].strip(),
+            #     mining['nama_material'].strip().lower()
+            # )
+            
+            try:
+                key = (
+                    str(mining.get('date_production', '')).strip(),
+                    str(mining.get('loading_point', '')).strip().lower(),
+                    str(mining.get('shift', '')).strip(),
+                    str(mining.get('nama_material', '')).strip().lower()
+                )
 
-            # Hitung dengan pembulatan
-            mining_ritase = round(mining['mining_total_ritase'], 2)
-            gc_ritase     = gc['gc_total_ritase'] if gc else 0
-            ritase_diff   = round(mining_ritase - gc_ritase, 2)
+                print("Mining Key:", key)
+                gc = gc_dict.get(key, {})  # Default ke dictionary kosong
 
-            mining_tonnage = round(mining['mining_total_tonnage'], 2)
-            gc_tonnage     = gc['gc_total_tonnage'] if gc else 0
-            tonnage_diff   = round(mining_tonnage - gc_tonnage, 2)
+                # Hitung dengan pembulatan
+                mining_ritase = round(mining.get('mining_total_ritase', 0), 2)
+                gc_ritase     = round(gc.get('gc_total_ritase', 0), 2)
+                ritase_diff   = round(mining_ritase - gc_ritase, 2)
 
-            reconciliation_data.append({
-                'date'      : mining['date_production'],
-                'area'      : mining['loading_point'].strip(),
-                'shift'     : mining['shift'].strip(),
-                'material'  : mining['nama_material'].strip(),
-                # 'material_type'       : gc['ore_class'].strip(),
-                'gc_ritase'      : gc_ritase,
-                'mining_ritase'  : mining_ritase,
-                'ritase_diff'    : ritase_diff,
-                'gc_tonnage'     : gc_tonnage,
-                'mining_tonnage' : mining_tonnage,
-                'tonnage_diff'   : tonnage_diff,
-            })
+                mining_tonnage = round(mining.get('mining_total_tonnage', 0), 2)
+                gc_tonnage     = round(gc.get('gc_total_tonnage', 0), 2)
+                tonnage_diff   = round(mining_tonnage - gc_tonnage, 2)
 
-            # Fiter MAterial yang diambil
-            allowed_materials = {"MWS", "LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"}
+                reconciliation_data.append({
+                    'date'      : mining.get('date_production', ''),
+                    'area'      : mining.get('loading_point', '').strip(),
+                    'shift'     : mining.get('shift', '').strip(),
+                    'material'  : mining.get('nama_material', '').strip(),
+                    'gc_ritase'      : gc_ritase,
+                    'mining_ritase'  : mining_ritase,
+                    'ritase_diff'    : ritase_diff,
+                    'gc_tonnage'     : gc_tonnage,
+                    'mining_tonnage' : mining_tonnage,
+                    'tonnage_diff'   : tonnage_diff,
+                })
 
-            # Tambahkan ke summary berdasarkan material_type jika material_type ada di daftar
-            material_type = mining['nama_material'].strip()
-            if material_type in allowed_materials:
-                summary_total[material_type]['total_gc_ritase'] += gc_ritase
-                summary_total[material_type]['total_mining_ritase'] += mining_ritase
-                summary_total[material_type]['total_ritase_diff'] += ritase_diff
-                summary_total[material_type]['total_gc_tonnage'] += gc_tonnage
-                summary_total[material_type]['total_mining_tonnage'] += mining_tonnage
-                summary_total[material_type]['total_tonnage_diff'] += tonnage_diff
+                # Filter material yang diambil
+                allowed_materials = {"MWS", "LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"}
+
+                material_type = mining.get('nama_material', '').strip()
+                if material_type in allowed_materials:
+                    if material_type not in summary_total:
+                        summary_total[material_type] = {
+                            'total_gc_ritase': 0, 'total_mining_ritase': 0, 'total_ritase_diff': 0,
+                            'total_gc_tonnage': 0, 'total_mining_tonnage': 0, 'total_tonnage_diff': 0
+                        }
+
+                    summary_total[material_type]['total_gc_ritase'] += gc_ritase
+                    summary_total[material_type]['total_mining_ritase'] += mining_ritase
+                    summary_total[material_type]['total_ritase_diff'] += ritase_diff
+                    summary_total[material_type]['total_gc_tonnage'] += gc_tonnage
+                    summary_total[material_type]['total_mining_tonnage'] += mining_tonnage
+                    summary_total[material_type]['total_tonnage_diff'] += tonnage_diff
+
+            except Exception as e:
+                print("Error processing mining data:", mining, "Error:", e)
 
         summary_list = [{'material_type': mt, **values} for mt, values in summary_total.items()]
 
@@ -407,14 +423,20 @@ def recon_mine_daily(request):
         gc_dict = {}
         for gc in gc_data:
             # print(f"Processing Mining: {mining}")  # Debug data mentah
+            # key = (
+            #     gc['tgl_production'].strftime('%Y-%m-%d') if gc['tgl_production'] else "",
+            #     gc['prospect_area'].strip().lower() if gc['prospect_area'] else "",
+            #     gc['shift'].strip() if gc['shift'] else "",
+            #     # gc['nama_material'].strip().lower() if gc['nama_material'] else "",
+            #     gc['ore_class'].strip().lower() if gc['ore_class'] else "",
+            # )
             key = (
                 gc['tgl_production'].strftime('%Y-%m-%d') if gc['tgl_production'] else "",
-                gc['prospect_area'].strip().lower() if gc['prospect_area'] else "",
-                gc['shift'].strip() if gc['shift'] else "",
-                # gc['nama_material'].strip().lower() if gc['nama_material'] else "",
-                gc['ore_class'].strip().lower() if gc['ore_class'] else "",
+                (gc['prospect_area'] or "").strip().lower(),
+                (gc['shift'] or "").strip(),
+                (gc['ore_class'] or "").strip().lower(),
             )
-            # print("Mining Key:", key)
+            print("Mining Key:", key)
             gc_dict[key] = {
                 'gc_total_ritase' : round(gc['gc_total_ritase'], 2),
                 'gc_total_tonnage': round(gc['gc_total_tonnage'], 2),
@@ -425,51 +447,62 @@ def recon_mine_daily(request):
                                      'total_gc_tonnage': 0, 'total_mining_tonnage': 0, 'total_tonnage_diff': 0})
         # Gabungkan hasil rekonsiliasi
         reconciliation_data = []
+
         for mining in mining_data:
-            key = (
-                str(mining['date_production']).strip(),  # Konversi ke string terlebih dahulu
-                mining['loading_point'].strip().lower(),
-                mining['shift'].strip(),
-                mining['nama_material'].strip().lower()
-            )
-            print("Mining Key:", key)
-            gc = gc_dict.get(key)
+            # print("Mining Data:", mining)  # Debugging sebelum diproses
+            try:
+                key = (
+                    str(mining.get('date_production', '')).strip(),
+                    str(mining.get('loading_point', '')).strip().lower(),
+                    str(mining.get('shift', '')).strip(),
+                    str(mining.get('nama_material', '')).strip().lower()
+                )
 
-            # Hitung dengan pembulatan
-            mining_ritase = round(mining['mining_total_ritase'], 2)
-            gc_ritase     = gc['gc_total_ritase'] if gc else 0
-            ritase_diff   = round(mining_ritase - gc_ritase, 2)
+                print("Mining Key:", key)
+                gc = gc_dict.get(key, {})  # Default ke dictionary kosong
 
-            mining_tonnage = round(mining['mining_total_tonnage'], 2)
-            gc_tonnage     = gc['gc_total_tonnage'] if gc else 0
-            tonnage_diff   = round(mining_tonnage - gc_tonnage, 2)
+                # Hitung dengan pembulatan
+                mining_ritase = round(mining.get('mining_total_ritase', 0), 2)
+                gc_ritase     = round(gc.get('gc_total_ritase', 0), 2)
+                ritase_diff   = round(mining_ritase - gc_ritase, 2)
 
-            reconciliation_data.append({
-                'date'      : mining['date_production'],
-                'area'      : mining['loading_point'].strip(),
-                'shift'     : mining['shift'].strip(),
-                'material'  : mining['nama_material'].strip(),
-                # 'material_type'       : gc['ore_class'].strip(),
-                'gc_ritase'      : gc_ritase,
-                'mining_ritase'  : mining_ritase,
-                'ritase_diff'    : ritase_diff,
-                'gc_tonnage'     : gc_tonnage,
-                'mining_tonnage' : mining_tonnage,
-                'tonnage_diff'   : tonnage_diff,
-            })
+                mining_tonnage = round(mining.get('mining_total_tonnage', 0), 2)
+                gc_tonnage     = round(gc.get('gc_total_tonnage', 0), 2)
+                tonnage_diff   = round(mining_tonnage - gc_tonnage, 2)
 
-            # Fiter MAterial yang diambil
-            allowed_materials = {"MWS", "LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"}
+                reconciliation_data.append({
+                    'date'      : mining.get('date_production', ''),
+                    'area'      : mining.get('loading_point', '').strip(),
+                    'shift'     : mining.get('shift', '').strip(),
+                    'material'  : mining.get('nama_material', '').strip(),
+                    'gc_ritase'      : gc_ritase,
+                    'mining_ritase'  : mining_ritase,
+                    'ritase_diff'    : ritase_diff,
+                    'gc_tonnage'     : gc_tonnage,
+                    'mining_tonnage' : mining_tonnage,
+                    'tonnage_diff'   : tonnage_diff,
+                })
 
-            # Tambahkan ke summary berdasarkan material_type jika material_type ada di daftar
-            material_type = mining['nama_material'].strip()
-            if material_type in allowed_materials:
-                summary_total[material_type]['total_gc_ritase'] += gc_ritase
-                summary_total[material_type]['total_mining_ritase'] += mining_ritase
-                summary_total[material_type]['total_ritase_diff'] += ritase_diff
-                summary_total[material_type]['total_gc_tonnage'] += gc_tonnage
-                summary_total[material_type]['total_mining_tonnage'] += mining_tonnage
-                summary_total[material_type]['total_tonnage_diff'] += tonnage_diff
+                # Filter material yang diambil
+                allowed_materials = {"MWS", "LGLO", "MGLO", "HGLO", "LGSO", "MGSO", "HGSO"}
+
+                material_type = mining.get('nama_material', '').strip()
+                if material_type in allowed_materials:
+                    if material_type not in summary_total:
+                        summary_total[material_type] = {
+                            'total_gc_ritase': 0, 'total_mining_ritase': 0, 'total_ritase_diff': 0,
+                            'total_gc_tonnage': 0, 'total_mining_tonnage': 0, 'total_tonnage_diff': 0
+                        }
+
+                    summary_total[material_type]['total_gc_ritase'] += gc_ritase
+                    summary_total[material_type]['total_mining_ritase'] += mining_ritase
+                    summary_total[material_type]['total_ritase_diff'] += ritase_diff
+                    summary_total[material_type]['total_gc_tonnage'] += gc_tonnage
+                    summary_total[material_type]['total_mining_tonnage'] += mining_tonnage
+                    summary_total[material_type]['total_tonnage_diff'] += tonnage_diff
+
+            except Exception as e:
+                print("Error processing mining data:", mining, "Error:", e)
 
         summary_list = [{'material_type': mt, **values} for mt, values in summary_total.items()]
 

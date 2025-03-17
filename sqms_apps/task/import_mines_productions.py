@@ -27,6 +27,17 @@ def import_mine_productions(file_path, original_file_name):
     # Konversi kolom ke datetime dengan format yang sesuai
     df['Date Production'] = pd.to_datetime(df['Date Production'], format='%Y-%m-%d', errors='coerce')
 
+    # Normalisasi nilai Shift
+    df['Shift'] = df['Shift'].astype(str).str.strip().replace({'DS': 'D', 'NS': 'N'})
+
+    # Validasi nilai Shift
+    valid_shifts = {'D', 'N'}
+    invalid_shifts = set(df['Shift'].dropna().unique()) - valid_shifts  # Hindari NaN
+
+    if invalid_shifts:
+        errors.append(f"Terdapat nilai Shift yang tidak valid: {', '.join(invalid_shifts)}")
+
+
     # Buat dictionary dari Tabel untuk pencarian ID berdasarkan nama
     source_dict   = dict(SourceMines.objects.annotate(trimmed_sources=Trim('sources_area')).values_list('trimmed_sources', 'id'))
     loading_dict  = dict(SourceMinesLoading.objects.annotate(trimmed_loading=Trim('loading_point')).values_list('trimmed_loading', 'id'))

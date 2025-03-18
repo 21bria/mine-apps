@@ -275,7 +275,7 @@ def chartWeeksTatRoa(request):
     try:
         jml_week = int(jml_week)
     except (TypeError, ValueError):
-        jml_week = 4  # Default to 4 if not a valid numb
+        jml_week = 5  # Default to 4 if not a valid numb
 
     # Query untuk mengambil data 
     if db_vendor == 'mysql':

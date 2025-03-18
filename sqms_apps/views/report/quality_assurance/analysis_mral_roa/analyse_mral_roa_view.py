@@ -1,11 +1,17 @@
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.http import HttpResponse
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.express as px
 import plotly.io as pio
 pio.templates
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 from django.views.generic import View
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -209,7 +215,7 @@ def ploty_wet_year(request):
 
 @login_required
 def ploty_wet_month(request):
-  # Mendapatkan nilai filter dari request
+    # Mendapatkan nilai filter dari request
     filter_year  = request.GET.get('filter_year')
     filter_month = request.GET.get('filter_month')
 
@@ -220,7 +226,6 @@ def ploty_wet_month(request):
     if not filter_month:
         filter_month = datetime.now().month
 
-    # Query dengan parameterisasi untuk keamanan
     query = """
           SELECT
                 COUNT(CASE WHEN ni_roa IS NOT NULL THEN ni_roa ELSE NULL END) AS jlm_ni,
@@ -360,13 +365,13 @@ def ploty_wet_month(request):
     'responsive': True
 })
     return JsonResponse({'plot_div': plot_div})
+
 @login_required
 def ploty_wet_weekly(request):
   # Mendapatkan nilai filter dari request
     startDate  = request.GET.get('startDate')
     endDate = request.GET.get('endDate')
 
-    # Query dengan parameterisasi untuk keamanan
     query = """
            SELECT
                 COUNT(CASE WHEN ni_roa IS NOT NULL THEN ni_roa ELSE NULL END) AS jlm_ni,
@@ -518,8 +523,6 @@ def yearDataAnalyse(request):
     if not filter_year:
         filter_year = datetime.now().year
 
-
-    # Query dengan parameterisasi untuk keamanan
     query = """
         SELECT
                 COUNT(CASE WHEN ni_roa IS NOT NULL THEN ni_roa ELSE NULL END) AS jlm_ni,
@@ -586,6 +589,7 @@ def yearDataAnalyse(request):
     }
 
     return JsonResponse(response_data)
+
 @login_required
 def monthDataAnalyse(request):
     # Mendapatkan nilai filter dari request
@@ -599,7 +603,6 @@ def monthDataAnalyse(request):
     if not filter_month:
         filter_month = datetime.now().month
 
-    # Query dengan parameterisasi untuk keamanan
     query = """
          SELECT
                 COUNT(CASE WHEN ni_roa IS NOT NULL THEN ni_roa ELSE NULL END) AS jlm_ni,
@@ -670,6 +673,7 @@ def monthDataAnalyse(request):
 
 
     return JsonResponse(response_data)
+
 @login_required    
 def weekDataAnalyse(request):
 
@@ -677,7 +681,7 @@ def weekDataAnalyse(request):
     startDate  = request.GET.get('startDate')
     endDate = request.GET.get('endDate')
 
-    # Query dengan parameterisasi untuk keamanan
+   
     query = """
         SELECT
                 COUNT(CASE WHEN ni_roa IS NOT NULL THEN ni_roa ELSE NULL END) AS jlm_ni,
@@ -769,7 +773,6 @@ class getAnalyseData(View):
         """
 
         params = []
-
         from_date = request.POST.get('from_date')
         to_date   = request.POST.get('to_date')
 
@@ -814,3 +817,110 @@ class getAnalyseData(View):
             'length'         : length,
             'totalPages'     : total_pages,
         }
+
+@csrf_exempt
+def export_mral_roa_analyse(request):
+    from_date  = request.GET.get('from_date')
+    to_date    = request.GET.get('to_date')
+
+    # Query SQL
+    sql_query = """
+        SELECT  
+            tgl_deliver
+            ,waybill_number
+            ,sample_id
+            ,release_date
+            ,ni_mral
+            ,ni_roa
+            ,ni_diff
+            ,ni_rel_diff
+            ,ni_rel_abs
+            ,ni_error
+            ,co_mral
+            ,co_roa
+            ,co_diff
+            ,co_rel_diff
+            ,co_rel_abs
+            ,co_error
+            ,fe_mral
+            ,fe_roa
+            ,fe_diff
+            ,fe_rel_diff
+            ,fe_rel_abs
+            ,fe_error
+            ,mgo_mral
+            ,mgo_roa
+            ,mgo_diff
+            ,mgo_rel_diff
+            ,mgo_rel_abs
+            ,mgo_error
+            ,sio2_mral
+            ,sio2_roa
+            ,sio2_diff
+            ,sio2_rel_diff
+            ,sio2_rel_abs
+            ,sio2_error
+        FROM mral_roa_analyse
+    """
+    params = []
+
+    if from_date and to_date:
+        sql_query += " WHERE release_date BETWEEN %s AND %s"
+        params.extend([from_date, to_date])
+
+    # Eksekusi query SQL dengan handling error jika data kosong
+    with connections['sqms_db'].cursor() as cursor:
+        cursor.execute(sql_query, params)
+        rows = cursor.fetchall()
+        
+        # Cek apakah data kosong
+        if not rows:
+            return HttpResponse("No data available for export.", content_type="text/plain")
+        
+        columns = [col[0] for col in cursor.description]  # Ambil nama kolom dari hasil query
+
+    # Inisialisasi Workbook
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Export Data MRAL vs ROA'
+
+    # Header Kolom
+    header = [
+        'No','Date' ,'Waybill','Sample Id','Release'
+        ,'Ni [Mral]','Ni [Roa]' ,'Ni [Diff]','Rel [Diff]','Rel [Abs]','Ni [Check]'
+        ,'Co [Mral]','Co [Roa]','Co [Diff]','Rel [Diff]','Rel [Abs]','Co [Check]'
+        ,'Fe [Mral]' ,'Fe [Roa]','Fe [Diff]','Rel [Diff]','Rel [Abs]','Fe [Check]'
+        ,'Mgo [Mral]','Mgo [Roa]','Mgo [Diff]','Rel [Diff]','Rel [Abs]','Mgo [Check]'
+        ,'SiO2 [Mral]','SiO2 [Roa]','SiO2 [Diff]','Rel [Diff]','Rel [Abs]','SiO2 [Check]'
+    ]
+
+    # Cek kesesuaian jumlah header dengan data dari SQL
+    expected_columns = len(header) - 1  # Kurangi 1 karena ada kolom "No"
+    actual_columns = len(columns)
+
+    if expected_columns != actual_columns:
+        return HttpResponse(f"Column mismatch: expected {expected_columns}, got {actual_columns}.", content_type="text/plain")
+
+    # Menulis header ke Excel
+    for col_num, column_title in enumerate(header, 1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = Font(bold=True)
+
+    # Menulis data ke Excel
+    for row_num, row in enumerate(rows, start=2):
+        worksheet.cell(row=row_num, column=1, value=row_num - 1)  # Kolom "No"
+        for col_num, cell_value in enumerate(row, start=2):  # Mulai dari kolom ke-2
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    # Menyesuaikan lebar kolom berdasarkan panjang data
+    for col_num, column_title in enumerate(header, 1):
+        col_letter = get_column_letter(col_num)
+        max_length = max(len(column_title), max((len(str(row[col_num - 2])) for row in rows if row[col_num - 2] is not None), default=0))
+        worksheet.column_dimensions[col_letter].width = max_length + 2
+
+    # Menyiapkan response untuk download file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Data MRAl vs ROA.xlsx"'
+    workbook.save(response)
+
+    return response

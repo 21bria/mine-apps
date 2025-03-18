@@ -177,6 +177,7 @@ urlpatterns = [
     # Mral vs Roa Analise
     path('samples-analyse/page/', analyseMralRoaPage, name='sample-analyse-page'), 
     path('samples-analyse/list-mral-roa/', getAnalyseData.as_view(), name='analyse-mral-roa-list'), 
+    path('samples-analyse/export-mral-roa/', export_mral_roa_analyse, name='analyse-mral-roa-export'), 
     path('samples-analyse/chart/page/', analyseMralRoaChartPage, name='chart-analyse-page'), 
     path('samples-analyse/chart/mral-roa-year/', yearDataAnalyse, name='analyse-mral-roa-year'), 
     path('samples-analyse/chart/mral-roa-month/', monthDataAnalyse, name='analyse-mral-roa-month'), 

@@ -165,10 +165,11 @@ def export_mine_data(request):
     material_filter = request.GET.get('material_filter')
     sources_area    = request.GET.get('sources_area')
     loading_point   = request.GET.get('loading_point')
+    dumping_point   = request.GET.get('dumping_point')
+    dome_id         = request.GET.get('dome_id')
     category_mine   = request.GET.get('category_mine')
 
-    # workbook = openpyxl.Workbook()
-    workbook = Workbook()
+    workbook  = Workbook()
     worksheet = workbook.active
     worksheet.title = 'Export Data Productions'
 
@@ -176,8 +177,10 @@ def export_mine_data(request):
     header = [
         'No', 
         'Date', 
+        'Hauler Plan',
+        'Fleet',
+        'Vendors', 
         'Shift', 
-        'Time',
         'Loader',
         'Hauler',
         'Hauler Class',
@@ -187,6 +190,7 @@ def export_mine_data(request):
         'Dumping Point',
         'Dome',
         'Category',
+        'Time',
         'Material',
         'Ritase',
         'Bcm',
@@ -200,28 +204,19 @@ def export_mine_data(request):
 
     # List kolom yang ingin diambil
     columns = [
-        'date_production', 
-        'shift', 
-        'time_loading', 
-        'vendors',
-        'hauler',
-        'hauler_class',
-        'hauler_type',
-        'sources_area',
-        'loading_point',
-        'dumping_point',
-        'dome_id',
-        'category_mine',
-        'nama_material',
-        'ritase',
-        'bcm',
-        'tonnage'
+            'date_production','hauler_plan'
+            ,'fleet','vendors','shift','loader'
+            ,'hauler','hauler_class'
+            ,'hauler_type','sources_area'
+            ,'loading_point','dumping_point'
+            ,'dome_id','category_mine'
+            ,'time_loading','nama_material'
+            ,'ritase','bcm','tonnage'
     ]
 
     # Iterator ini mengambil data dalam beberapa bagian, sehingga hemat memori untuk kumpulan data besar.
     queryset = mineProductionsView.objects.all().values_list(*columns)
     
-
     if startDate and endDate:
         queryset = queryset.filter(date_production__range=[startDate, endDate])
     if material_filter:
@@ -230,6 +225,10 @@ def export_mine_data(request):
         queryset = queryset.filter(sources_area=sources_area)
     if loading_point:
         queryset = queryset.filter(loading_point=loading_point)
+    if dumping_point:
+        queryset = queryset.filter(dumping_point=dumping_point)
+    if dome_id:
+        queryset = queryset.filter(dome_id=dome_id)
     if category_mine:
         queryset = queryset.filter(category_mine=category_mine)
 
@@ -255,7 +254,7 @@ def export_mine_data(request):
         worksheet.column_dimensions[col_letter].width = adjusted_width
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="data-productions.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="Mine data productions.xlsx"'
     workbook.save(response)
 
     return response

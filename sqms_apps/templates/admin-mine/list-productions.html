@@ -1106,59 +1106,6 @@
         });
     </script>
 
-    <!-- Exports to Excel -->
-    <script>
-        $(document).ready(function () {
-            $('#exportFilter').click(function () {
-                const modal = document.getElementById('filterModal');
-                modal.classList.remove('hidden');
-                $('#exportButton').show();
-                $('#applyFilterBtn').hide();
-            });
-
-            $('#exportButton').click(function () {
-                var startDate = $('#startDate').val();
-                var endDate = $('#endDate').val();
-                var sources_area = $('#sources_area').val();
-                var loading_point = $('#loadingPoint').val();
-                var category_mine = $('#category').val();
-                var material_filter = $('#material_filter').val();
-
-                // Konversi tanggal ke objek Date
-                var start = new Date(startDate);
-                var end = new Date(endDate);
-
-                // Hitung selisih bulan
-                var maxDateRange = new Date(start);
-                maxDateRange.setMonth(maxDateRange.getMonth() + 1); // Tambah 1 bulan
-
-                if (end > maxDateRange) {
-                    const toast = window.Swal.mixin({
-                        toast: true,
-                        position: 'top',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        padding: '2em',
-                    });
-                    toast.fire({
-                        icon: 'error',
-                        html: "Maksimal rentang tanggal hanya 1 bulan!",
-                        padding: '2em',
-                    });
-                    return;
-                }
-
-                // Buat URL untuk ekspor
-                var exportUrl = "{% url 'mine-production-export' %}?startDate=" + startDate + "&endDate=" +
-                    endDate + "&category_mine=" + category_mine + "&material_filter=" + material_filter +
-                    "&sources_area=" + sources_area + "&loading_point=" + loading_point;
-
-                // Redirect ke URL ekspor
-                window.location.href = exportUrl;
-            });
-        });
-    </script>
-
 
     <!-- For Edit Row--->
     <script>
@@ -1485,6 +1432,62 @@
             });
         });
 
+    </script>
+
+    <!-- Exports to Excel -->
+    <script>
+        $(document).ready(function () {
+            $('#exportFilter').click(function () {
+                const modal = document.getElementById('filterModal');
+                modal.classList.remove('hidden');
+                $('#exportButton').show();
+                $('#applyFilterBtn').hide();
+            });
+
+            $('#exportButton').click(function () {
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+                var sources_area = $('#sources_area').val();
+                var loading_point = $('#loadingPoint').val();
+                var category_mine = $('#category').val();
+                var material_filter = $('#material_filter').val();
+                var dumping_point = $('#dumping_point').val();
+                var dome_id = $('#pile_id').val();
+
+                // Konversi tanggal ke objek Date
+                var start = new Date(startDate);
+                var end = new Date(endDate);
+
+                // Hitung selisih bulan
+                var maxDateRange = new Date(start);
+                maxDateRange.setMonth(maxDateRange.getMonth() + 1); // Tambah 1 bulan
+
+                if (end > maxDateRange) {
+                    const toast = window.Swal.mixin({
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        padding: '2em',
+                    });
+                    toast.fire({
+                        icon: 'error',
+                        html: "Maksimal rentang tanggal hanya 1 bulan!",
+                        padding: '2em',
+                    });
+                    return;
+                }
+
+                // Buat URL untuk ekspor
+                var exportUrl = "{% url 'mine-production-export' %}?startDate=" + startDate + "&endDate=" +
+                    endDate + "&category_mine=" + category_mine + "&material_filter=" + material_filter +
+                    "&sources_area=" + sources_area + "&loading_point=" + loading_point
+                    + "&dumping_point=" + dumping_point + "&dome_id=" + dome_id;
+
+                // Redirect ke URL ekspor
+                window.location.href = exportUrl;
+            });
+        });
     </script>
 
 </body>

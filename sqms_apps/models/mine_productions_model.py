@@ -50,6 +50,8 @@ class mineProductions(models.Model):
 
 class mineProductionsView(models.Model):
     date_production = models.DateField(default=None, null=True, blank=True)
+    hauler_plan     = models.CharField(max_length=20, default=None, null=True, blank=True)
+    fleet           = models.CharField(max_length=25, default=None, null=True, blank=True)
     shift           = models.CharField(max_length=10, default=None, null=True, blank=True)
     vendors         = models.CharField(max_length=25, default=None, null=True, blank=True)
     loader          = models.CharField(max_length=25, default=None, null=True, blank=True)

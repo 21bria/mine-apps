@@ -35,7 +35,7 @@ def import_mine_productions(file_path, original_file_name):
     invalid_shifts = set(df['Shift'].dropna().unique()) - valid_shifts  # Hindari NaN
 
     if invalid_shifts:
-        errors.append(f"Opss nilai Shift yang tidak valid: {', '.join(invalid_shifts)}")
+        errors.append(f"Terdapat nilai Shift yang tidak valid: {', '.join(invalid_shifts)}")
 
 
     # Buat dictionary dari Tabel untuk pencarian ID berdasarkan nama

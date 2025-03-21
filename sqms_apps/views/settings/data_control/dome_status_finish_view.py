@@ -228,13 +228,15 @@ def update_dome_finish(request, id):
             description  = request.POST['description']
 
             status_dome  ='Continue'
+            # cek_data     = f"{id_dome}{status_dome}"
 
             # Dapatkan objek yang akan diupdate
             data = get_object_or_404(domeStatusFinish, id=id)
 
             # Update data
-            data.description = description
-            data.status_dome = status_dome
+            data.description    = description
+            data.status_dome    = status_dome
+            data.cek_duplicated = ''
             data.save()
 
             # Update OreProductions

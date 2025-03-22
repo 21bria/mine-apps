@@ -83,9 +83,9 @@ class domeFinishList(View):
                 "id": item.id,
                 "sampling_point": item.sampling_point,
                 "sampling_area": item.sampling_area,
-                "tonnage_dome": item.tonnage_dome,
-                "status_dome": item.status_dome,
-                "description": item.description
+                "tonnage_dome" : item.tonnage_dome,
+                "status_dome"  : item.status_dome,
+                "description"  : item.description
             } for item in object_list
         ]
 
@@ -164,25 +164,32 @@ def insert_dome_finish(request):
             with transaction.atomic():
                 cek_data = f"{id_dome}{status_dome}"
 
-                if domeStatusFinish.objects.filter(cek_duplicated=cek_data).exists():
-                    return JsonResponse({'error': f'Data already exists.'}, status=400)
+                # if domeStatusFinish.objects.filter(cek_duplicated=cek_data).exists():
+                #     return JsonResponse({'error': f'Data already exists.'}, status=400)
 
                 # Simpan data baru
-                domeStatusFinish.objects.create(
-                    id_dome=int(id_dome),
-                    tonnage_dome=float(tonnage_dome),
-                    status_dome=status_dome,
-                    description=description,
+                # domeStatusFinish.objects.create(
+                #     id_dome=int(id_dome),
+                #     tonnage_dome=float(tonnage_dome),
+                #     status_dome=status_dome,
+                #     description=description,
+                #     cek_duplicated=cek_data,
+                # )
+
+                # update_or_create
+                obj, created = domeStatusFinish.objects.update_or_create(
                     cek_duplicated=cek_data,
+                    defaults={
+                        'id_dome'     : int(id_dome),
+                        'tonnage_dome': float(tonnage_dome),
+                        'status_dome' : status_dome,
+                        'description' : description,
+                    }
                 )
 
-                # Update OreProduction
+                # Update tabel terkait hanya jika objek baru dibuat atau diperbarui
                 OreProductions.objects.filter(id_pile=id_dome).update(status_dome=status_dome)
-
-                # Update Selling Data
                 SellingProductions.objects.filter(id=id_dome).update(sale_dome=status_dome)
-
-                # Update SourceMinesDome
                 SourceMinesDome.objects.filter(id=id_dome).update(dome_finish=status_dome)
 
             # Kembalikan respons JSON sukses

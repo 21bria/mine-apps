@@ -65,7 +65,7 @@
         </div>
     </a>
 </li> -->
-
+{% if permissions.hauling_admin%}
 <li class="menu nav-item">
     <button type="button" class="nav-link group" :class="{'active' : activeDropdown === 'quick-data-mine'}"
         @click="activeDropdown === 'quick-data-mine' ? activeDropdown = null : activeDropdown = 'quick-data-mine'">
@@ -137,7 +137,7 @@
         </li> -->
     </ul>
 </li>
-
+{% endif %}
 
 <li class="menu nav-item">
     <button type="button" class="nav-link group" :class="{'active' : activeDropdown === 'reconsile_mining'}"

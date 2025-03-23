@@ -405,7 +405,7 @@
             var filter_date = new URLSearchParams(window.location.search).get('filter_date');
             // Fetch data from server using jQuery
             $.ajax({
-                url: '{% url "mine-reconciliation-get-day" %}',
+                url: '{% url "gc-reconciliation-get-date" %}',
                 method: 'GET',
                 data: { filter_date: filter_date },
                 success: function (response) {

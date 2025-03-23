@@ -222,7 +222,12 @@ def submit_approval_gc_page(request):
 
 @login_required
 def review_approval_page(request):
-    return render(request, 'approval/review_create_approval.html')
+     # Cek permission
+    permissions = get_dynamic_permissions(request.user)
+    context = {
+        'permissions': permissions,
+    }
+    return render(request, 'approval/review_create_approval.html',context)
 
 # Asisten
 @login_required

@@ -308,10 +308,10 @@
             data.forEach(item => {
                 const row = $('<tr>').html(`
                     <td>${item.material_type}</td>
-                    <td>${formatNumber(item.total_mining_ritase)}</td>
-                    <td>${formatNumber(item.total_mining_tonnage)}</td>
                     <td>${formatNumber(item.total_gc_ritase)}</td>
                     <td>${formatNumber(item.total_gc_tonnage)}</td>
+                    <td>${formatNumber(item.total_mining_ritase)}</td>
+                    <td>${formatNumber(item.total_mining_tonnage)}</td>
                     <td class="${item.total_ritase_diff !== 0 ? 'negative-difference' : ''}">${formatNumber(item.total_ritase_diff)}</td>
                     <td class="${item.total_tonnage_diff !== 0 ? 'negative-difference' : ''}">${formatNumber(item.total_tonnage_diff)}</td>
                 `);

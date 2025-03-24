@@ -5,13 +5,14 @@ from ...models.notification_model import Notification
 @login_required
 def get_notifications(request):
     if request.user.is_authenticated:
-        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+        # notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:4]  # Ambil 4 data terbaru
         data = [
             {
                 'id': notif.id,
                 'workflow_title': notif.workflow.title,
-                'message': notif.message,
-                'created_at': notif.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'message'       : notif.message,
+                'created_at'    : notif.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             }
             for notif in notifications
         ]

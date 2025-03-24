@@ -8,13 +8,15 @@ allowed_groups = ['superadmin', 'admin-mgoqa', 'user-mgoqa', 'data-control','adm
                   'manager-mgoqa','superintendent-mgoqa','manager-mining','superintendent-mining'
                   ]
 dashboard_redirects = {
-    'superadmin'    : 'index-mgoqa',
-    'admin-mgoqa'   : 'index-mgoqa',
-    'user-mgoqa'    : 'index-mgoqa',
-    'data-control'  : 'index-mgoqa',
-    'admin-mining'  : 'index-mining',
-    'admin-hauling' : 'index-mining',
-    'admin-ot'      : 'index-selling',
+    'superadmin'     : 'index-mgoqa',
+    'admin-mgoqa'    : 'index-mgoqa',
+    'user-mgoqa'     : 'index-mgoqa',
+    'data-control'   : 'index-mgoqa',
+    'admin-mining'   : 'index-mining',
+    'manager-mining' : 'index-mining',
+    'superintendent-mining' : 'index-mining',
+    'admin-hauling'  : 'index-mining',
+    'admin-ot'       : 'index-selling',
 }
 
 @csrf_exempt
@@ -31,7 +33,6 @@ def login_view(request):
             if user.is_active:
                 login(request, user)
                 
-                # Get user's groups and determine the appropriate redirect
                 user_groups = user.groups.values_list('name', flat=True)  # Get group names
                 for group in user_groups:
                     if group in allowed_groups:

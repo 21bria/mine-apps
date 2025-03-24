@@ -203,8 +203,9 @@ def create_approval(request):
 
 @login_required
 def review_asisten(request):
-    approval_id = request.POST.get('id')
-    approval    = get_object_or_404(Workflow, id=approval_id)
+    approval_id     = request.POST.get('id')
+    approval        = get_object_or_404(Workflow, id=approval_id)
+    date_production = request.POST.get('date_production')
 
     if request.method == 'POST':
 
@@ -265,6 +266,7 @@ def review_asisten(request):
                     notes    = 'Approved by asisten. Moved to manager review.',
                     comment  = comment
                 )
+
 
                 # Kirim email ke user di grup
                 subject = f"Workflow Notification: {approval.title}"
@@ -330,8 +332,8 @@ def review_asisten(request):
 
 @login_required
 def review_manager(request):
-    approval_id = request.POST.get('id')
-    approval    = get_object_or_404(Workflow, id=approval_id)
+    approval_id     = request.POST.get('id')
+    approval        = get_object_or_404(Workflow, id=approval_id)
 
     if request.method == 'POST':
 
@@ -357,6 +359,7 @@ def review_manager(request):
 
             action  = request.POST.get('action')
             comment = request.POST.get('comment')
+            date    = request.POST.get('date')
 
             # Validasi tambahan: jika action adalah "rejected", maka comment harus diisi
             if action == 'rejected' and not comment:
@@ -392,6 +395,10 @@ def review_manager(request):
                     notes    = 'Approved by manager.',
                     comment  = comment
                 )
+
+                # Update OreProduction
+                OreProductions.objects.filter(tgl_production=date).update(status_approval='approved')
+
                 # Kirim email ke user di grup
                 subject = f"Workflow Notification: {approval.title}"
                 message = f"""

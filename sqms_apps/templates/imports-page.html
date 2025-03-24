@@ -89,7 +89,13 @@
                     </div>
                 </div>
                 <div class="panel mt-6">
-                    <h5 class="text-lg font-semibold dark:text-white-light">List Task </h5>
+                    <div class="mb-5 flex items-center justify-between">
+                        <h5 class="text-lg font-semibold dark:text-white-light">List Task</h5>
+                        <div>
+                            <!-- <label class="form-label">Start Date </label> -->
+                            <input class="form-input" type="date" id='filterDate' name='filterDate' value="{{today}}">
+                        </div>
+                    </div>
                     <div class="mt-5 table-responsive">
                         <table id="data_table" class="table table-striped" style="width: 100%">
                             <thead>
@@ -172,6 +178,10 @@
                     "url": data_url,
                     "type": "POST",
                     dataType: 'json',
+                    "data": function (data) {
+                        data.filterDate = $('#filterDate').val();
+                        return data;
+                    },
 
                 },
                 columns: [
@@ -222,8 +232,14 @@
                 ],
 
             });
-            // For Upload File
 
+            /*-- Apply Filter---*/
+            $('#filterDate').change(function () {
+                // table.draw();
+                table.ajax.reload();
+            });
+
+            // For Upload File
             $("#uploadForm").on("submit", function (event) {
                 event.preventDefault();
                 var formData = new FormData(this);

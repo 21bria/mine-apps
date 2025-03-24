@@ -11,7 +11,6 @@ from ...utils.utils import validate_month,validate_year
 from ...models.ore_productions_model import OreProductions
 import itertools
 from django.db.models import Sum
-from datetime import timedelta
 from django.utils.timezone import now
 from django.db.models.functions import TruncWeek
 logger = logging.getLogger(__name__) #tambahkan ini untuk multi database.

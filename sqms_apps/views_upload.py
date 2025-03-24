@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.views.generic import View
 from django.db.models import Q
+from datetime import datetime, timedelta
 from .models.task_model import taskImports
 from .task.imports_assay_mral import import_assay_mral
 from .task.imports_assay_roa import import_assay_roa
@@ -26,9 +27,11 @@ from .utils.permissions import get_dynamic_permissions
 
 @login_required
 def imports_page(request):
+    today = datetime.today()
     permissions = get_dynamic_permissions(request.user)
     context = {
         'permissions': permissions,
+        'today'      : today.strftime('%Y-%m-%d')
     }
     return render(request, 'imports-page.html',context)
 
@@ -66,10 +69,27 @@ class TaskImportsList(View):
                 Q(created_at__icontains=search) |
                 Q(file_name__icontains=search)
             )
-            records_total = data.count()
-            records_filtered = records_total
+        
 
-        # Atur sorting
+        # Filter berdasarkan parameter dari request
+        # filterDate = request.POST.get('filterDate')
+
+        # if filterDate :
+        #     data = data.filter(created_at__date=filterDate)
+
+        # Filter berdasarkan parameter dari request
+        tanggal_teks = request.POST.get("filterDate")
+        
+        try:
+            # Mengonversi teks tanggal menjadi objek datetime.date
+            tanggal = datetime.strptime(tanggal_teks, "%Y-%m-%d").date() if tanggal_teks else datetime.now().date()
+            # Filter data hanya jika tanggal valid
+            data = data.filter(created_at__date=tanggal)
+        except ValueError:
+            # Handle kesalahan parsing tanggal
+            pass  # Atau tambahkan logging jika diperlukan
+
+       # Atur sorting
         if order_dir == 'desc':
             order_by = f'-{data.model._meta.fields[order_column].name}'
         else:
@@ -77,15 +97,24 @@ class TaskImportsList(View):
 
         data = data.order_by(order_by)
 
-        # Atur paginator
-        paginator = Paginator(data, length)
+        # Menghitung jumlah total sebelum filter
+        records_total = data.count()
 
+        # Menerapkan pagination
+        paginator   = Paginator(data, length)
+        total_pages = paginator.num_pages
+
+        # Menghitung jumlah total setelah filter
+        total_records_filtered = paginator.count
+
+        # Atur paginator
         try:
             object_list = paginator.page(start // length + 1).object_list
         except PageNotAnInteger:
             object_list = paginator.page(1).object_list
         except EmptyPage:
-            object_list = paginator.page(paginator.num_pages).object_list
+            object_list = paginator.page(paginator.num_pages).object_lis
+
 
         data = [
             {
@@ -105,8 +134,11 @@ class TaskImportsList(View):
         return {
             'draw'           : draw,
             'recordsTotal'   : records_total,
-            'recordsFiltered': records_filtered,
-            'data'           : data
+            'recordsFiltered': total_records_filtered,
+            'data'           : data,
+            'start'          : start,
+            'length'         : length,
+            'totalPages'     : total_pages,
         }
     
 @csrf_exempt
